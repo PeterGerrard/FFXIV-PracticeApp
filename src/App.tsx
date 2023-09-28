@@ -12,7 +12,7 @@ import {
   createTheme,
   useMediaQuery,
 } from "@mui/material";
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { SetupContext } from "./gamestate/Setup/Setup";
 import { useEffect, useState } from "react";
 import { Setup } from "./gamestate/gameState";
@@ -55,7 +55,9 @@ function App() {
       >
         <CssBaseline />
         <div>
-          <h1 style={{ display: "inline-block" }}>Themis Practice</h1>
+          <Link to="/">
+            <h1 style={{ display: "inline-block" }}>Themis Practice</h1>
+          </Link>
           <Button
             startIcon={<SettingsIcon />}
             onClick={() => setShowSetup(true)}
