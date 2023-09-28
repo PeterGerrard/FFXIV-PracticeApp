@@ -1,12 +1,8 @@
 import { Grow } from "@mui/material";
 import { IGameState, Player } from "../gameState";
 
-export const EndOverlay = (props: {
-  state: { bossColour: "Dark" | "Light" };
-}) => {
-  const { state } = props;
-
-  if (state.bossColour === "Dark") {
+const Explosions = (props: { bossColour: "Dark" | "Light" }) => {
+  if (props.bossColour === "Dark") {
     return (
       <>
         <Grow in timeout={1500}>
@@ -60,6 +56,27 @@ export const EndOverlay = (props: {
   );
 };
 
+const EndOverlay = (props: {
+  bossColour: "Dark" | "Light";
+  player: Player;
+}) => (
+  <>
+    <Explosions bossColour={props.bossColour} />
+    <h1
+      style={{
+        position: "absolute",
+        left: `50%`,
+        top: `50%`,
+        transformOrigin: "0 0",
+        transform: `translate(-50%,0)`,
+        fontSize: "10rem",
+        color: "hotpink",
+      }}
+    >
+      Victory!
+    </h1>
+  </>
+);
 export class EndClass implements IGameState {
   player: Player;
   tetheredTo: Player;
@@ -80,7 +97,9 @@ export class EndClass implements IGameState {
     player: Player;
     tetheredTo: Player;
   };
-  overlay = () => <EndOverlay state={this.state} />;
+  overlay = () => (
+    <EndOverlay bossColour={this.state.bossColour} player={this.state.player} />
+  );
   reduce = () => {
     return this;
   };
