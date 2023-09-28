@@ -16,6 +16,8 @@ import {
 import bossPng from "../DarkAndLight/assets/boss.png";
 import { Ref, forwardRef, useEffect, useRef, useState } from "react";
 import Xarrow, { useXarrow } from "react-xarrows";
+import { Bombs } from "../Bombs";
+import Slide from "@mui/material/Slide";
 
 type LetterOfTheLawGame = IterateGames1<
   LetterOfTheLawPlayer,
@@ -65,20 +67,10 @@ const Add = forwardRef(
 
 const heartOfJudgement: GameLoop1<LetterOfTheLawPlayer, HeartOfJudgementState> =
   {
-    arena: (player, _, isDead, gameState, moveTo) => {
+    arena: (player, _, isDead, gameState, moveTo, animationEnd) => {
       const updateXarrow = useXarrow();
       const playerRef = useRef<HTMLImageElement>(null);
       const addRef = useRef<HTMLImageElement>(null);
-      const [bombSpot1, bombSpot2] =
-        gameState.bossColour == gameState.topBomb
-          ? [
-              [50, 20],
-              [50, 80],
-            ]
-          : [
-              [20, 50],
-              [80, 50],
-            ];
       const innerBox =
         gameState.bossColour === "Dark"
           ? gameState.darkBoxLocation
@@ -133,150 +125,137 @@ const heartOfJudgement: GameLoop1<LetterOfTheLawPlayer, HeartOfJudgementState> =
               path="straight"
             />
           )}
-          <svg
-            height="70%"
-            width="70%"
-            style={{
-              position: "absolute",
-              left: `${bombSpot1[0]}%`,
-              top: `${bombSpot1[1]}%`,
-              transform: "translate(-50%, -50%)",
-            }}
-          >
-            <circle
-              cx="50%"
-              cy="50%"
-              r="50%"
-              fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
-              opacity={0.4}
-            />
-          </svg>
-          <svg
-            height="70%"
-            width="70%"
-            style={{
-              position: "absolute",
-              left: `${bombSpot2[0]}%`,
-              top: `${bombSpot2[1]}%`,
-              transform: "translate(-50%, -50%)",
-            }}
-          >
-            <circle
-              cx="50%"
-              cy="50%"
-              r="50%"
-              fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
-              opacity={0.4}
-            />
-          </svg>
-          <svg
-            height="100%"
-            width="100%"
-            style={{
-              position: "absolute",
-              transformOrigin: "50% 50%",
-              left: "50%",
-              top: "50%",
-              transform: `translate(-50%, -50%) rotate(${rotation(
-                innerBox
-              )}deg)`,
-            }}
-          >
-            <rect
-              height="5%"
-              width="5%"
-              x="11.6875%"
-              y="5%"
-              fill={gameState.bossColour === "Dark" ? "yellow" : "purple"}
-            />
-            <rect
-              height="5%"
-              width="5%"
-              x="35.5625%"
-              y="5%"
-              fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
-            />
-            <rect
-              height="5%"
-              width="5%"
-              x="59.4375%"
-              y="5%"
-              fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
-            />
-            <rect
-              height="5%"
-              width="5%"
-              x="83.3125%"
-              y="5%"
-              fill={gameState.bossColour === "Dark" ? "yellow" : "purple"}
-            />
-            <rect
-              height="100%"
-              width="47.5%"
-              x="26.5%"
-              y="0"
-              fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
-              opacity={0.4}
-            />
-          </svg>
-          <svg
-            height="100%"
-            width="100%"
-            style={{
-              position: "absolute",
-              transformOrigin: "50% 50%",
-              left: "50%",
-              top: "50%",
-              transform: `translate(-50%, -50%) rotate(${rotation(
-                outerBox
-              )}deg)`,
-            }}
-          >
-            <rect
-              height="5%"
-              width="5%"
-              x="11.6875%"
-              y="5%"
-              fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
-            />
-            <rect
-              height="5%"
-              width="5%"
-              x="35.5625%"
-              y="5%"
-              fill={gameState.bossColour === "Dark" ? "yellow" : "purple"}
-            />
-            <rect
-              height="5%"
-              width="5%"
-              x="59.4375%"
-              y="5%"
-              fill={gameState.bossColour === "Dark" ? "yellow" : "purple"}
-            />
-            <rect
-              height="5%"
-              width="5%"
-              x="83.3125%"
-              y="5%"
-              fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
-            />
-            <rect
-              height="100%"
-              width="26.5%"
-              x="0"
-              y="0"
-              fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
-              opacity={0.4}
-            />
-            <rect
-              height="100%"
-              width="26.5%"
-              x="73.5%"
-              y="0"
-              fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
-              opacity={0.4}
-            />
-          </svg>
+
+          {gameState.cast && (
+            <>
+              <Bombs
+                topBomb={gameState.topBomb}
+                bossColour={gameState.bossColour}
+                explode={gameState.cast !== null && gameState.cast.value >= 100}
+                animationEnd={animationEnd}
+              />
+              <svg
+                height="100%"
+                width="100%"
+                style={{
+                  position: "absolute",
+                  transformOrigin: "50% 50%",
+                  left: "50%",
+                  top: "50%",
+                  transform: `translate(-50%, -50%) rotate(${rotation(
+                    innerBox
+                  )}deg)`,
+                }}
+              >
+                <rect
+                  height="5%"
+                  width="5%"
+                  x="11.6875%"
+                  y="5%"
+                  fill={gameState.bossColour === "Dark" ? "yellow" : "purple"}
+                />
+                <rect
+                  height="5%"
+                  width="5%"
+                  x="35.5625%"
+                  y="5%"
+                  fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
+                />
+                <rect
+                  height="5%"
+                  width="5%"
+                  x="59.4375%"
+                  y="5%"
+                  fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
+                />
+                <rect
+                  height="5%"
+                  width="5%"
+                  x="83.3125%"
+                  y="5%"
+                  fill={gameState.bossColour === "Dark" ? "yellow" : "purple"}
+                />
+                <Slide
+                  in={gameState.cast.value >= 100}
+                  timeout={1500}
+                  onEntered={animationEnd}
+                >
+                  <rect
+                    height="100%"
+                    width="47.5%"
+                    x="26.5%"
+                    y="0"
+                    fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
+                    style={{
+                      opacity: 0.4,
+                    }}
+                  />
+                </Slide>
+              </svg>
+              <svg
+                height="100%"
+                width="100%"
+                style={{
+                  position: "absolute",
+                  transformOrigin: "50% 50%",
+                  left: "50%",
+                  top: "50%",
+                  transform: `translate(-50%, -50%) rotate(${rotation(
+                    outerBox
+                  )}deg)`,
+                }}
+              >
+                <rect
+                  height="5%"
+                  width="5%"
+                  x="11.6875%"
+                  y="5%"
+                  fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
+                />
+                <rect
+                  height="5%"
+                  width="5%"
+                  x="35.5625%"
+                  y="5%"
+                  fill={gameState.bossColour === "Dark" ? "yellow" : "purple"}
+                />
+                <rect
+                  height="5%"
+                  width="5%"
+                  x="59.4375%"
+                  y="5%"
+                  fill={gameState.bossColour === "Dark" ? "yellow" : "purple"}
+                />
+                <rect
+                  height="5%"
+                  width="5%"
+                  x="83.3125%"
+                  y="5%"
+                  fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
+                />
+                <Slide in={gameState.cast.value >= 100} timeout={1500}>
+                  <rect
+                    height="100%"
+                    width="26.5%"
+                    x="73.5%"
+                    y="0"
+                    fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
+                    opacity={0.4}
+                  />
+                </Slide>
+                <Slide in={gameState.cast.value >= 100} timeout={1500}>
+                  <rect
+                    height="100%"
+                    width="26.5%"
+                    x="0"
+                    y="0"
+                    fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
+                    opacity={0.4}
+                  />
+                </Slide>
+              </svg>
+            </>
+          )}
         </Arena>
       );
     },
@@ -318,6 +297,9 @@ const heartOfJudgement: GameLoop1<LetterOfTheLawPlayer, HeartOfJudgementState> =
       gameState: HeartOfJudgementState,
       player: LetterOfTheLawPlayer
     ) => {
+      if (!gameState.cast || gameState.cast.value < 100) {
+        return true;
+      }
       const bombs: Position[] =
         gameState.bossColour == gameState.topBomb
           ? [
@@ -353,7 +335,28 @@ const heartOfJudgement: GameLoop1<LetterOfTheLawPlayer, HeartOfJudgementState> =
             player.position[1] - player.position[0] < 0.332;
       return !hitByBomb && !hitByInner && !hitByOuter;
     },
-    nextState: (s) => s,
+    nextState: (s) => {
+      if (s.cast === null) {
+        return {
+          ...s,
+          cast: {
+            name: "Heart of Judgment",
+            value: 50,
+          },
+        };
+      }
+      if (s.cast.value < 100) {
+        return {
+          ...s,
+          cast: {
+            ...s.cast,
+            value: 100,
+          },
+          hasFinished: true,
+        };
+      }
+      return s;
+    },
   };
 
 const pickOne = <T extends unknown>(items: T[]) => {

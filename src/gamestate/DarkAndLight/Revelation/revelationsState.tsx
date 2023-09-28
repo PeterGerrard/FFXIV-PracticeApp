@@ -1,9 +1,9 @@
 import { Position, Player } from "../..";
+import { Bombs } from "../../Bombs";
 import { GameState, Loop, distanceTo } from "../../gameState";
 import { Arena } from "../Arena";
 import { JuryOverrulingState } from "../JuryOverruling/juryOverrulingState";
 import { DarkAndLightPlayer, getDefaultPos } from "../gameState";
-import { RevelationExplosionOverlay } from "./RevelationExplosionOverlay";
 
 const getSafeRevelationSpot = (
   player: DarkAndLightPlayer,
@@ -86,9 +86,10 @@ export const RevelationState: Loop<
       moveTo={moveTo}
     >
       {gameState.cast !== null && (
-        <RevelationExplosionOverlay
-          state={gameState}
-          cast={gameState.cast}
+        <Bombs
+          topBomb={gameState.topBomb}
+          bossColour={gameState.bossColour}
+          explode={gameState.cast && gameState.cast.value >= 100}
           animationEnd={animationEnd}
         />
       )}
