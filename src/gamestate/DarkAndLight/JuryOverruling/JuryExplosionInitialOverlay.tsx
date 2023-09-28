@@ -1,5 +1,5 @@
-import { Grow } from "@mui/material";
 import { useEffect } from "react";
+import { LineAoE } from "../../Mechanics/LineAoE";
 
 export const JuryOverrulingInitialExplosionOverlay = (props: {
   bossColour: "Dark" | "Light";
@@ -18,26 +18,13 @@ export const JuryOverrulingInitialExplosionOverlay = (props: {
     <>
       {[0, 45, 90, 135, 180, 225, 270, 315].map((d) => {
         return (
-          <Grow in timeout={1500} key={d}>
-            <svg
-              height="100%"
-              width="20%"
-              style={{
-                position: "absolute",
-                left: `50%`,
-                top: `50%`,
-                transformOrigin: "0 0",
-                transform: `rotate(${d}deg) translate(-50%,0)`,
-              }}
-            >
-              <rect
-                width={200}
-                height={1000}
-                fill={bossColour === "Dark" ? "purple" : "yellow"}
-                opacity={0.4}
-              />
-            </svg>
-          </Grow>
+          <LineAoE
+            angle={d}
+            onAnimationEnd={() => {}}
+            source={[0.5, 0.5]}
+            width={0.2}
+            colour={bossColour === "Dark" ? "purple" : "yellow"}
+          />
         );
       })}
     </>

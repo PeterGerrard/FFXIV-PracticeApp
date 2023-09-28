@@ -5,7 +5,7 @@ export type LineAoEProps = {
   source: Position;
   angle: number;
   width: number;
-  length: number | undefined;
+  length?: number;
   colour?: string;
   onAnimationEnd: () => void;
 };

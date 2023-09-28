@@ -1,11 +1,25 @@
-import { Position, rotation } from "../../gameState";
+import { InterCardinal, Position, rotation } from "../../gameState";
 import { Add } from "../Add";
 import { Arena } from "../Arena";
 import { LetterOfTheLawPlayer } from "../gameState";
 import { Tower } from "../../Tower";
-import Slide from "@mui/material/Slide";
 import { DismissalOverrulingState, towerPos } from ".";
 import Grow from "@mui/material/Grow";
+import { LineAoE } from "../../Mechanics/LineAoE";
+
+const addLoc = (inter: InterCardinal, offset?: number): Position => {
+  const o = offset ? offset / Math.sqrt(2) : 0;
+  switch (inter) {
+    case "North East":
+      return [0.9 - o, 0.1 - o];
+    case "South East":
+      return [0.9 - o, 0.9 + o];
+    case "South West":
+      return [0.1 + o, 0.9 - o];
+    case "North West":
+      return [0.1 + o, 0.1 - o];
+  }
+};
 
 export const DismissalArena = (props: {
   player: LetterOfTheLawPlayer;
@@ -35,122 +49,45 @@ export const DismissalArena = (props: {
 
       {gameState.stage === "CrossLine" && (
         <>
-          <svg
-            height="100%"
-            width="100%"
-            style={{
-              position: "absolute",
-              transformOrigin: "50% 50%",
-              left: "50%",
-              top: "50%",
-              transform: `translate(-50%, -50%) rotate(${rotation(
-                gameState.darkLocation
-              )}deg)`,
-            }}
-          >
-            <Slide in timeout={1500} onEntered={animationEnd}>
-              <rect
-                height="100%"
-                width="47.5%"
-                x="26.5%"
-                y="0"
-                fill="purple"
-                style={{
-                  opacity: 0.4,
-                }}
-              />
-            </Slide>
-          </svg>
-          <svg
-            height="100%"
-            width="100%"
-            style={{
-              position: "absolute",
-              transformOrigin: "50% 50%",
-              left: "50%",
-              top: "50%",
-              transform: `translate(-50%, -50%) rotate(${rotation(
-                gameState.lightLocation
-              )}deg)`,
-            }}
-          >
-            <Slide in timeout={1500}>
-              <rect
-                height="100%"
-                width="47.5%"
-                x="26.5%"
-                y="0"
-                fill="yellow"
-                style={{
-                  opacity: 0.4,
-                }}
-              />
-            </Slide>
-          </svg>
+          <LineAoE
+            angle={180 + rotation(gameState.darkLocation)}
+            onAnimationEnd={animationEnd}
+            source={addLoc(gameState.darkLocation)}
+            width={0.475}
+            colour="purple"
+          />
+          <LineAoE
+            angle={180 + rotation(gameState.lightLocation)}
+            onAnimationEnd={() => {}}
+            source={addLoc(gameState.lightLocation)}
+            width={0.475}
+            colour="yellow"
+          />
         </>
       )}
       {gameState.stage === "CrossLine2" && (
         <>
-          <svg
-            height="100%"
-            width="100%"
-            style={{
-              position: "absolute",
-              transformOrigin: "50% 50%",
-              left: "50%",
-              top: "50%",
-              transform: `translate(-50%, -50%) rotate(${rotation(
-                gameState.darkLocation
-              )}deg)`,
-            }}
-          >
-            <Slide in timeout={1500} onEntered={animationEnd}>
-              <rect
-                height="100%"
-                width="26.5%"
-                x="73.5%"
-                y="0"
-                fill="purple"
-                opacity={0.4}
-              />
-            </Slide>
-            <Slide in timeout={1500}>
-              <rect
-                height="100%"
-                width="26.5%"
-                x="0"
-                y="0"
-                fill="purple"
-                opacity={0.4}
-              />
-            </Slide>
-          </svg>
-          <svg
-            height="100%"
-            width="100%"
-            style={{
-              position: "absolute",
-              transformOrigin: "50% 50%",
-              left: "50%",
-              top: "50%",
-              transform: `translate(-50%, -50%) rotate(${rotation(
-                gameState.lightLocation
-              )}deg)`,
-            }}
-          >
-            <Slide in timeout={1500}>
-              <rect
-                height="100%"
-                width="60%"
-                x="20%"
-                y="0"
-                fill="yellow"
-                style={{
-                  opacity: 0.4,
-                }}
-              />
-            </Slide>
-          </svg>
+          <LineAoE
+            angle={180 + rotation(gameState.darkLocation)}
+            onAnimationEnd={animationEnd}
+            source={addLoc(gameState.darkLocation, -0.3675)}
+            width={0.265}
+            colour="purple"
+          />
+          <LineAoE
+            angle={180 + rotation(gameState.darkLocation)}
+            onAnimationEnd={() => {}}
+            source={addLoc(gameState.darkLocation, 0.3675)}
+            width={0.265}
+            colour="purple"
+          />
+          <LineAoE
+            angle={180 + rotation(gameState.lightLocation)}
+            onAnimationEnd={() => {}}
+            source={addLoc(gameState.lightLocation)}
+            width={0.475}
+            colour="yellow"
+          />
         </>
       )}
       {gameState.stage === "InOut" && gameState.bossColour === "Dark" && (

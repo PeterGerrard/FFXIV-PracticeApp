@@ -1,4 +1,3 @@
-import { Slide } from "@mui/material";
 import { useRef, useState, useEffect } from "react";
 import Xarrow, { useXarrow } from "react-xarrows";
 import { Position } from "../..";
@@ -10,16 +9,17 @@ import { InterCardinal, rotation } from "../../gameState";
 import { HeartOfJudgementState } from ".";
 import { LineAoE } from "../../Mechanics/LineAoE";
 
-const addLoc = (inter: InterCardinal): Position => {
+const addLoc = (inter: InterCardinal, offset?: number): Position => {
+  const o = offset ? offset / Math.sqrt(2) : 0;
   switch (inter) {
     case "North East":
-      return [0.9, 0.1];
+      return [0.9 - o, 0.1 - o];
     case "South East":
-      return [0.9, 0.9];
+      return [0.9 - o, 0.9 + o];
     case "South West":
-      return [0.1, 0.9];
+      return [0.1 + o, 0.9 - o];
     case "North West":
-      return [0.1, 0.1];
+      return [0.1 + o, 0.1 - o];
   }
 };
 
@@ -133,9 +133,8 @@ export const HeartArena = (props: {
             <LineAoE
               angle={180 + rotation(innerBox)}
               onAnimationEnd={() => {}}
-              length={1}
               source={addLoc(innerBox)}
-              width={0.475}
+              width={0.5}
               colour={
                 props.gameState.bossColour === "Dark" ? "purple" : "yellow"
               }
@@ -182,31 +181,29 @@ export const HeartArena = (props: {
               y="5%"
               fill={props.gameState.bossColour === "Dark" ? "purple" : "yellow"}
             />
-            <Slide in={props.gameState.cast.value >= 100} timeout={1500}>
-              <rect
-                height="100%"
-                width="26.5%"
-                x="73.5%"
-                y="0"
-                fill={
-                  props.gameState.bossColour === "Dark" ? "purple" : "yellow"
-                }
-                opacity={0.4}
-              />
-            </Slide>
-            <Slide in={props.gameState.cast.value >= 100} timeout={1500}>
-              <rect
-                height="100%"
-                width="26.5%"
-                x="0"
-                y="0"
-                fill={
-                  props.gameState.bossColour === "Dark" ? "purple" : "yellow"
-                }
-                opacity={0.4}
-              />
-            </Slide>
           </svg>
+          {props.gameState.cast.value >= 100 && (
+            <>
+              <LineAoE
+                angle={180 + rotation(outerBox)}
+                onAnimationEnd={() => {}}
+                source={addLoc(outerBox, -0.375)}
+                width={0.25}
+                colour={
+                  props.gameState.bossColour === "Dark" ? "purple" : "yellow"
+                }
+              />
+              <LineAoE
+                angle={180 + rotation(outerBox)}
+                onAnimationEnd={() => {}}
+                source={addLoc(outerBox, 0.375)}
+                width={0.25}
+                colour={
+                  props.gameState.bossColour === "Dark" ? "purple" : "yellow"
+                }
+              />
+            </>
+          )}
         </>
       )}
     </Arena>

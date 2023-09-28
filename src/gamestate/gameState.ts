@@ -113,6 +113,7 @@ export const getRandomPos = (): Position => {
   }
   return getRandomPos();
 };
+
 export const rotation = (inter: InterCardinal): number => {
   switch (inter) {
     case "North East":

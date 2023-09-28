@@ -1,57 +1,36 @@
 import { Grow } from "@mui/material";
+import { LineAoE } from "../../Mechanics/LineAoE";
 
 const Explosions = (props: { bossColour: "Dark" | "Light" }) => {
   if (props.bossColour === "Dark") {
     return (
       <>
-        <Grow in timeout={1500}>
-          <svg
-            height="100%"
-            width="100%"
-            style={{
-              position: "absolute",
-              right: `20%`,
-              top: `0%`,
-              transform: `translate(-50%,0)`,
-            }}
-          >
-            <rect width={1000} height={1000} fill="purple" opacity={0.4} />
-          </svg>
-        </Grow>
-        <Grow in timeout={1500}>
-          <svg
-            height="100%"
-            width="100%"
-            style={{
-              position: "absolute",
-              left: `120%`,
-              top: `0%`,
-              transform: `translate(-50%,0)`,
-            }}
-          >
-            <rect width={1000} height={1000} fill="purple" opacity={0.4} />
-          </svg>
-        </Grow>
+        <LineAoE
+          angle={0}
+          onAnimationEnd={() => {}}
+          source={[0.15, 1]}
+          width={0.3}
+          colour="purple"
+        />
+        <LineAoE
+          angle={0}
+          onAnimationEnd={() => {}}
+          source={[0.85, 1]}
+          width={0.3}
+          colour="purple"
+        />
       </>
     );
   }
 
   return (
-    <Grow in timeout={1500}>
-      <svg
-        height="100%"
-        width="60%"
-        style={{
-          position: "absolute",
-          left: `50%`,
-          top: `0%`,
-          transformOrigin: "0 0",
-          transform: `translate(-50%,0)`,
-        }}
-      >
-        <rect width={600} height={2000} fill="yellow" opacity={0.4} />
-      </svg>
-    </Grow>
+    <LineAoE
+      angle={0}
+      onAnimationEnd={() => {}}
+      source={[0.5, 1]}
+      width={0.6}
+      colour="yellow"
+    />
   );
 };
 
