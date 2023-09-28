@@ -22,6 +22,11 @@ import {
 type Role = "Tank" | "Healer" | "DPS";
 type Position = [number, number];
 
+type Player = {
+  role: Role;
+  position: Position;
+};
+
 // helper function to get an element's exact position
 function getPosition(el: any): Position {
   var xPosition = 0;
@@ -51,17 +56,16 @@ type GameState =
     }
   | {
       stage: "positions1";
-      role: Role;
-      position: Position;
+      player: Player;
       tether: "Short" | "Long";
-      tetheredTo: Role;
+      tetheredTo: Player;
       success: number;
       failure: number;
     }
   | {
       stage: "end";
-      role: Role;
-      position: Position;
+      player: Player;
+      tetheredTo: Player;
       success: number;
       failure: number;
     };
@@ -92,39 +96,46 @@ const distanceTo = (source: Position, target: Position) =>
     Math.pow(target[0] - source[0], 2) + Math.pow(target[1] - source[1], 2)
   );
 
+const getCorrectPos = (
+  role: Role,
+  tether: "Short" | "Long",
+  tetheredRole: Role
+): Position => {
+  if (role === "Healer" && tether === "Short") {
+    return MarkerB;
+  }
+  if (role === "Healer" && tether === "Long") {
+    return MarkerC;
+  }
+  if (role === "Tank" && tether === "Short") {
+    return MarkerD;
+  }
+  if (role === "Tank" && tether === "Long") {
+    return MarkerA;
+  }
+  if (tetheredRole === "Tank" && tether === "Short") {
+    return Marker4;
+  }
+  if (tetheredRole === "Tank" && tether === "Long") {
+    return Marker3;
+  }
+  if (tetheredRole === "Healer" && tether === "Short") {
+    return Marker2;
+  }
+  if (tetheredRole === "Healer" && tether === "Long") {
+    return Marker1;
+  }
+  throw "Something went wrong";
+};
+
 const isInCorrectBasicPosition = (
   myRole: Role,
   tether: "Short" | "Long",
   tetheredRole: Role,
   position: Position
 ) => {
-  if (myRole === "Healer" && tether === "Short") {
-    return distanceTo(position, MarkerB) < 100;
-  }
-  if (myRole === "Healer" && tether === "Long") {
-    return distanceTo(position, MarkerC) < 100;
-  }
-  if (myRole === "Tank" && tether === "Short") {
-    return distanceTo(position, MarkerD) < 100;
-  }
-  if (myRole === "Tank" && tether === "Long") {
-    return distanceTo(position, MarkerA) < 100;
-  }
-  if (tetheredRole === "DPS") {
-    throw "Something went wrong";
-  }
-  if (tetheredRole === "Tank" && tether === "Short") {
-    return distanceTo(position, Marker4) < 100;
-  }
-  if (tetheredRole === "Tank" && tether === "Long") {
-    return distanceTo(position, Marker3) < 100;
-  }
-  if (tetheredRole === "Healer" && tether === "Short") {
-    return distanceTo(position, Marker2) < 100;
-  }
-  if (tetheredRole === "Healer" && tether === "Long") {
-    return distanceTo(position, Marker1) < 100;
-  }
+  const correctPos = getCorrectPos(myRole, tether, tetheredRole);
+  return distanceTo(position, correctPos) < 100;
 };
 
 const move = (gameState: GameState, position: Position): GameState => {
@@ -134,29 +145,44 @@ const move = (gameState: GameState, position: Position): GameState => {
     case "setup":
       return {
         stage: "positions1",
-        role: gameState.role,
-        position: position,
+        player: {
+          role: gameState.role,
+          position: position,
+        },
         tether: Math.random() <= 0.5 ? "Short" : "Long",
-        tetheredTo:
-          gameState.role === "DPS"
-            ? Math.random() <= 0.5
-              ? "Tank"
-              : "Healer"
-            : "DPS",
+        tetheredTo: {
+          role:
+            gameState.role === "DPS"
+              ? Math.random() <= 0.5
+                ? "Tank"
+                : "Healer"
+              : "DPS",
+          position: [500, 500],
+        },
         success: 0,
         failure: 0,
       };
     case "positions1":
       const correctPosition = isInCorrectBasicPosition(
-        gameState.role,
+        gameState.player.role,
         gameState.tether,
-        gameState.tetheredTo,
+        gameState.tetheredTo.role,
         position
       );
       return {
         stage: "end",
-        role: gameState.role,
-        position: position,
+        player: {
+          role: gameState.player.role,
+          position: position,
+        },
+        tetheredTo: {
+          role: gameState.tetheredTo.role,
+          position: getCorrectPos(
+            gameState.tetheredTo.role,
+            gameState.tether,
+            gameState.player.role
+          ),
+        },
         success: gameState.success + (correctPosition ? 1 : 0),
         failure: gameState.success + (correctPosition ? 0 : 1),
       };
@@ -166,12 +192,36 @@ const move = (gameState: GameState, position: Position): GameState => {
 const reducer = (gameState: GameState, action: Action): GameState => {
   switch (action.type) {
     case "RESET":
-      return { ...defaultState, role: gameState.role };
+      return {
+        ...defaultState,
+        role:
+          gameState.stage === "setup" ? gameState.role : gameState.player.role,
+      };
     case "MOVE":
       return move(gameState, action.target);
     case "SELECTROLE":
       return { ...defaultState, role: action.role };
   }
+};
+
+const Player = (props: { player: Player }) => {
+  return (
+    <img
+      src={
+        props.player.role === "Healer"
+          ? healerPng
+          : props.player.role === "Tank"
+          ? tankPng
+          : dpsPng
+      }
+      style={{
+        position: "absolute",
+        left: props.player.position[0],
+        top: props.player.position[1],
+        transform: "translate(-50%, -50%)",
+      }}
+    ></img>
+  );
 };
 
 function App() {
@@ -191,17 +241,19 @@ function App() {
       <h1>Themis Practice</h1>
       <div style={{ display: "flex" }}>
         <FormControl>
-          <Select
-            value={state.role}
-            onChange={(c) =>
-              c !== null &&
-              dispatch({ type: "SELECTROLE", role: c.target.value as Role })
-            }
-          >
-            <MenuItem value={"Healer"}>Healer</MenuItem>
-            <MenuItem value={"Tank"}>Tank</MenuItem>
-            <MenuItem value={"DPS"}>DPS</MenuItem>
-          </Select>
+          {state.stage === "setup" && (
+            <Select
+              value={state.role}
+              onChange={(c) =>
+                c !== null &&
+                dispatch({ type: "SELECTROLE", role: c.target.value as Role })
+              }
+            >
+              <MenuItem value={"Healer"}>Healer</MenuItem>
+              <MenuItem value={"Tank"}>Tank</MenuItem>
+              <MenuItem value={"DPS"}>DPS</MenuItem>
+            </Select>
+          )}
           <Button
             onClick={() => dispatch({ type: "RESET" })}
             variant="contained"
@@ -225,23 +277,8 @@ function App() {
           }}
         >
           <img src={arenaPng}></img>
-          {state.stage !== "setup" && (
-            <img
-              src={
-                state.role === "Healer"
-                  ? healerPng
-                  : state.role === "Tank"
-                  ? tankPng
-                  : dpsPng
-              }
-              style={{
-                position: "absolute",
-                left: state.position[0],
-                top: state.position[1],
-                transform: "translate(-50%, -50%)",
-              }}
-            ></img>
-          )}
+          {state.stage !== "setup" && <Player player={state.tetheredTo} />}
+          {state.stage !== "setup" && <Player player={state.player} />}
         </div>
         <div>
           Success: {state.success}
@@ -252,7 +289,7 @@ function App() {
             <>
               Length: {state.tether}
               <br />
-              Partner: {state.tetheredTo}
+              Partner: {state.tetheredTo.role}
               <br />
             </>
           )}
