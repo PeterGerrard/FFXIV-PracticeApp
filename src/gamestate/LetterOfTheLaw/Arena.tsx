@@ -24,6 +24,7 @@ export const Arena = forwardRef(
           position: "relative",
           display: "inline-block",
           height: "100%",
+          overflow: "hidden",
         }}
         onClick={(e) => {
           const [xOff, yOff] = getPosition(e.currentTarget);
