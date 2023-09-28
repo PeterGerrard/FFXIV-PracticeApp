@@ -5,8 +5,6 @@ import {
   distanceTo,
   MarkerC,
   MarkerA,
-  Marker1,
-  Marker3,
   MarkerB,
   MarkerD,
 } from "../gameState";

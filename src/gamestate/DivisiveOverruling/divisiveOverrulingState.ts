@@ -1,13 +1,4 @@
-import {
-  GameState,
-  Position,
-  Action,
-  distanceTo,
-  MarkerC,
-  MarkerA,
-  Marker1,
-  Marker3,
-} from "../gameState";
+import { GameState, Position, Action, Marker1, Marker3 } from "../gameState";
 
 type DivisiveOverrulingGameState = GameState & {
   stage: "divisive-overruling";
