@@ -8,9 +8,9 @@ import {
   defaultReducer,
   isTetherSafe,
 } from "./gameState";
-import { setupReducer } from "./setupState";
+import { setupReducer } from "./Setup/setupState";
 import { positions1Reducer } from "./positions1State";
-import { revalationReducer } from "./revelationsState";
+import { revalationReducer } from "./Revelation/revelationsState";
 
 export type { Role, Position, Player, GameState, Action };
 export { isTetherSafe };

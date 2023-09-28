@@ -1,6 +1,6 @@
-import { Action, GameState, getRandomPos } from "./gameState";
+import { Action, GameState, getRandomPos } from "../gameState";
 
-type SetupGameState = GameState & { stage: "setup" };
+export type SetupGameState = GameState & { stage: "setup" };
 
 export const setupReducer = (
   gameState: SetupGameState,

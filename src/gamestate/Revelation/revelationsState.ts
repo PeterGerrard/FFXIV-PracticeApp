@@ -1,6 +1,6 @@
-import { GameState, Position, Action, distanceTo } from "./gameState";
+import { GameState, Position, Action, distanceTo } from "../gameState";
 
-type RevelationGameState = GameState & {
+export type RevelationGameState = GameState & {
   stage: "revelation";
 };
 
