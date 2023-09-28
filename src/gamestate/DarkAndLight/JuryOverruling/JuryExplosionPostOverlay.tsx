@@ -40,8 +40,8 @@ export const JuryOverrulingPostExplosionOverlay = (props: {
           <Grow in timeout={1500} key={i}>
             {bossColour === "Dark" ? (
               <svg
-                height="400"
-                width="400"
+                height="40%"
+                width="40%"
                 style={{
                   position: "absolute",
                   left: `${d[0] * 100}%`,
@@ -50,18 +50,18 @@ export const JuryOverrulingPostExplosionOverlay = (props: {
                 }}
               >
                 <circle
-                  cx={200}
-                  cy={200}
-                  r={112.5}
-                  strokeWidth={125}
+                  cx="50%"
+                  cy="50%"
+                  r="28.125%"
+                  strokeWidth="31.25%"
                   stroke="purple"
                   opacity={0.4}
                 />
               </svg>
             ) : (
               <svg
-                height="200"
-                width="200"
+                height="20%"
+                width="20%"
                 style={{
                   position: "absolute",
                   left: `${d[0] * 100}%`,
@@ -69,14 +69,7 @@ export const JuryOverrulingPostExplosionOverlay = (props: {
                   transform: `translate(-50%,-50%)`,
                 }}
               >
-                <circle
-                  cx={100}
-                  cy={100}
-                  r={100}
-                  strokeWidth={50}
-                  fill="yellow"
-                  opacity={0.4}
-                />
+                <circle cx="50%" cy="50%" r="50%" fill="yellow" opacity={0.4} />
               </svg>
             )}
           </Grow>

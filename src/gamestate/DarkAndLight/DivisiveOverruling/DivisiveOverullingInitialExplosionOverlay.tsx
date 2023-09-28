@@ -8,8 +8,8 @@ export const DisvisiveOverrulingInitialExplosionOverlay = (props: {
   return (
     <Grow in timeout={1500}>
       <svg
-        height="1000"
-        width="400"
+        height="100%"
+        width="40%"
         style={{
           position: "absolute",
           left: `50%`,
@@ -19,8 +19,8 @@ export const DisvisiveOverrulingInitialExplosionOverlay = (props: {
         }}
       >
         <rect
-          width={400}
-          height={2000}
+          width="100%"
+          height="100%"
           fill={bossColour === "Dark" ? "purple" : "yellow"}
           opacity={0.4}
         />

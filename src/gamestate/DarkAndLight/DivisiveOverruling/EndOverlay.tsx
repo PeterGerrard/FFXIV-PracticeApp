@@ -6,8 +6,8 @@ const Explosions = (props: { bossColour: "Dark" | "Light" }) => {
       <>
         <Grow in timeout={1500}>
           <svg
-            height="1000"
-            width="1000"
+            height="100%"
+            width="100%"
             style={{
               position: "absolute",
               right: `20%`,
@@ -20,8 +20,8 @@ const Explosions = (props: { bossColour: "Dark" | "Light" }) => {
         </Grow>
         <Grow in timeout={1500}>
           <svg
-            height="1000"
-            width="1000"
+            height="100%"
+            width="100%"
             style={{
               position: "absolute",
               left: `120%`,
@@ -39,8 +39,8 @@ const Explosions = (props: { bossColour: "Dark" | "Light" }) => {
   return (
     <Grow in timeout={1500}>
       <svg
-        height="1000"
-        width="600"
+        height="100%"
+        width="60%"
         style={{
           position: "absolute",
           left: `50%`,

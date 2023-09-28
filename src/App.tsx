@@ -40,8 +40,9 @@ function App() {
           <div
             style={{
               display: "inline-block",
-              width: "1000px",
-              height: "1000px",
+              width: "75vh",
+              height: "75vh",
+              position: "relative",
             }}
           >
             {arena()}

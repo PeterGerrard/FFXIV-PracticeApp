@@ -23,8 +23,8 @@ export const RevelationExplosionOverlay = (props: {
             }}
           >
             <svg
-              height="700"
-              width="700"
+              height="70%"
+              width="70%"
               style={{
                 position: "absolute",
                 left: `50%`,
@@ -33,9 +33,9 @@ export const RevelationExplosionOverlay = (props: {
               }}
             >
               <circle
-                cx="350"
-                cy="350"
-                r="350"
+                cx="50%"
+                cy="50%"
+                r="50%"
                 fill={state.bossColour === "Dark" ? "purple" : "yellow"}
                 opacity={0.4}
               />
@@ -43,8 +43,8 @@ export const RevelationExplosionOverlay = (props: {
           </Grow>
           <Grow in={cast !== null && cast.value >= 100} timeout={1500}>
             <svg
-              height="700"
-              width="700"
+              height="70%"
+              width="70%"
               style={{
                 position: "absolute",
                 left: `50%`,
@@ -53,9 +53,9 @@ export const RevelationExplosionOverlay = (props: {
               }}
             >
               <circle
-                cx="350"
-                cy="350"
-                r="350"
+                cx="50%"
+                cy="50%"
+                r="50%"
                 fill={state.bossColour === "Dark" ? "purple" : "yellow"}
                 opacity={0.4}
               />
@@ -72,8 +72,8 @@ export const RevelationExplosionOverlay = (props: {
             }}
           >
             <svg
-              height="700"
-              width="700"
+              height="70%"
+              width="70%"
               style={{
                 position: "absolute",
                 left: `20%`,
@@ -82,9 +82,9 @@ export const RevelationExplosionOverlay = (props: {
               }}
             >
               <circle
-                cx="350"
-                cy="350"
-                r="350"
+                cx="50%"
+                cy="50%"
+                r="50%"
                 fill={state.bossColour === "Dark" ? "purple" : "yellow"}
                 opacity={0.4}
               />
@@ -92,8 +92,8 @@ export const RevelationExplosionOverlay = (props: {
           </Grow>
           <Grow in={cast !== null && cast.value >= 100} timeout={1500}>
             <svg
-              height="700"
-              width="700"
+              height="70%"
+              width="70%"
               style={{
                 position: "absolute",
                 left: `80%`,
@@ -102,9 +102,9 @@ export const RevelationExplosionOverlay = (props: {
               }}
             >
               <circle
-                cx="350"
-                cy="350"
-                r="350"
+                cx="50%"
+                cy="50%"
+                r="50%"
                 fill={state.bossColour === "Dark" ? "purple" : "yellow"}
                 opacity={0.4}
               />

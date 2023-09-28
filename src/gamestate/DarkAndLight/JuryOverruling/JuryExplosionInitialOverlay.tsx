@@ -20,8 +20,8 @@ export const JuryOverrulingInitialExplosionOverlay = (props: {
         return (
           <Grow in timeout={1500} key={d}>
             <svg
-              height="1000"
-              width="200"
+              height="100%"
+              width="20%"
               style={{
                 position: "absolute",
                 left: `50%`,

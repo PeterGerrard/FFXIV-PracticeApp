@@ -81,7 +81,7 @@ export const RevelationState: Loop<
     <Arena
       player={player}
       otherPlayer={otherPlayer}
-      bossColour={gameState.bossColour}
+      bossColour={gameState.cast ? gameState.bossColour : null}
       isDead={isDead}
       moveTo={moveTo}
     >
