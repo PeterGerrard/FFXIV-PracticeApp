@@ -9,6 +9,7 @@ import {
   MarkerB,
   MarkerC,
   MarkerD,
+  Player,
   Position,
   Role,
   distanceTo,
@@ -51,7 +52,11 @@ const getCorrectPos = (
 const move = (
   gameState: Positions3GameState,
   position: Position
-): GameState => {
+): GameState & {
+  player: Player;
+  tetheredTo: Player;
+  bossColour: "Light" | "Dark";
+} => {
   const safeLocation = getCorrectPos(
     gameState.player.role,
     gameState.player.debuff === gameState.tetheredTo.debuff ? "Long" : "Short",

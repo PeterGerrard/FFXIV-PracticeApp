@@ -77,6 +77,14 @@ export type GameState =
       setup: Setup;
     }
   | {
+      stage: "divisive-overruling-initial-explosion";
+      player: Player;
+      tetheredTo: Player;
+      bossColour: "Light" | "Dark";
+      setup: Setup;
+      nextState: GameState;
+    }
+  | {
       stage: "divisive-overruling";
       player: Player;
       tetheredTo: Player;
@@ -84,15 +92,17 @@ export type GameState =
       setup: Setup;
     }
   | {
-      stage: "divisive-overruling-dark";
+      stage: "divisive-overruling-post-explosion";
       player: Player;
       tetheredTo: Player;
+      bossColour: "Light" | "Dark";
       setup: Setup;
     }
   | {
       stage: "end";
       player: Player;
       tetheredTo: Player;
+      bossColour: "Light" | "Dark";
       setup: Setup;
     }
   | {

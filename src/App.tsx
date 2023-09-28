@@ -20,6 +20,8 @@ import { DeathOverlay } from "./gamestate/Death/DeathOverlay";
 import { RevelationExplosionOverlay } from "./gamestate/Revelation/RevelationExplosionOverlay";
 import { JuryOverrulingInitialExplosionOverlay } from "./gamestate/JuryOverruling/JuryExplosionInitialOverlay";
 import { JuryOverrulingPostExplosionOverlay } from "./gamestate/JuryOverruling/JuryExplosionPostOverlay";
+import { DisvisiveOverrulingInitialExplosionOverlay } from "./gamestate/DivisiveOverruling/DivisiveOverullingInitialExplosionOverlay";
+import { EndOverlay } from "./gamestate/DivisiveOverruling/EndOverlay";
 
 const CastBar = (props: {
   stage: GameState["stage"];
@@ -90,7 +92,7 @@ const CastBar = (props: {
       );
     case "positions3":
       return <></>;
-    case "divisive-overruling":
+    case "divisive-overruling-initial-explosion":
       return (
         <>
           <h1>Divisive Overruling</h1>
@@ -102,7 +104,19 @@ const CastBar = (props: {
           />
         </>
       );
-    case "divisive-overruling-dark":
+    case "divisive-overruling":
+      return (
+        <>
+          <h1>Divisive Overruling</h1>
+          <LinearProgress
+            sx={{ height: "16px" }}
+            color="warning"
+            variant="determinate"
+            value={100}
+          />
+        </>
+      );
+    case "divisive-overruling-post-explosion":
       return (
         <>
           <h1>Divisive Overruling</h1>
@@ -179,6 +193,13 @@ function App() {
                   dispatch={dispatch}
                 />
               )}
+              {state.stage == "divisive-overruling-initial-explosion" && (
+                <DisvisiveOverrulingInitialExplosionOverlay
+                  state={state}
+                  dispatch={dispatch}
+                />
+              )}
+              {state.stage == "end" && <EndOverlay state={state} />}
               {state.stage == "dead" && <DeathOverlay state={state} />}
             </>
           </Arena>

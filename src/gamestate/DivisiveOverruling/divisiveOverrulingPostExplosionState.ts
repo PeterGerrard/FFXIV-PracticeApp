@@ -9,12 +9,39 @@ import {
   MarkerD,
 } from "../gameState";
 
-type DivisiveOverrulingDarkGameState = GameState & {
-  stage: "divisive-overruling-dark";
+export type DivisiveOverrulingPostExplosionGameState = GameState & {
+  stage: "divisive-overruling-post-explosion";
 };
 
-const getSafeSpot = (gameState: DivisiveOverrulingDarkGameState): Position => {
+const getSafeSpot = (
+  gameState: DivisiveOverrulingPostExplosionGameState
+): Position => {
   const short = gameState.player.debuff !== gameState.tetheredTo.debuff;
+  if (gameState.bossColour === "Light") {
+    const leftSafe: Position = [0.2, 0.5];
+    const rightSafe: Position = [0.8, 0.5];
+    if (
+      short &&
+      (gameState.player.role === "Healer" ||
+        gameState.tetheredTo.role === "Healer")
+    ) {
+      return rightSafe;
+    }
+    if (
+      !short &&
+      (gameState.player.role === "Tank" ||
+        gameState.tetheredTo.role === "Healer")
+    ) {
+      return rightSafe;
+    }
+
+    if (short) {
+      return leftSafe;
+    }
+
+    return leftSafe;
+  }
+
   if (
     short &&
     (gameState.player.role === "Healer" ||
@@ -37,7 +64,7 @@ const getSafeSpot = (gameState: DivisiveOverrulingDarkGameState): Position => {
 };
 
 const move = (
-  gameState: DivisiveOverrulingDarkGameState,
+  gameState: DivisiveOverrulingPostExplosionGameState,
   position: Position
 ): GameState => {
   const safeLocation = getSafeSpot(gameState);
@@ -56,6 +83,7 @@ const move = (
           tetheredTo: gameState.player,
         }),
       },
+      bossColour: gameState.bossColour,
       setup: gameState.setup,
     };
   } else {
@@ -82,8 +110,8 @@ const move = (
   }
 };
 
-export const divisiveOverrulingDarkReducer = (
-  gameState: DivisiveOverrulingDarkGameState,
+export const divisiveOverrulingPostExplosionReducer = (
+  gameState: DivisiveOverrulingPostExplosionGameState,
   action: Action
 ): GameState | undefined => {
   if (action.type === "MOVE") {

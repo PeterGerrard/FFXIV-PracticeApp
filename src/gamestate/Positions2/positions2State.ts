@@ -79,7 +79,7 @@ const move = (
           gameState.player.role
         ),
       },
-      bossColour: Math.random() < 0.5 ? "Dark" : "Light",
+      bossColour: gameState.bossColour,
       setup: gameState.setup,
     };
   } else {

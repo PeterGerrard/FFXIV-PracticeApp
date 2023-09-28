@@ -1,7 +1,17 @@
-import { GameState, Position, Action, Marker1, Marker3 } from "../gameState";
+import {
+  GameState,
+  Position,
+  Action,
+  Marker1,
+  Marker3,
+  Player,
+} from "../gameState";
 
 type DivisiveOverrulingGameState = GameState & {
   stage: "divisive-overruling";
+};
+export type DivisiveOverrulingInitialExplosionGameState = GameState & {
+  stage: "divisive-overruling-initial-explosion";
 };
 
 const getSafeSpot = (gameState: DivisiveOverrulingGameState): Position => {
@@ -40,12 +50,15 @@ const getSafeSpot = (gameState: DivisiveOverrulingGameState): Position => {
 const move = (
   gameState: DivisiveOverrulingGameState,
   position: Position
-): GameState => {
+): GameState & {
+  player: Player;
+  tetheredTo: Player;
+  bossColour: "Light" | "Dark";
+} => {
   const safeLocation = getSafeSpot(gameState);
   if (Math.abs(0.5 - position[0]) > 0.2) {
     return {
-      stage:
-        gameState.bossColour === "Dark" ? "divisive-overruling-dark" : "end",
+      stage: "divisive-overruling-post-explosion",
       player: {
         ...gameState.player,
         position: position,
@@ -58,6 +71,7 @@ const move = (
           tetheredTo: gameState.player,
         }),
       },
+      bossColour: gameState.bossColour,
       setup: gameState.setup,
     };
   } else {
@@ -78,7 +92,7 @@ const move = (
         }),
       },
       safeLocation: safeLocation,
-      bossColour: null,
+      bossColour: gameState.bossColour,
       setup: gameState.setup,
     };
   }
@@ -89,7 +103,26 @@ export const divisiveOverrulingReducer = (
   action: Action
 ): GameState | undefined => {
   if (action.type === "MOVE") {
-    return move(gameState, action.target);
+    const nextState = move(gameState, action.target);
+
+    return {
+      ...gameState,
+      stage: "divisive-overruling-initial-explosion",
+      player: nextState.player,
+      tetheredTo: nextState.tetheredTo,
+      nextState,
+      bossColour: nextState.bossColour,
+    };
+  }
+  return undefined;
+};
+
+export const divisiveOverrulingInitialExplosionReducer = (
+  gameState: DivisiveOverrulingInitialExplosionGameState,
+  action: Action
+): GameState | undefined => {
+  if (action.type === "ANIMATIONEND") {
+    return gameState.nextState;
   }
   return undefined;
 };
