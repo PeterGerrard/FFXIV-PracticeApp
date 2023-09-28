@@ -4,16 +4,11 @@ import {
   Action,
   distanceTo,
   Player,
-  IGameState,
-  Cast,
   getDefaultPos,
+  GameState,
+  Loop,
 } from "../gameState";
 import { RevelationExplosionOverlay } from "./RevelationExplosionOverlay";
-
-export type RevelationGameState = {
-  bossColour: "Dark" | "Light";
-  topBomb: "Dark" | "Light";
-};
 
 const getSafeRevelationSpot = (
   player: Player,
@@ -70,76 +65,64 @@ const isSafe = (
   return bombLocations.every((p) => distanceTo(player.position, p) > 0.4);
 };
 
-export class RevelationState implements IGameState {
-  bossColour: "Dark" | "Light" | null;
-  cast: Cast | null;
-  constructor(
-    cast?: Cast,
-    state?: RevelationGameState,
-    bossColour?: "Dark" | "Light"
-  ) {
-    this.cast = cast ?? null;
-    this.state = state ?? {
-      bossColour: Math.random() ? "Dark" : "Light",
-      topBomb: Math.random() ? "Dark" : "Light",
-    };
-    this.bossColour = bossColour ?? null;
-  }
-  private state: RevelationGameState;
-  progress = () => {
-    if (this.cast === null) {
-      this.cast = {
-        name: "Arcane Revelation",
-        value: 50,
-      };
-      this.bossColour = this.state.bossColour;
-    } else {
-      this.cast.value += 50;
-    }
-  };
-  overlay = (dispatch: (action: Action) => void) => {
-    return this.cast !== null ? (
+export type RevelationGameState = GameState & {
+  bossColour: "Dark" | "Light";
+  topBomb: "Dark" | "Light";
+};
+
+export const RevelationState: Loop<
+  RevelationGameState,
+  typeof JuryOverrulingState
+> = {
+  overlay: (
+    gameState: RevelationGameState,
+    dispatch: (action: Action) => void
+  ) => {
+    return gameState.cast !== null ? (
       <RevelationExplosionOverlay
-        state={this.state}
-        cast={this.cast}
+        state={gameState}
+        cast={gameState.cast}
         dispatch={dispatch}
       />
     ) : (
       <></>
     );
-  };
-  nextState = () => {
-    if (this.cast === null) {
-      return new RevelationState(
-        {
+  },
+  nextState: (gameState: RevelationGameState) => {
+    if (gameState.cast === null) {
+      return {
+        ...gameState,
+        cast: {
           name: "Arcane Revelation",
           value: 50,
         },
-        this.state,
-        this.state.bossColour
-      );
-    } else if (this.cast.value < 100) {
-      return new RevelationState(
-        {
+      };
+    } else if (gameState.cast.value < 100) {
+      return {
+        ...gameState,
+        cast: {
           name: "Arcane Revelation",
-          value: this.cast.value + 50,
+          value: 100,
         },
-        this.state,
-        this.state.bossColour
-      );
+        hasFinished: true,
+      };
     }
-    return new JuryOverrulingState();
-  };
-  isSafe = (player: Player) =>
-    this.bossColour === null ||
-    this.cast === null ||
-    this.cast.value < 100 ||
-    isSafe(player, this.bossColour, this.state.topBomb);
-  getSafeSpot = (player: Player): Position => {
-    return this.bossColour === null ||
-      this.cast === null ||
-      this.cast.value < 100
+    return {
+      ...gameState,
+      hasFinished: true,
+    };
+  },
+  isSafe: (gameState: RevelationGameState, player: Player) =>
+    gameState.bossColour === null ||
+    gameState.cast === null ||
+    gameState.cast.value < 100 ||
+    isSafe(player, gameState.bossColour, gameState.topBomb),
+  getSafeSpot: (gameState: RevelationGameState, player: Player): Position => {
+    return gameState.bossColour === null ||
+      gameState.cast === null ||
+      gameState.cast.value < 100
       ? getDefaultPos(player)
-      : getSafeRevelationSpot(player, this.bossColour, this.state.topBomb);
-  };
-}
+      : getSafeRevelationSpot(player, gameState.bossColour, gameState.topBomb);
+  },
+  nextLoop: JuryOverrulingState,
+};

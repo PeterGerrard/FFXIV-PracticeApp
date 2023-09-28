@@ -3,21 +3,14 @@ import {
   Marker1,
   Marker3,
   Player,
-  IGameState,
-  Cast,
   getDefaultPos,
   MarkerB,
   MarkerD,
+  GameState,
+  FinalLoop,
 } from "../gameState";
 import { DisvisiveOverrulingInitialExplosionOverlay } from "./DivisiveOverullingInitialExplosionOverlay";
 import { EndOverlay } from "./EndOverlay";
-
-export type DivisiveOverrulingGameState = {
-  bossColour: "Dark" | "Light";
-};
-export type DivisiveOverrulingInitialExplosionGameState = {
-  bossColour: "Dark" | "Light";
-};
 
 const getSafeSpot1 = (
   player: Player,
@@ -93,73 +86,81 @@ const isSafe2 = (player: Player, bossColour: "Dark" | "Light") => {
   );
 };
 
-export class DivisiveOverrulingState implements IGameState {
-  bossColour: "Dark" | "Light" | null;
-  cast: Cast | null;
+export type DivisiveOverrulingGameState = GameState & {
   stage: "Before" | "Explosion1" | "Explosion2";
-  constructor(
-    bossColour?: "Dark" | "Light",
-    cast?: Cast,
-    stage?: DivisiveOverrulingState["stage"]
-  ) {
-    this.bossColour = bossColour ?? null;
-    this.cast = cast ?? null;
-    this.stage = stage ?? "Before";
-  }
-  overlay = () => (
+};
+
+export const initialDivisiveState: DivisiveOverrulingGameState = {
+  bossColour: null,
+  cast: null,
+  hasFinished: false,
+  stage: "Before",
+};
+
+export const DivisiveOverrulingState: FinalLoop<DivisiveOverrulingGameState> = {
+  overlay: (gameState: DivisiveOverrulingGameState) => (
     <>
-      {this.stage === "Explosion1" && (
+      {gameState.stage === "Explosion1" && (
         <DisvisiveOverrulingInitialExplosionOverlay
-          bossColour={this.bossColour!}
+          bossColour={gameState.bossColour!}
         />
       )}
-      {this.stage === "Explosion2" && (
-        <EndOverlay bossColour={this.bossColour!} />
+      {gameState.stage === "Explosion2" && (
+        <EndOverlay bossColour={gameState.bossColour!} />
       )}
     </>
-  );
-  nextState = () => {
-    if (this.cast === null) {
-      return new DivisiveOverrulingState(
-        Math.random() < 0.5 ? "Dark" : "Light",
-        {
+  ),
+  nextState: (
+    gameState: DivisiveOverrulingGameState
+  ): DivisiveOverrulingGameState => {
+    if (gameState.cast === null) {
+      return {
+        bossColour: Math.random() < 0.5 ? "Dark" : "Light",
+        cast: {
           name: "Divisive Overruling",
           value: 50,
         },
-        "Before"
-      );
+        stage: "Before",
+        hasFinished: false,
+      };
     }
-    if (this.stage === "Before") {
-      return new DivisiveOverrulingState(
-        this.bossColour!,
-        {
+    if (gameState.stage === "Before") {
+      return {
+        ...gameState,
+        cast: {
           name: "Divisive Overruling",
           value: 100,
         },
-        "Explosion1"
-      );
+        stage: "Explosion1",
+      };
     }
-    if (this.stage === "Explosion1") {
-      return new DivisiveOverrulingState(
-        this.bossColour!,
-        this.cast,
-        "Explosion2"
-      );
+    if (gameState.stage === "Explosion1") {
+      return {
+        ...gameState,
+        stage: "Explosion2",
+      };
     }
-    return this;
-  };
-  isSafe = (player: Player) => {
-    if (!this.bossColour) return true;
-    if (this.stage === "Explosion1") return isSafe1(player);
-    if (this.stage === "Explosion2") return isSafe2(player, this.bossColour);
+    return {
+      ...gameState,
+      hasFinished: true,
+    };
+  },
+  isSafe: (gameState: DivisiveOverrulingGameState, player: Player) => {
+    if (!gameState.bossColour) return true;
+    if (gameState.stage === "Explosion1") return isSafe1(player);
+    if (gameState.stage === "Explosion2")
+      return isSafe2(player, gameState.bossColour);
     return true;
-  };
-  getSafeSpot = (player: Player): Position => {
-    if (!this.bossColour) return getDefaultPos(player);
-    if (this.stage === "Explosion1")
-      return getSafeSpot1(player, this.bossColour);
-    if (this.stage === "Explosion2")
-      return getSafeSpot2(player, this.bossColour);
+  },
+  getSafeSpot: (
+    gameState: DivisiveOverrulingGameState,
+    player: Player
+  ): Position => {
+    if (!gameState.bossColour) return getDefaultPos(player);
+    if (gameState.stage === "Explosion1")
+      return getSafeSpot1(player, gameState.bossColour);
+    if (gameState.stage === "Explosion2")
+      return getSafeSpot2(player, gameState.bossColour);
     return getDefaultPos(player);
-  };
-}
+  },
+};

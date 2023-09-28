@@ -15,10 +15,9 @@ import {
 import { useGameState } from "./gamestate";
 import { Arena } from "./Arena";
 import { SetupForm } from "./gamestate/Setup/SetupForm";
-import { DeathOverlay } from "./gamestate/Death/DeathOverlay";
 
 function App() {
-  const [state, setupState, dispatch] = useGameState();
+  const [state, overlay, setupState, dispatch] = useGameState();
 
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
@@ -52,15 +51,7 @@ function App() {
               }
               isDead={state.isDead}
             >
-              {state.isDead ? (
-                <DeathOverlay
-                  safeLocation={state.gameState.getSafeSpot(state.player)}
-                >
-                  {state.gameState.overlay(() => {})}
-                </DeathOverlay>
-              ) : (
-                state.gameState.overlay(dispatch)
-              )}
+              {overlay()}
             </Arena>
             )
           </div>

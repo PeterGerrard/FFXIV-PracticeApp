@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "react";
-import { IGameState, Player, Position } from "../gameState";
+import { Position } from "../gameState";
 
 export const DeathOverlay = (
   props: PropsWithChildren<{ safeLocation: Position }>
@@ -28,32 +28,3 @@ export const DeathOverlay = (
     </svg>
   </>
 );
-
-export class DeathClass {
-  player: Player;
-  otherPlayer: Player;
-  bossColour: "Dark" | "Light" | null;
-  private underlyingState: IGameState;
-  cast = null;
-  constructor(
-    player: Player,
-    otherPlayer: Player,
-    underlyingState: IGameState
-  ) {
-    this.player = player;
-    this.otherPlayer = otherPlayer;
-    this.bossColour = underlyingState.bossColour;
-    this.underlyingState = underlyingState;
-  }
-  overlay = () => (
-    <DeathOverlay safeLocation={this.getSafeSpot(this.player)}>
-      {this.underlyingState.overlay(() => {})}
-    </DeathOverlay>
-  );
-  reduce = () => {
-    return this;
-  };
-  isSafe = () => false;
-  getSafeSpot = (player: Player) => this.underlyingState.getSafeSpot(player);
-  nextState = () => this;
-}

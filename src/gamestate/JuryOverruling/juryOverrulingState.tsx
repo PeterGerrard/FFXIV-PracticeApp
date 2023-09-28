@@ -8,9 +8,9 @@ import {
   Marker1,
   Marker3,
   Player,
-  IGameState,
-  Cast,
   getDefaultPos,
+  GameState,
+  Loop,
 } from "../gameState";
 import { JuryOverrulingInitialExplosionOverlay } from "./JuryExplosionInitialOverlay";
 import { JuryOverrulingPostExplosionOverlay } from "./JuryExplosionPostOverlay";
@@ -55,68 +55,91 @@ const getSafeSpot = (
   }
 };
 
-export class JuryOverrulingState implements IGameState {
-  bossColour: "Dark" | "Light" | null;
-  cast: Cast | null;
+export type JuryOverrulingGameState = GameState & {
   explosions: "Before" | "Lines" | "Move" | "AOE";
-  constructor(
-    bossColour?: "Dark" | "Light",
-    cast?: Cast,
-    explosions?: JuryOverrulingState["explosions"]
-  ) {
-    this.bossColour = bossColour ?? null;
-    this.cast = cast ?? null;
-    this.explosions = explosions ?? "Before";
-  }
-  overlay = (dispatch: (action: Action) => void) => (
+};
+
+export const initialJuryOverrullingState: JuryOverrulingGameState = {
+  bossColour: null,
+  cast: null,
+  explosions: "Before",
+  hasFinished: false,
+};
+
+export const JuryOverrulingState: Loop<
+  JuryOverrulingGameState,
+  typeof DivisiveOverrulingState
+> = {
+  overlay: (
+    gameState: JuryOverrulingGameState,
+    dispatch: (action: Action) => void
+  ) => (
     <>
-      {this.bossColour && this.explosions === "Lines" && (
+      {gameState.bossColour && gameState.explosions === "Lines" && (
         <JuryOverrulingInitialExplosionOverlay
-          bossColour={this.bossColour}
+          bossColour={gameState.bossColour}
           dispatch={dispatch}
         />
       )}
-      {this.bossColour && this.explosions === "AOE" && (
+      {gameState.bossColour && gameState.explosions === "AOE" && (
         <JuryOverrulingPostExplosionOverlay
-          bossColour={this.bossColour}
+          bossColour={gameState.bossColour}
           dispatch={dispatch}
         />
       )}
     </>
-  );
-  nextState = () => {
-    if (this.cast === null) {
-      return new JuryOverrulingState(
-        Math.random() < 0.5 ? "Dark" : "Light",
-        {
+  ),
+  nextState: (gameState: JuryOverrulingGameState): JuryOverrulingGameState => {
+    if (gameState.cast === null) {
+      return {
+        bossColour: Math.random() < 0.5 ? "Dark" : "Light",
+        cast: {
           name: "Jury Overruling",
           value: 100,
         },
-        "Lines"
-      );
+        explosions: "Lines",
+        hasFinished: false,
+      };
     }
-    if (this.explosions === "Lines") {
-      return new JuryOverrulingState(this.bossColour!, this.cast, "Move");
+    if (gameState.explosions === "Lines") {
+      return {
+        ...gameState,
+        explosions: "Move",
+      };
     }
-    if (this.explosions === "Move") {
-      return new JuryOverrulingState(this.bossColour!, this.cast, "AOE");
+    if (gameState.explosions === "Move") {
+      return {
+        ...gameState,
+        explosions: "AOE",
+        hasFinished: true,
+      };
     }
-    return new DivisiveOverrulingState();
-  };
-  isSafe = (player: Player) => {
-    if (!this.bossColour) return true;
-    if (this.explosions === "AOE")
+    return {
+      ...gameState,
+      hasFinished: true,
+    };
+  },
+  isSafe: (gameState: JuryOverrulingGameState, player: Player) => {
+    if (!gameState.bossColour) return true;
+    if (gameState.explosions === "AOE")
       return (
-        distanceTo(player.position, getSafeSpot(player, this.bossColour)) < 0.1
+        distanceTo(player.position, getSafeSpot(player, gameState.bossColour)) <
+        0.1
       );
-    if (this.explosions === "Lines")
+    if (gameState.explosions === "Lines")
       return distanceTo(player.position, getDefaultPos(player)) < 0.1;
     return true;
-  };
+  },
 
-  getSafeSpot = (player: Player): Position => {
-    if (!this.bossColour) return getDefaultPos(player);
-    if (this.explosions === "AOE") return getSafeSpot(player, this.bossColour);
+  getSafeSpot: (
+    gameState: JuryOverrulingGameState,
+    player: Player
+  ): Position => {
+    if (!gameState.bossColour) return getDefaultPos(player);
+    if (gameState.explosions === "AOE")
+      return getSafeSpot(player, gameState.bossColour);
     return getDefaultPos(player);
-  };
-}
+  },
+
+  nextLoop: DivisiveOverrulingState,
+};

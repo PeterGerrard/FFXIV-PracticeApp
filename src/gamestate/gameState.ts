@@ -20,14 +20,38 @@ export type Cast = {
   value: number;
 };
 
-export interface IGameState {
-  overlay: (dispatch: (action: Action) => void) => React.ReactElement;
-  nextState: () => IGameState;
-  isSafe: (player: Player) => boolean;
-  getSafeSpot: (player: Player) => Position;
+export type GameState = {
+  hasFinished: boolean;
   bossColour: "Dark" | "Light" | null;
   cast: Cast | null;
-}
+};
+
+export type Loop<T, TNextLoop> = {
+  overlay: (
+    gameState: T,
+    dispatch: (action: Action) => void
+  ) => React.ReactElement;
+  nextState: (gameState: T) => T;
+  isSafe: (gameState: T, player: Player) => boolean;
+  getSafeSpot: (gameState: T, player: Player) => Position;
+  nextLoop: TNextLoop;
+};
+
+export type FinalLoop<T> = {
+  overlay: (
+    gameState: T,
+    dispatch: (action: Action) => void
+  ) => React.ReactElement;
+  nextState: (gameState: T) => T;
+  isSafe: (gameState: T, player: Player) => boolean;
+  getSafeSpot: (gameState: T, player: Player) => Position;
+};
+
+export type GameLoop1<T> = FinalLoop<T>;
+export type GameLoop2<T1, T2> = Loop<T1, GameLoop1<T2>>;
+export type GameLoop3<T1, T2, T3> = Loop<T1, GameLoop2<T2, T3>>;
+export type GameLoop4<T1, T2, T3, T4> = Loop<T1, GameLoop3<T2, T3, T4>>;
+export type GameLoop5<T1, T2, T3, T4, T5> = Loop<T1, GameLoop4<T2, T3, T4, T5>>;
 
 export type Action =
   | { type: "RESET" }
