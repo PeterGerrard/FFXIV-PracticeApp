@@ -7,6 +7,8 @@ import { DarkAndLight } from "./gamestate/DarkAndLight/DarkAndLight.tsx";
 import { LetterOfTheLaw } from "./gamestate/LetterOfTheLaw/LetterOfTheLaw.tsx";
 import { SelectMechanic } from "./SelectMechanic.tsx";
 import { LineTest } from "./gamestate/Mechanics/LineTest.tsx";
+import { CircleTest } from "./gamestate/Mechanics/CircleTest.tsx";
+import { DonutTest } from "./gamestate/Mechanics/DonutTest.tsx";
 
 const router = createBrowserRouter([
   {
@@ -28,6 +30,14 @@ const router = createBrowserRouter([
       {
         path: "linetest",
         element: <LineTest />,
+      },
+      {
+        path: "circletest",
+        element: <CircleTest />,
+      },
+      {
+        path: "donuttest",
+        element: <DonutTest />,
       },
     ],
   },

@@ -4,10 +4,26 @@ import {
   Position,
   getGroup,
   distanceTo,
+  rotation,
 } from "../../gameState";
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
 import { pickOne } from "../../helpers";
 import { DismissalArena } from "./DismissalArena";
+import { DangerPuddle, isSafeFrom } from "../../Mechanics/DangerPuddles";
+
+const addLoc = (inter: InterCardinal, offset?: number): Position => {
+  const o = offset ? offset / Math.sqrt(2) : 0;
+  switch (inter) {
+    case "North East":
+      return [0.9 + o, 0.1 + o];
+    case "South East":
+      return [0.9 + o, 0.9 - o];
+    case "South West":
+      return [0.1 + o, 0.9 + o];
+    case "North West":
+      return [0.1 + o, 0.1 - o];
+  }
+};
 
 export type DismissalOverrulingState = LetterOfTheLawState &
   (
@@ -90,6 +106,57 @@ export const towerPos = (inter: InterCardinal): Position => {
   }
 };
 
+export const getDangerPuddles = (
+  state: DismissalOverrulingState,
+  animationEnd?: () => void
+): DangerPuddle[] => {
+  if (state.stage === "CrossLine") {
+    return [
+      {
+        type: "line",
+        angle: 180 + rotation(state.darkLocation),
+        onAnimationEnd: animationEnd ? animationEnd : () => {},
+        source: addLoc(state.darkLocation),
+        width: 0.475,
+        colour: "purple",
+      },
+      {
+        type: "line",
+        angle: 180 + rotation(state.lightLocation),
+        onAnimationEnd: () => {},
+        source: addLoc(state.lightLocation),
+        width: 0.475,
+        colour: "yellow",
+      },
+    ];
+  }
+  if (state.stage === "InOut") {
+    if (state.bossColour === "Dark") {
+      return [
+        {
+          type: "donut",
+          innerRadius: 0.2,
+          outerRadius: 0.5,
+          onAnimationEnd: animationEnd ? animationEnd : () => {},
+          source: [0.5, 0.5],
+          colour: "purple",
+        },
+      ];
+    } else {
+      return [
+        {
+          type: "circle",
+          radius: 0.3,
+          onAnimationEnd: animationEnd ? animationEnd : () => {},
+          source: [0.5, 0.5],
+          colour: "yellow",
+        },
+      ];
+    }
+  }
+  return [];
+};
+
 export const dismissalOverruling: GameLoop1<
   LetterOfTheLawPlayer,
   DismissalOverrulingState
@@ -101,6 +168,7 @@ export const dismissalOverruling: GameLoop1<
         gameState={gameState}
         isDead={isDead}
         moveTo={moveTo}
+        dangerPuddles={getDangerPuddles(gameState, animationEnd)}
         player={player}
       />
     );
@@ -181,6 +249,14 @@ export const dismissalOverruling: GameLoop1<
     gameState: DismissalOverrulingState,
     player: LetterOfTheLawPlayer
   ) => {
+    const dangerPuddles = getDangerPuddles(gameState);
+    const safeFromDanger = dangerPuddles.every((dp) =>
+      isSafeFrom(dp, player.position)
+    );
+    if (!safeFromDanger) {
+      return false;
+    }
+
     if (
       gameState.stage === "Initial" ||
       gameState.stage === "Raidwide" ||
@@ -192,15 +268,10 @@ export const dismissalOverruling: GameLoop1<
       return distanceTo(getTowerPosition(player), player.position) < 0.1;
     }
     if (gameState.stage === "CrossLine") {
-      const hitByLines =
-        (player.position[0] + player.position[1] > 0.668 &&
-          player.position[0] + player.position[1] < 1.332) ||
-        (player.position[1] - player.position[0] > -0.332 &&
-          player.position[1] - player.position[0] < 0.332);
       if (getGroup(player.clockSpot) === "Group1") {
-        return player.position[0] < 0.5 && !hitByLines;
+        return player.position[0] < 0.5;
       } else {
-        return player.position[0] > 0.5 && !hitByLines;
+        return player.position[0] > 0.5;
       }
     }
     if (gameState.stage === "CrossLine2") {
@@ -220,13 +291,7 @@ export const dismissalOverruling: GameLoop1<
             player.position[1] - player.position[0] < 0.332;
       return !hitByInner && !hitByOuter;
     }
-    if (gameState.stage === "InOut" && gameState.bossColour === "Dark") {
-      return distanceTo(player.position, [0.5, 0.5]) < 0.2;
-    }
-    if (gameState.stage === "InOut" && gameState.bossColour === "Light") {
-      return distanceTo(player.position, [0.5, 0.5]) > 0.3;
-    }
-    return false;
+    return true;
   },
   nextState: (s): DismissalOverrulingState => {
     switch (s.stage) {

@@ -6,6 +6,10 @@ import { Tower } from "../../Tower";
 import { DismissalOverrulingState, towerPos } from ".";
 import Grow from "@mui/material/Grow";
 import { LineAoE } from "../../Mechanics/LineAoE";
+import {
+  DangerPuddle,
+  DangerPuddleDisplay,
+} from "../../Mechanics/DangerPuddles";
 
 const addLoc = (inter: InterCardinal, offset?: number): Position => {
   const o = offset ? offset / Math.sqrt(2) : 0;
@@ -26,9 +30,11 @@ export const DismissalArena = (props: {
   isDead: boolean;
   moveTo: (p: Position) => void;
   gameState: DismissalOverrulingState;
+  dangerPuddles: DangerPuddle[];
   animationEnd: () => void;
 }) => {
-  const { animationEnd, gameState, isDead, moveTo, player } = props;
+  const { animationEnd, gameState, isDead, moveTo, player, dangerPuddles } =
+    props;
   return (
     <Arena
       player={player}
@@ -47,24 +53,6 @@ export const DismissalArena = (props: {
         </>
       )}
 
-      {gameState.stage === "CrossLine" && (
-        <>
-          <LineAoE
-            angle={180 + rotation(gameState.darkLocation)}
-            onAnimationEnd={animationEnd}
-            source={addLoc(gameState.darkLocation)}
-            width={0.475}
-            colour="purple"
-          />
-          <LineAoE
-            angle={180 + rotation(gameState.lightLocation)}
-            onAnimationEnd={() => {}}
-            source={addLoc(gameState.lightLocation)}
-            width={0.475}
-            colour="yellow"
-          />
-        </>
-      )}
       {gameState.stage === "CrossLine2" && (
         <>
           <LineAoE
@@ -90,60 +78,9 @@ export const DismissalArena = (props: {
           />
         </>
       )}
-      {gameState.stage === "InOut" && gameState.bossColour === "Dark" && (
-        <Grow
-          in={gameState.cast.value >= 100}
-          timeout={1500}
-          onEntered={animationEnd}
-        >
-          <svg
-            height="100%"
-            width="100%"
-            style={{
-              position: "absolute",
-              left: `50%`,
-              top: `50%`,
-              transform: "translate(-50%, -50%)",
-            }}
-            viewBox="0 0 100 100"
-          >
-            <mask id="maskInner">
-              <rect x="0" y="0" width="100" height="100" fill="white" />
-              <circle cx="50" cy="50" r="20" fill="black" />
-            </mask>
-            <circle
-              cx="50"
-              cy="50"
-              r="50"
-              fill="purple"
-              opacity={0.4}
-              mask="url(#maskInner)"
-            />
-          </svg>
-        </Grow>
-      )}
-      {gameState.stage === "InOut" && gameState.bossColour === "Light" && (
-        <>
-          <Grow
-            in={gameState.cast.value >= 100}
-            timeout={1500}
-            onEntered={animationEnd}
-          >
-            <svg
-              height="60%"
-              width="60%"
-              style={{
-                position: "absolute",
-                left: `50%`,
-                top: `50%`,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              <circle cx="50%" cy="50%" r="50%" fill="yellow" opacity={0.4} />
-            </svg>
-          </Grow>
-        </>
-      )}
+      {dangerPuddles.map((dp, i) => (
+        <DangerPuddleDisplay key={i} {...dp} />
+      ))}
       {gameState.stage === "InOut" && !isDead && (
         <h1
           style={{

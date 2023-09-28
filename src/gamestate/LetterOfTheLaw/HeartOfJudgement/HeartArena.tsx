@@ -75,7 +75,7 @@ export const HeartArena = (props: {
             explode={
               props.gameState.cast !== null && props.gameState.cast.value >= 100
             }
-            animationEnd={() => {}}
+            animationEnd={props.animationEnd}
           />
           <svg
             height="100%"
