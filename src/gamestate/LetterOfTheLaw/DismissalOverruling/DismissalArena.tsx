@@ -22,16 +22,12 @@ export const DismissalArena = (props: {
       moveTo={moveTo}
       bossColour={gameState.bossColour}
     >
-      {gameState.stage === "Tower" && (
+      {(gameState.stage === "Initial" || gameState.stage === "Tower") && (
         <>
           <Tower position={towerPos("North East")} />
           <Tower position={towerPos("South East")} />
           <Tower position={towerPos("North West")} />
           <Tower position={towerPos("South West")} />
-        </>
-      )}
-      {gameState.stage === "Tower" && (
-        <>
           <Add inter={gameState.darkAddLocation} colour="Dark" />
           <Add inter={gameState.lightAddLocation} colour="Light" />
         </>
@@ -209,22 +205,22 @@ export const DismissalArena = (props: {
               <circle cx="50%" cy="50%" r="50%" fill="yellow" opacity={0.4} />
             </svg>
           </Grow>
-          {!isDead && (
-            <h1
-              style={{
-                position: "absolute",
-                left: `50%`,
-                top: `50%`,
-                transformOrigin: "0 0",
-                transform: `translate(-50%,0)`,
-                fontSize: "10rem",
-                color: "hotpink",
-              }}
-            >
-              Finished!
-            </h1>
-          )}
         </>
+      )}
+      {gameState.stage === "InOut" && !isDead && (
+        <h1
+          style={{
+            position: "absolute",
+            left: `50%`,
+            top: `50%`,
+            transformOrigin: "0 0",
+            transform: `translate(-50%,0)`,
+            fontSize: "10rem",
+            color: "hotpink",
+          }}
+        >
+          Finished!
+        </h1>
       )}
     </Arena>
   );
