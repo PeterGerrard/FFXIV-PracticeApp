@@ -45,7 +45,7 @@ export const LineAoE = (props: LineAoEProps) => {
   );
 };
 
-export const isLineSafe = (line: LineAoEProps, position: Position) => {
+export const isLineSafe = (line: LineAoEProps, position: Position): boolean => {
   const w = line.width;
   const [i, j] = line.source;
   const [x, y] = position;
@@ -62,6 +62,6 @@ export const isLineSafe = (line: LineAoEProps, position: Position) => {
     adjustedPosition[0] < 0 ||
     adjustedPosition[0] > w ||
     adjustedPosition[1] < 0 ||
-    (line.length && adjustedPosition[1] > line.length)
+    (line.length ? adjustedPosition[1] > line.length : false)
   );
 };

@@ -5,29 +5,19 @@ import { Bombs } from "../../Bombs";
 import { Add } from "../Add";
 import { Arena } from "../Arena";
 import { LetterOfTheLawPlayer } from "../gameState";
-import { InterCardinal, rotation } from "../../gameState";
+import { rotation } from "../../gameState";
 import { HeartOfJudgementState } from ".";
-import { LineAoE } from "../../Mechanics/LineAoE";
-
-const addLoc = (inter: InterCardinal, offset?: number): Position => {
-  const o = offset ? offset / Math.sqrt(2) : 0;
-  switch (inter) {
-    case "North East":
-      return [0.9 - o, 0.1 - o];
-    case "South East":
-      return [0.9 - o, 0.9 + o];
-    case "South West":
-      return [0.1 + o, 0.9 - o];
-    case "North West":
-      return [0.1 + o, 0.1 - o];
-  }
-};
+import {
+  DangerPuddle,
+  DangerPuddleDisplay,
+} from "../../Mechanics/DangerPuddles";
 
 export const HeartArena = (props: {
   player: LetterOfTheLawPlayer;
   isDead: boolean;
   moveTo: (p: Position) => void;
   gameState: HeartOfJudgementState;
+  dangerPuddles: DangerPuddle[];
   animationEnd: () => void;
 }) => {
   const updateXarrow = useXarrow();
@@ -85,7 +75,7 @@ export const HeartArena = (props: {
             explode={
               props.gameState.cast !== null && props.gameState.cast.value >= 100
             }
-            animationEnd={props.animationEnd}
+            animationEnd={() => {}}
           />
           <svg
             height="100%"
@@ -129,17 +119,6 @@ export const HeartArena = (props: {
               fill={props.gameState.bossColour === "Dark" ? "yellow" : "purple"}
             />
           </svg>
-          {props.gameState.cast.value >= 100 && (
-            <LineAoE
-              angle={180 + rotation(innerBox)}
-              onAnimationEnd={() => {}}
-              source={addLoc(innerBox)}
-              width={0.5}
-              colour={
-                props.gameState.bossColour === "Dark" ? "purple" : "yellow"
-              }
-            />
-          )}
           <svg
             height="100%"
             width="100%"
@@ -182,28 +161,9 @@ export const HeartArena = (props: {
               fill={props.gameState.bossColour === "Dark" ? "purple" : "yellow"}
             />
           </svg>
-          {props.gameState.cast.value >= 100 && (
-            <>
-              <LineAoE
-                angle={180 + rotation(outerBox)}
-                onAnimationEnd={() => {}}
-                source={addLoc(outerBox, -0.375)}
-                width={0.25}
-                colour={
-                  props.gameState.bossColour === "Dark" ? "purple" : "yellow"
-                }
-              />
-              <LineAoE
-                angle={180 + rotation(outerBox)}
-                onAnimationEnd={() => {}}
-                source={addLoc(outerBox, 0.375)}
-                width={0.25}
-                colour={
-                  props.gameState.bossColour === "Dark" ? "purple" : "yellow"
-                }
-              />
-            </>
-          )}
+          {props.dangerPuddles.map((dp, i) => (
+            <DangerPuddleDisplay key={i} {...dp} />
+          ))}
         </>
       )}
     </Arena>
