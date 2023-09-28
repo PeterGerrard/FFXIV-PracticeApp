@@ -1,16 +1,15 @@
 import { Grow } from "@mui/material";
-import { Action } from "../gameState";
 import { useEffect } from "react";
 
 export const JuryOverrulingInitialExplosionOverlay = (props: {
   bossColour: "Dark" | "Light";
-  dispatch: (action: Action) => void;
+  animationEnd: () => void;
 }) => {
-  const { bossColour, dispatch } = props;
+  const { bossColour, animationEnd } = props;
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      dispatch({ type: "ANIMATIONEND" });
+      animationEnd();
     }, 2500);
     return () => clearTimeout(timer);
   }, []);

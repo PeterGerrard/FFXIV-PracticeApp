@@ -1,14 +1,14 @@
 import { Grow } from "@mui/material";
 import { RevelationOverlay } from "./RevelationOverlay";
-import { Action, Cast } from "../gameState";
+import { Cast } from "../../gameState";
 import { RevelationGameState } from "./revelationsState";
 
 export const RevelationExplosionOverlay = (props: {
   state: RevelationGameState;
   cast: Cast | null;
-  dispatch: (action: Action) => void;
+  animationEnd: () => void;
 }) => {
-  const { state, cast, dispatch } = props;
+  const { state, cast, animationEnd } = props;
 
   return (
     <>
@@ -19,7 +19,7 @@ export const RevelationExplosionOverlay = (props: {
             in={cast !== null && cast.value >= 100}
             timeout={1500}
             onEntered={() => {
-              dispatch({ type: "ANIMATIONEND" });
+              animationEnd();
             }}
           >
             <svg
@@ -68,7 +68,7 @@ export const RevelationExplosionOverlay = (props: {
             in={cast !== null && cast.value >= 100}
             timeout={1500}
             onEntered={() => {
-              dispatch({ type: "ANIMATIONEND" });
+              animationEnd();
             }}
           >
             <svg

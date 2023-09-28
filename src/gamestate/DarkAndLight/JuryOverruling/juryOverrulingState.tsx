@@ -1,22 +1,22 @@
+import { Position } from "../..";
+import { Loop } from "../../gameState";
+import { Arena } from "../Arena";
 import { DivisiveOverrulingState } from "../DivisiveOverruling/divisiveOverrulingState";
 import {
-  Position,
-  Action,
-  distanceTo,
   MarkerC,
   MarkerA,
   Marker1,
   Marker3,
-  Player,
+  distanceTo,
   getDefaultPos,
-  GameState,
-  Loop,
+  DarkAndLightPlayer,
+  DarkAndLightGameState,
 } from "../gameState";
 import { JuryOverrulingInitialExplosionOverlay } from "./JuryExplosionInitialOverlay";
 import { JuryOverrulingPostExplosionOverlay } from "./JuryExplosionPostOverlay";
 
 const getSafeSpot = (
-  player: Player,
+  player: DarkAndLightPlayer,
   bossColour: "Dark" | "Light"
 ): Position => {
   const short = player.tetherLength === "Short";
@@ -55,7 +55,7 @@ const getSafeSpot = (
   }
 };
 
-export type JuryOverrulingGameState = GameState & {
+export type JuryOverrulingGameState = DarkAndLightGameState & {
   explosions: "Before" | "Lines" | "Move" | "AOE";
 };
 
@@ -67,27 +67,40 @@ export const initialJuryOverrullingState: JuryOverrulingGameState = {
 };
 
 export const JuryOverrulingState: Loop<
+  DarkAndLightPlayer,
   JuryOverrulingGameState,
   typeof DivisiveOverrulingState
 > = {
-  overlay: (
+  arena: (
+    player: DarkAndLightPlayer,
+    otherPlayer: DarkAndLightPlayer,
+    isDead: boolean,
     gameState: JuryOverrulingGameState,
-    dispatch: (action: Action) => void
+    moveTo: (p: Position) => void,
+    animationEnd: () => void
   ) => (
-    <>
+    <Arena
+      player={player}
+      otherPlayer={otherPlayer}
+      bossColour={gameState.bossColour}
+      isDead={isDead}
+      moveTo={moveTo}
+    >
+      <>
       {gameState.bossColour && gameState.explosions === "Lines" && (
         <JuryOverrulingInitialExplosionOverlay
           bossColour={gameState.bossColour}
-          dispatch={dispatch}
+          animationEnd={animationEnd}
         />
       )}
       {gameState.bossColour && gameState.explosions === "AOE" && (
         <JuryOverrulingPostExplosionOverlay
           bossColour={gameState.bossColour}
-          dispatch={dispatch}
+          animationEnd={animationEnd}
         />
       )}
     </>
+    </Arena>
   ),
   nextState: (gameState: JuryOverrulingGameState): JuryOverrulingGameState => {
     if (gameState.cast === null) {
@@ -119,7 +132,7 @@ export const JuryOverrulingState: Loop<
       hasFinished: true,
     };
   },
-  isSafe: (gameState: JuryOverrulingGameState, player: Player) => {
+  isSafe: (gameState: JuryOverrulingGameState, player: DarkAndLightPlayer) => {
     if (!gameState.bossColour) return true;
     if (gameState.explosions === "AOE")
       return (
@@ -133,7 +146,7 @@ export const JuryOverrulingState: Loop<
 
   getSafeSpot: (
     gameState: JuryOverrulingGameState,
-    player: Player
+    player: DarkAndLightPlayer
   ): Position => {
     if (!gameState.bossColour) return getDefaultPos(player);
     if (gameState.explosions === "AOE")

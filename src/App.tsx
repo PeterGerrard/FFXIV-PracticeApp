@@ -13,11 +13,10 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useGameState } from "./gamestate";
-import { Arena } from "./Arena";
 import { SetupForm } from "./gamestate/Setup/SetupForm";
 
 function App() {
-  const [state, overlay, setupState, dispatch] = useGameState();
+  const [state, setupState, dispatch, arena] = useGameState();
 
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
@@ -38,22 +37,14 @@ function App() {
       {!state && <SetupForm state={setupState} dispatch={dispatch} />}
       {state && (
         <>
-          <div>
-            (
-            <Arena
-              dispatch={dispatch}
-              player={state.player}
-              otherPlayer={state.otherPlayer}
-              bossColour={
-                "bossColour" in state.gameState
-                  ? state.gameState.bossColour
-                  : null
-              }
-              isDead={state.isDead}
-            >
-              {overlay()}
-            </Arena>
-            )
+          <div
+            style={{
+              display: "inline-block",
+              width: "1000px",
+              height: "1000px",
+            }}
+          >
+            {arena()}
           </div>
           <div
             style={{

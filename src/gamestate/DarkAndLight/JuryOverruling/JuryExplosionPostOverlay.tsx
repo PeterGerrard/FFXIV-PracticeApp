@@ -1,6 +1,6 @@
 import { Grow } from "@mui/material";
+import { useEffect } from "react";
 import {
-  Action,
   Marker1,
   Marker2,
   Marker3,
@@ -10,17 +10,16 @@ import {
   MarkerC,
   MarkerD,
 } from "../gameState";
-import { useEffect } from "react";
 
 export const JuryOverrulingPostExplosionOverlay = (props: {
   bossColour: "Dark" | "Light";
-  dispatch: (action: Action) => void;
+  animationEnd: () => void;
 }) => {
-  const { bossColour, dispatch } = props;
+  const { bossColour, animationEnd } = props;
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      dispatch({ type: "ANIMATIONEND" });
+      animationEnd();
     }, 2500);
     return () => clearTimeout(timer);
   }, []);

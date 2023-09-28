@@ -1,17 +1,12 @@
+import { Position, Player } from "../..";
+import { GameState, Loop } from "../../gameState";
+import { Arena } from "../Arena";
 import { JuryOverrulingState } from "../JuryOverruling/juryOverrulingState";
-import {
-  Position,
-  Action,
-  distanceTo,
-  Player,
-  getDefaultPos,
-  GameState,
-  Loop,
-} from "../gameState";
+import { DarkAndLightPlayer, distanceTo, getDefaultPos } from "../gameState";
 import { RevelationExplosionOverlay } from "./RevelationExplosionOverlay";
 
 const getSafeRevelationSpot = (
-  player: Player,
+  player: DarkAndLightPlayer,
   bossColour: "Dark" | "Light",
   topBomb: "Dark" | "Light"
 ): Position => {
@@ -71,23 +66,34 @@ export type RevelationGameState = GameState & {
 };
 
 export const RevelationState: Loop<
+  DarkAndLightPlayer,
   RevelationGameState,
   typeof JuryOverrulingState
 > = {
-  overlay: (
+  arena: (
+    player: DarkAndLightPlayer,
+    otherPlayer: DarkAndLightPlayer,
+    isDead: boolean,
     gameState: RevelationGameState,
-    dispatch: (action: Action) => void
-  ) => {
-    return gameState.cast !== null ? (
-      <RevelationExplosionOverlay
-        state={gameState}
-        cast={gameState.cast}
-        dispatch={dispatch}
-      />
-    ) : (
-      <></>
-    );
-  },
+    moveTo: (p: Position) => void,
+    animationEnd: () => void
+  ) => (
+    <Arena
+      player={player}
+      otherPlayer={otherPlayer}
+      bossColour={gameState.bossColour}
+      isDead={isDead}
+      moveTo={moveTo}
+    >
+      {gameState.cast !== null && (
+        <RevelationExplosionOverlay
+          state={gameState}
+          cast={gameState.cast}
+          animationEnd={animationEnd}
+        />
+      )}
+    </Arena>
+  ),
   nextState: (gameState: RevelationGameState) => {
     if (gameState.cast === null) {
       return {
@@ -117,7 +123,10 @@ export const RevelationState: Loop<
     gameState.cast === null ||
     gameState.cast.value < 100 ||
     isSafe(player, gameState.bossColour, gameState.topBomb),
-  getSafeSpot: (gameState: RevelationGameState, player: Player): Position => {
+  getSafeSpot: (
+    gameState: RevelationGameState,
+    player: DarkAndLightPlayer
+  ): Position => {
     return gameState.bossColour === null ||
       gameState.cast === null ||
       gameState.cast.value < 100

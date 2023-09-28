@@ -12,8 +12,8 @@ import { ReactComponent as ForwardArrowSvg } from "./assets/forward-arrow.svg";
 import { ReactComponent as BackwardArrowSvg } from "./assets/backward-arrow.svg";
 
 import Xarrow from "react-xarrows";
-import { Position, Player, isTetherSafe } from "./gamestate";
-import { Action } from "./gamestate";
+import { Position, Player } from "..";
+import { DarkAndLightPlayer, isTetherSafe } from "./gameState";
 
 // helper function to get an element's exact position
 function getPosition(e: HTMLElement): Position {
@@ -66,8 +66,8 @@ const Player = forwardRef(
 const Tether = (props: {
   playerRef: React.MutableRefObject<unknown>;
   tetheredRef: React.MutableRefObject<unknown>;
-  player: Player;
-  tetheredTo: Player;
+  player: DarkAndLightPlayer;
+  tetheredTo: DarkAndLightPlayer;
 }) => {
   const { playerRef, tetheredRef, player, tetheredTo } = props;
   return (
@@ -162,11 +162,11 @@ const Boss = (props: { bossColour: "Light" | "Dark" | null }) => (
 
 export const Arena = (
   props: PropsWithChildren<{
-    player: Player;
-    otherPlayer: Player;
+    player: DarkAndLightPlayer;
+    otherPlayer: DarkAndLightPlayer;
     bossColour: "Dark" | "Light" | null;
     isDead: boolean;
-    dispatch: (action: Action) => void;
+    moveTo: (p: Position) => void;
   }>
 ) => {
   const playerRef = useRef<HTMLImageElement>(null);
@@ -178,18 +178,14 @@ export const Arena = (
         position: "relative",
         display: "inline-block",
         overflow: "hidden",
-        height: "1000px",
-        width: "1000px",
+        height: "100%",
       }}
       onClick={(e) => {
         const [xOff, yOff] = getPosition(e.currentTarget);
-        return props.dispatch({
-          type: "MOVE",
-          target: [
-            (e.clientX - xOff) / e.currentTarget.offsetWidth,
-            (e.clientY - yOff) / e.currentTarget.offsetHeight,
-          ],
-        });
+        return props.moveTo([
+          (e.clientX - xOff) / e.currentTarget.offsetWidth,
+          (e.clientY - yOff) / e.currentTarget.offsetHeight,
+        ]);
       }}
     >
       <img src={arenaPng} height="100%"></img>

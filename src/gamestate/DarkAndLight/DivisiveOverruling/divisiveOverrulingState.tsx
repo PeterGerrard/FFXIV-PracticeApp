@@ -1,19 +1,20 @@
+import { Player, Position } from "../..";
+import { FinalLoop } from "../../gameState";
+import { Arena } from "../Arena";
 import {
-  Position,
-  Marker1,
   Marker3,
-  Player,
-  getDefaultPos,
+  Marker1,
   MarkerB,
   MarkerD,
-  GameState,
-  FinalLoop,
+  getDefaultPos,
+  DarkAndLightPlayer,
+  DarkAndLightGameState,
 } from "../gameState";
 import { DisvisiveOverrulingInitialExplosionOverlay } from "./DivisiveOverullingInitialExplosionOverlay";
 import { EndOverlay } from "./EndOverlay";
 
 const getSafeSpot1 = (
-  player: Player,
+  player: DarkAndLightPlayer,
   bossColour: "Dark" | "Light"
 ): Position => {
   const short = player.tetherLength === "Short";
@@ -34,7 +35,7 @@ const getSafeSpot1 = (
 };
 
 const getSafeSpot2 = (
-  player: Player,
+  player: DarkAndLightPlayer,
   bossColour: "Dark" | "Light"
 ): Position => {
   const short = player.tetherLength === "Short";
@@ -86,7 +87,7 @@ const isSafe2 = (player: Player, bossColour: "Dark" | "Light") => {
   );
 };
 
-export type DivisiveOverrulingGameState = GameState & {
+export type DivisiveOverrulingGameState = DarkAndLightGameState & {
   stage: "Before" | "Explosion1" | "Explosion2";
 };
 
@@ -97,18 +98,35 @@ export const initialDivisiveState: DivisiveOverrulingGameState = {
   stage: "Before",
 };
 
-export const DivisiveOverrulingState: FinalLoop<DivisiveOverrulingGameState> = {
-  overlay: (gameState: DivisiveOverrulingGameState) => (
-    <>
-      {gameState.stage === "Explosion1" && (
-        <DisvisiveOverrulingInitialExplosionOverlay
-          bossColour={gameState.bossColour!}
-        />
-      )}
-      {gameState.stage === "Explosion2" && (
-        <EndOverlay bossColour={gameState.bossColour!} />
-      )}
-    </>
+export const DivisiveOverrulingState: FinalLoop<
+  DarkAndLightPlayer,
+  DivisiveOverrulingGameState
+> = {
+  arena: (
+    player: DarkAndLightPlayer,
+    otherPlayer: DarkAndLightPlayer,
+    isDead: boolean,
+    gameState: DivisiveOverrulingGameState,
+    moveTo: (p: Position) => void
+  ) => (
+    <Arena
+      player={player}
+      otherPlayer={otherPlayer}
+      bossColour={gameState.bossColour}
+      isDead={isDead}
+      moveTo={moveTo}
+    >
+      <>
+        {gameState.stage === "Explosion1" && (
+          <DisvisiveOverrulingInitialExplosionOverlay
+            bossColour={gameState.bossColour!}
+          />
+        )}
+        {gameState.stage === "Explosion2" && (
+          <EndOverlay bossColour={gameState.bossColour!} />
+        )}
+      </>
+    </Arena>
   ),
   nextState: (
     gameState: DivisiveOverrulingGameState
@@ -138,6 +156,7 @@ export const DivisiveOverrulingState: FinalLoop<DivisiveOverrulingGameState> = {
       return {
         ...gameState,
         stage: "Explosion2",
+        hasFinished: true,
       };
     }
     return {
@@ -154,7 +173,7 @@ export const DivisiveOverrulingState: FinalLoop<DivisiveOverrulingGameState> = {
   },
   getSafeSpot: (
     gameState: DivisiveOverrulingGameState,
-    player: Player
+    player: DarkAndLightPlayer
   ): Position => {
     if (!gameState.bossColour) return getDefaultPos(player);
     if (gameState.stage === "Explosion1")
