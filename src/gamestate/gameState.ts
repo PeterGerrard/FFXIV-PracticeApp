@@ -26,6 +26,11 @@ export type GameState =
       bossColour: "Light" | "Dark";
     }
   | {
+      stage: "positions2";
+      player: Player;
+      tetheredTo: Player;
+    }
+  | {
       stage: "end";
       player: Player;
       tetheredTo: Player;

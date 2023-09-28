@@ -66,7 +66,7 @@ const move = (
         ];
   if (bombLocations.every((p) => distanceTo(position, p) > 0.4)) {
     return {
-      stage: "end",
+      stage: "positions2",
       player: {
         ...gameState.player,
         position: position,

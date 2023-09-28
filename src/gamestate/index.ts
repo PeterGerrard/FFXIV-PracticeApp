@@ -11,6 +11,7 @@ import {
 import { setupReducer } from "./Setup/setupState";
 import { positions1Reducer } from "./positions1State";
 import { revalationReducer } from "./Revelation/revelationsState";
+import { positions2Reducer } from "./Positions2/positions2State";
 
 export type { Role, Position, Player, GameState, Action };
 export { isTetherSafe };
@@ -26,6 +27,8 @@ const applyStateReducer = (
       return positions1Reducer(gameState, action);
     case "revelation":
       return revalationReducer(gameState, action);
+    case "positions2":
+      return positions2Reducer(gameState, action);
     case "end":
     case "dead":
       return undefined;

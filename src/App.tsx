@@ -54,6 +54,7 @@ function App() {
           </Arena>
         )}
       </div>
+      {state.stage === "end" && <h1>VICTORY</h1>}
     </ThemeProvider>
   );
 }
