@@ -44,7 +44,7 @@ export const startDarkAndLight = (setup: Setup): DarkAndLightState => {
     isSafe: (p, ps) => isTetherSafe(p, ps[0]),
     isDead: false,
     next: [
-      [JuryOverrulingState, initialJuryOverrullingState],
+      [JuryOverrulingState, () => initialJuryOverrullingState],
       [DivisiveOverrulingState, initialDivisiveState],
     ],
     loop: 3,

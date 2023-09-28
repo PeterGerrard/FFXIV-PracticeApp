@@ -19,6 +19,7 @@ export type TwofoldRevelationState = LetterOfTheLawState & {
         cast: null;
         darkAddLocation: InterCardinal;
         lightAddLocation: InterCardinal;
+        nonTankPosition: Position;
       }
     | {
         darkAddLocation: InterCardinal;
@@ -73,7 +74,7 @@ export const twofoldRevelation: GameLoop2<
     if (player.isTethered && player.role === "Tank") {
       return [0.5, 0.5];
     } else {
-      return [0.4, 0.8];
+      return gameState.cast === null ? gameState.nonTankPosition : [0.4, 0.8];
     }
   },
   isSafe: (gameState: TwofoldRevelationState, player: LetterOfTheLawPlayer) => {
@@ -88,7 +89,10 @@ export const twofoldRevelation: GameLoop2<
       if (player.isTethered && player.role === "Tank") {
         return player.position[1] <= 0.55;
       } else {
-        return distanceTo(player.position, [0.5, 0.5]) > 0.275;
+        return (
+          distanceTo(player.position, gameState.tankPosition) > 0.275 &&
+          distanceTo(player.position, gameState.nonTankPosition) < 0.25
+        );
       }
     }
     if (gameState.stage === "Outer") {
@@ -100,7 +104,7 @@ export const twofoldRevelation: GameLoop2<
     return true;
   },
   nextState: (s, player): TwofoldRevelationState => {
-    if (s.cast === null) {
+    if (!s.cast) {
       return {
         ...s,
         cast: {
@@ -111,10 +115,7 @@ export const twofoldRevelation: GameLoop2<
           player.isTethered && player.role === "Tank"
             ? player.position
             : [0.5, 0.5],
-        nonTankPosition:
-          player.isTethered && player.role !== "Tank"
-            ? player.position
-            : [0.3, 0.7],
+        nonTankPosition: s.nonTankPosition,
         stage: "Inner",
         hasFinished: false,
       };

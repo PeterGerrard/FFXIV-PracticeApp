@@ -46,7 +46,13 @@ type Game3<TPlayer, T1, T2, T3> = {
   otherPlayers: TPlayer[];
   isSafe: (player: TPlayer, otherPlayers: TPlayer[]) => boolean;
   isDead: boolean;
-  next: [[GameLoop2<TPlayer, T2, T3>, T2], [GameLoop1<TPlayer, T3>, T3]];
+  next: [
+    [
+      GameLoop2<TPlayer, T2, T3>,
+      (g: GameLoop3<TPlayer, T1, T2, T3>, s: T1, p: TPlayer) => T2
+    ],
+    [GameLoop1<TPlayer, T3>, T3]
+  ];
 };
 
 type Game4<TPlayer, T1, T2, T3, T4> = {
@@ -59,7 +65,10 @@ type Game4<TPlayer, T1, T2, T3, T4> = {
   isDead: boolean;
   next: [
     [GameLoop3<TPlayer, T2, T3, T4>, T2],
-    [GameLoop2<TPlayer, T3, T4>, T3],
+    [
+      GameLoop2<TPlayer, T3, T4>,
+      (g: GameLoop3<TPlayer, T2, T3, T4>, s: T2, p: TPlayer) => T3
+    ],
     [GameLoop1<TPlayer, T4>, T4]
   ];
 };
@@ -75,7 +84,10 @@ type Game5<TPlayer, T1, T2, T3, T4, T5> = {
   next: [
     [GameLoop4<TPlayer, T2, T3, T4, T5>, T2],
     [GameLoop3<TPlayer, T3, T4, T5>, T3],
-    [GameLoop2<TPlayer, T4, T5>, T4],
+    [
+      GameLoop2<TPlayer, T4, T5>,
+      (g: GameLoop3<TPlayer, T3, T4, T5>, s: T3, p: TPlayer) => T4
+    ],
     [GameLoop1<TPlayer, T5>, T5]
   ];
 };
@@ -149,7 +161,7 @@ export const stepGame3 = <
     const [x, ...ys] = game.next;
     const result: Game2<TPlayer, T1, T2> = {
       game: x[0],
-      gameState: x[1],
+      gameState: x[1](game.game, game.gameState, game.player),
       isDead: game.isDead,
       player: game.player,
       otherPlayers: game.otherPlayers,

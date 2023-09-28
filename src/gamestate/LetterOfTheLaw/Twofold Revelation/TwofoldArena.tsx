@@ -66,24 +66,40 @@ export const TwofoldArena = (props: {
         )}
 
       {gameState.cast && gameState.stage === "Inner" && (
-        <Grow
-          in={gameState.cast.value >= 100}
-          timeout={1500}
-          onEntered={animationEnd}
-        >
-          <svg
-            height="55%"
-            width="55%"
-            style={{
-              position: "absolute",
-              left: `50%`,
-              top: `50%`,
-              transform: "translate(-50%, -50%)",
-            }}
+        <>
+          <Grow
+            in={gameState.cast.value >= 100}
+            timeout={1500}
+            onEntered={animationEnd}
           >
-            <circle cx="50%" cy="50%" r="50%" fill="purple" opacity={0.4} />
-          </svg>
-        </Grow>
+            <svg
+              height="55%"
+              width="55%"
+              style={{
+                position: "absolute",
+                left: `${gameState.tankPosition[0] * 100}%`,
+                top: `${gameState.tankPosition[1] * 100}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <circle cx="50%" cy="50%" r="50%" fill="purple" opacity={0.4} />
+            </svg>
+          </Grow>
+          <Grow in={gameState.cast.value >= 100} timeout={1500}>
+            <svg
+              height="25%"
+              width="25%"
+              style={{
+                position: "absolute",
+                left: `${gameState.nonTankPosition[0] * 100}%`,
+                top: `${gameState.nonTankPosition[1] * 100}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <circle cx="50%" cy="50%" r="50%" fill="yellow" opacity={0.4} />
+            </svg>
+          </Grow>
+        </>
       )}
 
       {gameState.cast && gameState.stage === "Outer" && (

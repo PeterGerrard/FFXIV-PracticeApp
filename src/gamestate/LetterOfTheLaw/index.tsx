@@ -1,5 +1,5 @@
 import { IterateGames3 } from "..";
-import { InterCardinal, InterCardinals, Setup } from "../gameState";
+import { GameLoop3, InterCardinal, InterCardinals, Setup } from "../gameState";
 import { HeartOfJudgementState, heartOfJudgement } from "./HeartOfJudgement";
 import {
   TwofoldRevelationState,
@@ -50,13 +50,26 @@ export const startLetterOfTheLaw = (setup: Setup): LetterOfTheLawGame => {
     next: [
       [
         twofoldRevelation,
-        {
+        (
+          g: GameLoop3<
+            LetterOfTheLawPlayer,
+            HeartOfJudgementState,
+            TwofoldRevelationState,
+            DismissalOverrulingState
+          >,
+          s: HeartOfJudgementState,
+          p: LetterOfTheLawPlayer
+        ): TwofoldRevelationState => ({
           bossColour: null,
           cast: null,
           darkAddLocation: adds1[i],
           lightAddLocation: adds1[1 - i],
           hasFinished: false,
-        },
+          nonTankPosition:
+            p.role === "Tank" && p.isTethered
+              ? g.getSafeSpot(s, { ...p, role: "DPS" })
+              : p.position,
+        }),
       ],
       [
         dismissalOverruling,
