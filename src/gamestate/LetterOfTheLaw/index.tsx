@@ -6,16 +6,13 @@ import {
   twofoldRevelation,
 } from "./Twofold Revelation";
 import { LetterOfTheLawPlayer, createPlayer } from "./gameState";
+import { pickOne } from "../helpers";
 
 type LetterOfTheLawGame = IterateGames2<
   LetterOfTheLawPlayer,
   HeartOfJudgementState,
   TwofoldRevelationState
 >;
-
-const pickOne = <T extends unknown>(items: T[]) => {
-  return items[(items.length * Math.random()) | 0];
-};
 
 export const startLetterOfTheLaw = (setup: Setup): LetterOfTheLawGame => {
   const player = createPlayer(setup.role, setup.clockSpot);

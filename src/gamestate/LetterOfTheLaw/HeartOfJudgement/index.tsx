@@ -11,6 +11,7 @@ import {
   TwofoldRevelationState,
   twofoldRevelation,
 } from "../Twofold Revelation";
+import { rotation } from "../../gameState";
 
 export type HeartOfJudgementState = LetterOfTheLawState & {
   bossColour: "Dark" | "Light";
@@ -20,7 +21,6 @@ export type HeartOfJudgementState = LetterOfTheLawState & {
   darkBoxLocation: InterCardinal;
   lightBoxLocation: InterCardinal;
 };
-
 export const heartOfJudgement: GameLoop2<
   LetterOfTheLawPlayer,
   HeartOfJudgementState,
@@ -38,18 +38,6 @@ export const heartOfJudgement: GameLoop2<
       gameState.bossColour === "Dark"
         ? gameState.lightBoxLocation
         : gameState.darkBoxLocation;
-    const rotation = (inter: InterCardinal): number => {
-      switch (inter) {
-        case "North East":
-          return 45;
-        case "South East":
-          return 135;
-        case "South West":
-          return 225;
-        case "North West":
-          return 315;
-      }
-    };
 
     const [moved, setMoved] = useState(0);
     useEffect(() => updateXarrow(), [moved, player, gameState]);
@@ -68,10 +56,12 @@ export const heartOfJudgement: GameLoop2<
         <Add
           ref={player.role === "Tank" ? addRef : null}
           inter={gameState.darkAddLocation}
+          colour="Dark"
         />
         <Add
           ref={player.role !== "Tank" ? addRef : null}
           inter={gameState.lightAddLocation}
+          colour="Light"
         />
         {player.isTethered && (
           <Xarrow

@@ -16,21 +16,46 @@ const addPosition = (inter: InterCardinal): Position => {
 };
 
 export const Add = forwardRef(
-  (props: { inter: InterCardinal }, ref: Ref<HTMLImageElement>) => {
+  (
+    props: { inter: InterCardinal; colour: "Dark" | "Light" },
+    ref: Ref<HTMLImageElement>
+  ) => {
     const pos = addPosition(props.inter);
     return (
-      <img
-        ref={ref}
-        src={bossPng}
-        height="15%"
-        width="15%"
-        style={{
-          position: "absolute",
-          left: `${pos[0] * 100}%`,
-          top: `${pos[1] * 100}%`,
-          transform: "translate(-50%, -50%)",
-        }}
-      ></img>
+      <>
+        <img
+          ref={ref}
+          src={bossPng}
+          height="15%"
+          width="15%"
+          style={{
+            position: "absolute",
+            left: `${pos[0] * 100}%`,
+            top: `${pos[1] * 100}%`,
+            transform: "translate(-50%, -50%)",
+          }}
+        ></img>
+        <svg
+          height="15%"
+          width="15%"
+          style={{
+            position: "absolute",
+            left: `${pos[0] * 100}%`,
+            top: `${pos[1] * 100}%`,
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          <circle
+            cx="50%"
+            cy="50%"
+            r="45%"
+            stroke={props.colour === "Dark" ? "purple" : "yellow"}
+            strokeWidth="5"
+            opacity={0.8}
+            fill="transparent"
+          />
+        </svg>
+      </>
     );
   }
 );

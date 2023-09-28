@@ -23,6 +23,14 @@ export type InterCardinal =
   | "South West"
   | "North West";
 
+export type Group = "Group1" | "Group2";
+
+export const getGroup = (clockSpot: ClockSpot): Group => {
+  return ["North East", "East", "South East", "South"].includes(clockSpot)
+    ? "Group2"
+    : "Group1";
+};
+
 export type Setup = {
   role: Role;
   clockSpot: ClockSpot;
@@ -106,4 +114,16 @@ export const getRandomPos = (): Position => {
     return p;
   }
   return getRandomPos();
+};
+export const rotation = (inter: InterCardinal): number => {
+  switch (inter) {
+    case "North East":
+      return 45;
+    case "South East":
+      return 135;
+    case "South West":
+      return 225;
+    case "North West":
+      return 315;
+  }
 };
