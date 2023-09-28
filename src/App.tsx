@@ -5,6 +5,7 @@ import arenaPng from "./assets/arena.png";
 import healerPng from "./assets/healer.png";
 import dpsPng from "./assets/dps.png";
 import tankPng from "./assets/tank.png";
+import skullPng from "./assets/Skull_and_Crossbones.png";
 import { ReactComponent as ForwardArrowSvg } from "./assets/forward-arrow.svg";
 import { ReactComponent as BackwardArrowSvg } from "./assets/backward-arrow.svg";
 
@@ -31,6 +32,7 @@ type Player = {
   role: Role;
   position: Position;
   debuff: "Light" | "Dark";
+  alive: boolean;
 };
 
 // helper function to get an element's exact position
@@ -68,6 +70,12 @@ type GameState =
       stage: "end";
       player: Player;
       tetheredTo: Player;
+    }
+  | {
+      stage: "dead";
+      player: Player;
+      tetheredTo: Player;
+      safeLocation: Position;
     };
 
 const defaultState: GameState = {
@@ -135,7 +143,7 @@ const getCorrectPos = (
 
 const getRandomPos = (): Position => {
   const p: Position = [Math.random(), Math.random()];
-  if (distanceTo(p, [0.5, 0.5]) < 0.5) {
+  if (distanceTo(p, [0.5, 0.5]) < 0.35) {
     return p;
   }
   return getRandomPos();
@@ -143,28 +151,56 @@ const getRandomPos = (): Position => {
 
 const move = (gameState: GameState, position: Position): GameState => {
   switch (gameState.stage) {
-    case "end":
-    case "setup":
-      return gameState;
     case "positions1":
-      return {
-        stage: "end",
-        player: {
-          ...gameState.player,
-          position: position,
-        },
-        tetheredTo: {
-          ...gameState.tetheredTo,
-          position: getCorrectPos(
-            gameState.tetheredTo.role,
-            gameState.player.debuff === gameState.tetheredTo.debuff
-              ? "Long"
-              : "Short",
-            gameState.player.role
-          ),
-        },
-      };
+      const safeLocation = getCorrectPos(
+        gameState.player.role,
+        gameState.player.debuff === gameState.tetheredTo.debuff
+          ? "Long"
+          : "Short",
+        gameState.tetheredTo.role
+      );
+      if (distanceTo(position, safeLocation) < 0.1) {
+        return {
+          stage: "end",
+          player: {
+            ...gameState.player,
+            position: position,
+          },
+          tetheredTo: {
+            ...gameState.tetheredTo,
+            position: getCorrectPos(
+              gameState.tetheredTo.role,
+              gameState.player.debuff === gameState.tetheredTo.debuff
+                ? "Long"
+                : "Short",
+              gameState.player.role
+            ),
+          },
+        };
+      } else {
+        return {
+          stage: "dead",
+          player: {
+            ...gameState.player,
+            alive: false,
+            position: position,
+          },
+          tetheredTo: {
+            ...gameState.tetheredTo,
+            alive: false,
+            position: getCorrectPos(
+              gameState.tetheredTo.role,
+              gameState.player.debuff === gameState.tetheredTo.debuff
+                ? "Long"
+                : "Short",
+              gameState.player.role
+            ),
+          },
+          safeLocation,
+        };
+      }
   }
+  return gameState;
 };
 
 const reducer = (gameState: GameState, action: Action): GameState => {
@@ -185,6 +221,7 @@ const reducer = (gameState: GameState, action: Action): GameState => {
           role: gameState.role,
           position: getRandomPos(),
           debuff: Math.random() <= 0.5 ? "Light" : "Dark",
+          alive: true,
         },
         tetheredTo: {
           role:
@@ -195,6 +232,7 @@ const reducer = (gameState: GameState, action: Action): GameState => {
               : "DPS",
           position: getRandomPos(),
           debuff: Math.random() <= 0.5 ? "Light" : "Dark",
+          alive: true,
         },
       };
     case "MOVE":
@@ -210,7 +248,9 @@ const Player = forwardRef(
       <img
         ref={ref}
         src={
-          props.player.role === "Healer"
+          !props.player.alive
+            ? skullPng
+            : props.player.role === "Healer"
             ? healerPng
             : props.player.role === "Tank"
             ? tankPng
@@ -338,28 +378,39 @@ function App() {
             }}
           >
             <img src={arenaPng} height="100%"></img>
-            {state.stage === "positions1" && (
-              <>
-                <Player ref={tetheredRef} player={state.tetheredTo} />
-                <Player ref={playerRef} player={state.player} />
+            <>
+              <Player ref={tetheredRef} player={state.tetheredTo} />
+              <Player ref={playerRef} player={state.player} />
+              {state.stage !== "dead" && (
                 <Tether
                   tetheredRef={tetheredRef}
                   playerRef={playerRef}
                   state={state}
                 />
-              </>
-            )}
-            {state.stage === "end" && (
-              <>
-                <Player ref={tetheredRef} player={state.tetheredTo} />
-                <Player ref={playerRef} player={state.player} />
-                <Tether
-                  tetheredRef={tetheredRef}
-                  playerRef={playerRef}
-                  state={state}
-                />
-              </>
-            )}
+              )}
+              {state.stage == "dead" && (
+                <svg
+                  height="100"
+                  width="100"
+                  style={{
+                    position: "absolute",
+                    left: `${state.safeLocation[0] * 100}%`,
+                    top: `${state.safeLocation[1] * 100}%`,
+                    transform: "translate(-50%, -50%)",
+                  }}
+                >
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    stroke="black"
+                    stroke-width="3"
+                    fill="green"
+                    opacity={0.8}
+                  />
+                </svg>
+              )}
+            </>
           </div>
         )}
       </div>
