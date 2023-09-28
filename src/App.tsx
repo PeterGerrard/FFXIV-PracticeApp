@@ -9,6 +9,7 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import {
+  Button,
   CssBaseline,
   FormControl,
   MenuItem,
@@ -82,7 +83,7 @@ const Marker1: Position = [839, 340];
 const MarkerB: Position = [780, 590];
 const Marker2: Position = [725, 730];
 const MarkerC: Position = [585, 959];
-const Marker3: Position = [327, 547];
+const Marker3: Position = [327, 845];
 const MarkerD: Position = [390, 590];
 const Marker4: Position = [450, 460];
 
@@ -165,7 +166,7 @@ const move = (gameState: GameState, position: Position): GameState => {
 const reducer = (gameState: GameState, action: Action): GameState => {
   switch (action.type) {
     case "RESET":
-      return defaultState;
+      return { ...defaultState, role: gameState.role };
     case "MOVE":
       return move(gameState, action.target);
     case "SELECTROLE":
@@ -201,6 +202,12 @@ function App() {
             <MenuItem value={"Tank"}>Tank</MenuItem>
             <MenuItem value={"DPS"}>DPS</MenuItem>
           </Select>
+          <Button
+            onClick={() => dispatch({ type: "RESET" })}
+            variant="contained"
+          >
+            Reset
+          </Button>
         </FormControl>
         <div
           style={{
