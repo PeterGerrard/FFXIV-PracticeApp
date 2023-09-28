@@ -37,6 +37,17 @@ export type GameState =
       bossColour: "Light" | "Dark";
     }
   | {
+      stage: "positions3";
+      player: Player;
+      tetheredTo: Player;
+    }
+  | {
+      stage: "divisive-overruling";
+      player: Player;
+      tetheredTo: Player;
+      bossColour: "Light" | "Dark";
+    }
+  | {
       stage: "end";
       player: Player;
       tetheredTo: Player;

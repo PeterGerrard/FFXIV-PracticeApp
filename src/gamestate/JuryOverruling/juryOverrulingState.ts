@@ -66,7 +66,7 @@ const move = (
   const safeLocation = getSafeSpot(gameState);
   if (distanceTo(position, safeLocation) < 0.1) {
     return {
-      stage: "end",
+      stage: "positions3",
       player: {
         ...gameState.player,
         position: position,
