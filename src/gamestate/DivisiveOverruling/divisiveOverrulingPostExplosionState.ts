@@ -3,10 +3,11 @@ import {
   Position,
   Action,
   distanceTo,
-  MarkerC,
-  MarkerA,
   MarkerB,
   MarkerD,
+  Marker3,
+  Marker1,
+  isTetherSafe,
 } from "../gameState";
 
 export type DivisiveOverrulingPostExplosionGameState = GameState & {
@@ -47,20 +48,20 @@ const getSafeSpot = (
     (gameState.player.role === "Healer" ||
       gameState.tetheredTo.role === "Healer")
   ) {
-    return [MarkerB[0], MarkerC[1]];
+    return [MarkerB[0], Marker3[1]];
   }
   if (
     !short &&
     (gameState.player.role === "Tank" || gameState.tetheredTo.role === "Healer")
   ) {
-    return [MarkerB[0], MarkerA[1]];
+    return [MarkerB[0], Marker1[1]];
   }
 
   if (short) {
-    return [MarkerD[0], MarkerA[1]];
+    return [MarkerD[0], Marker1[1]];
   }
 
-  return [MarkerD[0], MarkerC[1]];
+  return [MarkerD[0], Marker3[1]];
 };
 
 const move = (
@@ -68,7 +69,13 @@ const move = (
   position: Position
 ): GameState => {
   const safeLocation = getSafeSpot(gameState);
-  if (distanceTo(position, safeLocation) < 0.1) {
+
+  if (
+    ((gameState.bossColour === "Dark" && Math.abs(0.5 - position[0]) < 0.2) ||
+      (gameState.bossColour === "Light" &&
+        Math.abs(0.5 - position[0]) > 0.3)) &&
+    isTetherSafe(gameState.player, gameState.tetheredTo)
+  ) {
     return {
       stage: "end",
       player: {

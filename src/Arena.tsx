@@ -126,12 +126,12 @@ const Boss = (props: { bossColour: "Light" | "Dark" | null }) => (
     ></img>
     <img
       src={indicatorPng}
-      height="40%"
-      width="40%"
+      height="52%"
+      width="52%"
       style={{
         position: "absolute",
         left: `50%`,
-        top: `45%`,
+        top: `42.5%`,
         transform: "translate(-50%, -50%)",
       }}
     ></img>
