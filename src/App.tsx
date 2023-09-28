@@ -58,33 +58,26 @@ type GameState =
   | {
       stage: "setup";
       role: Role;
-      success: 0;
-      failure: 0;
     }
   | {
       stage: "positions1";
       player: Player;
       tetheredTo: Player;
-      success: number;
-      failure: number;
     }
   | {
       stage: "end";
       player: Player;
       tetheredTo: Player;
-      success: number;
-      failure: number;
     };
 
 const defaultState: GameState = {
   stage: "setup",
   role: "Healer",
-  success: 0,
-  failure: 0,
 };
 
 type Action =
   | { type: "RESET" }
+  | { type: "START" }
   | { type: "MOVE"; target: Position }
   | { type: "SELECTROLE"; role: Role };
 
@@ -140,16 +133,6 @@ const getCorrectPos = (
   throw "Something went wrong";
 };
 
-const isInCorrectBasicPosition = (
-  myRole: Role,
-  tether: "Short" | "Long",
-  tetheredRole: Role,
-  position: Position
-) => {
-  const correctPos = getCorrectPos(myRole, tether, tetheredRole);
-  return distanceTo(position, correctPos) < 0.09;
-};
-
 const getRandomPos = (): Position => {
   const p: Position = [Math.random(), Math.random()];
   if (distanceTo(p, [0.5, 0.5]) < 0.5) {
@@ -161,37 +144,9 @@ const getRandomPos = (): Position => {
 const move = (gameState: GameState, position: Position): GameState => {
   switch (gameState.stage) {
     case "end":
-      return gameState;
     case "setup":
-      return {
-        stage: "positions1",
-        player: {
-          role: gameState.role,
-          position: position,
-          debuff: Math.random() <= 0.5 ? "Light" : "Dark",
-        },
-        tetheredTo: {
-          role:
-            gameState.role === "DPS"
-              ? Math.random() <= 0.5
-                ? "Tank"
-                : "Healer"
-              : "DPS",
-          position: getRandomPos(),
-          debuff: Math.random() <= 0.5 ? "Light" : "Dark",
-        },
-        success: 0,
-        failure: 0,
-      };
+      return gameState;
     case "positions1":
-      const correctPosition = isInCorrectBasicPosition(
-        gameState.player.role,
-        gameState.player.debuff === gameState.tetheredTo.debuff
-          ? "Long"
-          : "Short",
-        gameState.tetheredTo.role,
-        position
-      );
       return {
         stage: "end",
         player: {
@@ -208,8 +163,6 @@ const move = (gameState: GameState, position: Position): GameState => {
             gameState.player.role
           ),
         },
-        success: gameState.success + (correctPosition ? 1 : 0),
-        failure: gameState.success + (correctPosition ? 0 : 1),
       };
   }
 };
@@ -221,6 +174,28 @@ const reducer = (gameState: GameState, action: Action): GameState => {
         ...defaultState,
         role:
           gameState.stage === "setup" ? gameState.role : gameState.player.role,
+      };
+    case "START":
+      if (gameState.stage !== "setup") {
+        return gameState;
+      }
+      return {
+        stage: "positions1",
+        player: {
+          role: gameState.role,
+          position: getRandomPos(),
+          debuff: Math.random() <= 0.5 ? "Light" : "Dark",
+        },
+        tetheredTo: {
+          role:
+            gameState.role === "DPS"
+              ? Math.random() <= 0.5
+                ? "Tank"
+                : "Healer"
+              : "DPS",
+          position: getRandomPos(),
+          debuff: Math.random() <= 0.5 ? "Light" : "Dark",
+        },
       };
     case "MOVE":
       return move(gameState, action.target);
@@ -245,6 +220,8 @@ const Player = forwardRef(
           position: "absolute",
           left: `${props.player.position[0] * 100}%`,
           top: `${props.player.position[1] * 100}%`,
+          height: "80px",
+          width: "80px",
           transform: "translate(-50%, -50%)",
         }}
       ></img>
@@ -315,10 +292,13 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <h1>Themis Practice</h1>
-      <div style={{ display: "flex" }}>
-        <FormControl>
-          {state.stage === "setup" && (
+      <div>
+        <h1 style={{ display: "inline-block" }}>Themis Practice</h1>
+        <Button onClick={() => dispatch({ type: "RESET" })}>Reset</Button>
+      </div>
+      <div>
+        {state.stage === "setup" && (
+          <FormControl>
             <Select
               value={state.role}
               onChange={(c) =>
@@ -330,62 +310,58 @@ function App() {
               <MenuItem value={"Tank"}>Tank</MenuItem>
               <MenuItem value={"DPS"}>DPS</MenuItem>
             </Select>
-          )}
-          <Button
-            onClick={() => dispatch({ type: "RESET" })}
-            variant="contained"
+            <Button
+              onClick={() => dispatch({ type: "START" })}
+              variant="contained"
+            >
+              Start
+            </Button>
+          </FormControl>
+        )}
+        {state.stage !== "setup" && (
+          <div
+            style={{
+              position: "relative",
+              display: "inline-block",
+              overflow: "hidden",
+              height: "1000px",
+            }}
+            onClick={(e) => {
+              const [xOff, yOff] = getPosition(e.currentTarget);
+              return dispatch({
+                type: "MOVE",
+                target: [
+                  (e.clientX - xOff) / e.currentTarget.offsetWidth,
+                  (e.clientY - yOff) / e.currentTarget.offsetHeight,
+                ],
+              });
+            }}
           >
-            Reset
-          </Button>
-        </FormControl>
-        <div
-          style={{
-            position: "relative",
-            height: "90%",
-            aspectRatio: "1 / 1",
-            overflow: "hidden",
-          }}
-          onClick={(e) => {
-            const [xOff, yOff] = getPosition(e.currentTarget);
-            return dispatch({
-              type: "MOVE",
-              target: [
-                (e.clientX - xOff) / e.currentTarget.offsetWidth,
-                (e.clientY - yOff) / e.currentTarget.offsetHeight,
-              ],
-            });
-          }}
-        >
-          <img src={arenaPng}></img>
-          {state.stage === "positions1" && (
-            <>
-              <Player ref={tetheredRef} player={state.tetheredTo} />
-              <Player ref={playerRef} player={state.player} />
-              <Tether
-                tetheredRef={tetheredRef}
-                playerRef={playerRef}
-                state={state}
-              />
-            </>
-          )}
-          {state.stage === "end" && (
-            <>
-              <Player ref={tetheredRef} player={state.tetheredTo} />
-              <Player ref={playerRef} player={state.player} />
-              <Tether
-                tetheredRef={tetheredRef}
-                playerRef={playerRef}
-                state={state}
-              />
-            </>
-          )}
-        </div>
-        <div>
-          Success: {state.success}
-          <br />
-          Failure: {state.failure}
-          <br />
-        </div>
+            <img src={arenaPng} height="100%"></img>
+            {state.stage === "positions1" && (
+              <>
+                <Player ref={tetheredRef} player={state.tetheredTo} />
+                <Player ref={playerRef} player={state.player} />
+                <Tether
+                  tetheredRef={tetheredRef}
+                  playerRef={playerRef}
+                  state={state}
+                />
+              </>
+            )}
+            {state.stage === "end" && (
+              <>
+                <Player ref={tetheredRef} player={state.tetheredTo} />
+                <Player ref={playerRef} player={state.player} />
+                <Tether
+                  tetheredRef={tetheredRef}
+                  playerRef={playerRef}
+                  state={state}
+                />
+              </>
+            )}
+          </div>
+        )}
       </div>
     </ThemeProvider>
   );
