@@ -61,7 +61,7 @@ export const startLetterOfTheLaw = (setup: Setup): LetterOfTheLawGame => {
       [
         dismissalOverruling,
         {
-          stage: "Tower",
+          stage: "Initial",
           cast: null,
           hasFinished: false,
           bossColour: null,

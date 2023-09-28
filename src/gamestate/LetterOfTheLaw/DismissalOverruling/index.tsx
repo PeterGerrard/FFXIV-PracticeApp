@@ -16,6 +16,13 @@ export type DismissalOverrulingState = LetterOfTheLawState &
         cast: null;
         darkAddLocation: InterCardinal;
         lightAddLocation: InterCardinal;
+        stage: "Initial";
+      }
+    | {
+        bossColour: null;
+        cast: null;
+        darkAddLocation: InterCardinal;
+        lightAddLocation: InterCardinal;
         stage: "Tower";
       }
     | {
@@ -174,8 +181,15 @@ export const dismissalOverruling: GameLoop1<
     gameState: DismissalOverrulingState,
     player: LetterOfTheLawPlayer
   ) => {
-    if (gameState.stage === "Raidwide" || gameState.stage === "Gap1") {
+    if (
+      gameState.stage === "Initial" ||
+      gameState.stage === "Raidwide" ||
+      gameState.stage === "Gap1"
+    ) {
       return true;
+    }
+    if (gameState.stage === "Tower") {
+      return distanceTo(getTowerPosition(player), player.position) < 0.1;
     }
     if (gameState.stage === "CrossLine") {
       const hitByLines =
@@ -216,6 +230,11 @@ export const dismissalOverruling: GameLoop1<
   },
   nextState: (s): DismissalOverrulingState => {
     switch (s.stage) {
+      case "Initial":
+        return {
+          ...s,
+          stage: "Tower",
+        };
       case "Tower":
         return {
           ...s,

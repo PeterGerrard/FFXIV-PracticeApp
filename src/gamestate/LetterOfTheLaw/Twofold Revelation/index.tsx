@@ -32,7 +32,7 @@ export type TwofoldRevelationState = LetterOfTheLawState & {
         cast: Cast;
         tankPosition: Position;
         nonTankPosition: Position;
-        stage: "Space1" | "Outer" | "Space2";
+        stage: "Space1" | "Outer";
       }
   );
 
@@ -80,8 +80,7 @@ export const twofoldRevelation: GameLoop2<
     if (
       !gameState.cast ||
       gameState.cast.value < 100 ||
-      gameState.stage === "Space1" ||
-      gameState.stage === "Space2"
+      gameState.stage === "Space1"
     ) {
       return true;
     }
@@ -130,12 +129,6 @@ export const twofoldRevelation: GameLoop2<
       return {
         ...s,
         stage: "Outer",
-      };
-    }
-    if (s.stage === "Outer") {
-      return {
-        ...s,
-        stage: "Space2",
         hasFinished: true,
       };
     }
