@@ -7,15 +7,101 @@ import "@fontsource/roboto/700.css";
 import {
   Button,
   CssBaseline,
+  LinearProgress,
   ThemeProvider,
   createTheme,
   useMediaQuery,
 } from "@mui/material";
-import { useGameState } from "./gamestate";
+import { GameState, useGameState } from "./gamestate";
 import { SetupForm } from "./gamestate/Setup/SetupForm";
 import { Arena } from "./Arena";
 import { RevelationOverlay } from "./gamestate/Revelation/RevelationOverlay";
 import { DeathOverlay } from "./gamestate/Death/DeathOverlay";
+
+const CastBar = (props: { stage: GameState["stage"] }) => {
+  switch (props.stage) {
+    case "setup":
+      return <></>;
+    case "positions1":
+      return (
+        <>
+          <h1>Dark and Light</h1>
+          <LinearProgress
+            sx={{ height: "16px" }}
+            color="warning"
+            variant="determinate"
+            value={50}
+          />
+        </>
+      );
+    case "revelation":
+      return (
+        <>
+          <h1>Arcane Revelation</h1>
+          <LinearProgress
+            sx={{ height: "16px" }}
+            color="warning"
+            variant="determinate"
+            value={50}
+          />
+        </>
+      );
+    case "positions2":
+      return (
+        <>
+          <h1>Jury Overruling</h1>
+          <LinearProgress
+            sx={{ height: "16px" }}
+            color="warning"
+            variant="determinate"
+            value={50}
+          />
+        </>
+      );
+    case "jury-overruling":
+      return (
+        <>
+          <h1>Jury Overruling</h1>
+          <LinearProgress
+            sx={{ height: "16px" }}
+            color="warning"
+            variant="determinate"
+            value={100}
+          />
+        </>
+      );
+    case "positions3":
+      return <></>;
+    case "divisive-overruling":
+      return (
+        <>
+          <h1>Divisive Overruling</h1>
+          <LinearProgress
+            sx={{ height: "16px" }}
+            color="warning"
+            variant="determinate"
+            value={50}
+          />
+        </>
+      );
+    case "divisive-overruling-dark":
+      return (
+        <>
+          <h1>Divisive Overruling</h1>
+          <LinearProgress
+            sx={{ height: "16px" }}
+            color="warning"
+            variant="determinate"
+            value={100}
+          />
+        </>
+      );
+    case "end":
+      return <h1>VICTORY</h1>;
+    case "dead":
+      return <></>;
+  }
+};
 
 function App() {
   const [state, dispatch] = useGameState();
@@ -55,7 +141,14 @@ function App() {
           </Arena>
         )}
       </div>
-      {state.stage === "end" && <h1>VICTORY</h1>}
+      <div
+        style={{
+          maxWidth: "500px",
+          paddingBottom: "50px",
+        }}
+      >
+        <CastBar stage={state.stage} />
+      </div>
     </ThemeProvider>
   );
 }
