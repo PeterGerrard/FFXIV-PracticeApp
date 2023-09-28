@@ -17,6 +17,7 @@ import {
 import { positions2Reducer } from "./Positions2/positions2State";
 import {
   juryOverrulingInitialExplosionReducer,
+  juryOverrulingPostExplosionReducer,
   juryOverrulingReducer,
 } from "./JuryOverruling/juryOverrulingState";
 import { positions3Reducer } from "./Positions3/positions3State";
@@ -39,12 +40,14 @@ const applyStateReducer = (
       return revalationReducer(gameState, action);
     case "revelation-explosion":
       return revalationExplosionReducer(gameState, action);
-    case "jury-overruling-initial-explosion":
-      return juryOverrulingInitialExplosionReducer(gameState, action);
     case "positions2":
       return positions2Reducer(gameState, action);
+    case "jury-overruling-initial-explosion":
+      return juryOverrulingInitialExplosionReducer(gameState, action);
     case "jury-overruling":
       return juryOverrulingReducer(gameState, action);
+    case "jury-overruling-explosion":
+      return juryOverrulingPostExplosionReducer(gameState, action);
     case "positions3":
       return positions3Reducer(gameState, action);
     case "divisive-overruling":

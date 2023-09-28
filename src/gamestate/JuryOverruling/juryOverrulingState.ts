@@ -18,6 +18,10 @@ export type JuryOverrulingInitialExplosionGameState = GameState & {
   stage: "jury-overruling-initial-explosion";
 };
 
+export type JuryOverrulingPostExplosionGameState = GameState & {
+  stage: "jury-overruling-explosion";
+};
+
 const getSafeSpot = (gameState: JuryOverrulingGameState): Position => {
   const short = gameState.player.debuff !== gameState.tetheredTo.debuff;
   if (gameState.bossColour === "Dark") {
@@ -115,13 +119,30 @@ export const juryOverrulingReducer = (
   action: Action
 ): GameState | undefined => {
   if (action.type === "MOVE") {
-    return move(gameState, action.target);
+    const nextState = move(gameState, action.target);
+    return {
+      ...gameState,
+      stage: "jury-overruling-explosion",
+      player: nextState.player,
+      tetheredTo: nextState.tetheredTo,
+      nextState: nextState,
+    };
   }
   return undefined;
 };
 
 export const juryOverrulingInitialExplosionReducer = (
   gameState: JuryOverrulingInitialExplosionGameState,
+  action: Action
+): GameState | undefined => {
+  if (action.type === "ANIMATIONEND") {
+    return gameState.nextState;
+  }
+  return undefined;
+};
+
+export const juryOverrulingPostExplosionReducer = (
+  gameState: JuryOverrulingPostExplosionGameState,
   action: Action
 ): GameState | undefined => {
   if (action.type === "ANIMATIONEND") {

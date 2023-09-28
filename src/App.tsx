@@ -19,6 +19,7 @@ import { RevelationOverlay } from "./gamestate/Revelation/RevelationOverlay";
 import { DeathOverlay } from "./gamestate/Death/DeathOverlay";
 import { RevelationExplosionOverlay } from "./gamestate/Revelation/RevelationExplosionOverlay";
 import { JuryOverrulingInitialExplosionOverlay } from "./gamestate/JuryOverruling/JuryExplosionInitialOverlay";
+import { JuryOverrulingPostExplosionOverlay } from "./gamestate/JuryOverruling/JuryExplosionPostOverlay";
 
 const CastBar = (props: {
   stage: GameState["stage"];
@@ -168,6 +169,12 @@ function App() {
               )}
               {state.stage == "jury-overruling-initial-explosion" && (
                 <JuryOverrulingInitialExplosionOverlay
+                  state={state}
+                  dispatch={dispatch}
+                />
+              )}
+              {state.stage == "jury-overruling-explosion" && (
+                <JuryOverrulingPostExplosionOverlay
                   state={state}
                   dispatch={dispatch}
                 />
