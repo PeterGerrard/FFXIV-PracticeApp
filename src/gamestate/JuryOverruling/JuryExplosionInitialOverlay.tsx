@@ -1,13 +1,12 @@
 import { Grow } from "@mui/material";
 import { Action } from "../gameState";
 import { useEffect } from "react";
-import { JuryOverrulingInitialExplosionGameState } from "./juryOverrulingState";
 
 export const JuryOverrulingInitialExplosionOverlay = (props: {
-  state: JuryOverrulingInitialExplosionGameState;
+  bossColour: "Dark" | "Light";
   dispatch: (action: Action) => void;
 }) => {
-  const { state, dispatch } = props;
+  const { bossColour, dispatch } = props;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -35,7 +34,7 @@ export const JuryOverrulingInitialExplosionOverlay = (props: {
               <rect
                 width={200}
                 height={1000}
-                fill={state.bossColour === "Dark" ? "purple" : "yellow"}
+                fill={bossColour === "Dark" ? "purple" : "yellow"}
                 opacity={0.4}
               />
             </svg>

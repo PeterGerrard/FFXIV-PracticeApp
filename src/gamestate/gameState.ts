@@ -90,3 +90,31 @@ export const createPartner = (player: Player): Player => {
     tetheredRole: player.role,
   };
 };
+
+export const getDefaultPos = (player: Player): Position => {
+  if (player.role === "Healer" && player.tetherLength === "Short") {
+    return MarkerB;
+  }
+  if (player.role === "Healer" && player.tetherLength === "Long") {
+    return MarkerC;
+  }
+  if (player.role === "Tank" && player.tetherLength === "Short") {
+    return MarkerD;
+  }
+  if (player.role === "Tank" && player.tetherLength === "Long") {
+    return MarkerA;
+  }
+  if (player.tetheredRole === "Tank" && player.tetherLength === "Short") {
+    return Marker4;
+  }
+  if (player.tetheredRole === "Tank" && player.tetherLength === "Long") {
+    return Marker3;
+  }
+  if (player.tetheredRole === "Healer" && player.tetherLength === "Short") {
+    return Marker2;
+  }
+  if (player.tetheredRole === "Healer" && player.tetherLength === "Long") {
+    return Marker1;
+  }
+  throw "Something went wrong";
+};

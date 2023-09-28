@@ -1,28 +1,27 @@
 import { Grow } from "@mui/material";
 import { RevelationOverlay } from "./RevelationOverlay";
-import { RevelationExplosionGameState } from "./revelationsState";
-import { Action } from "../gameState";
-import { useEffect } from "react";
+import { Action, Cast } from "../gameState";
+import { RevelationGameState } from "./revelationsState";
 
 export const RevelationExplosionOverlay = (props: {
-  state: RevelationExplosionGameState;
+  state: RevelationGameState;
+  cast: Cast | null;
   dispatch: (action: Action) => void;
 }) => {
-  const { state, dispatch } = props;
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      dispatch({ type: "ANIMATIONEND" });
-    }, 2500);
-    return () => clearTimeout(timer);
-  }, []);
+  const { state, cast, dispatch } = props;
 
   return (
     <>
       <RevelationOverlay state={state} />
       {state.topBomb === state.bossColour ? (
         <>
-          <Grow in timeout={1500}>
+          <Grow
+            in={cast !== null && cast.value >= 100}
+            timeout={1500}
+            onEntered={() => {
+              dispatch({ type: "ANIMATIONEND" });
+            }}
+          >
             <svg
               height="700"
               width="700"
@@ -42,7 +41,7 @@ export const RevelationExplosionOverlay = (props: {
               />
             </svg>
           </Grow>
-          <Grow in timeout={1500}>
+          <Grow in={cast !== null && cast.value >= 100} timeout={1500}>
             <svg
               height="700"
               width="700"
@@ -65,7 +64,13 @@ export const RevelationExplosionOverlay = (props: {
         </>
       ) : (
         <>
-          <Grow in timeout={1500}>
+          <Grow
+            in={cast !== null && cast.value >= 100}
+            timeout={1500}
+            onEntered={() => {
+              dispatch({ type: "ANIMATIONEND" });
+            }}
+          >
             <svg
               height="700"
               width="700"
@@ -85,7 +90,7 @@ export const RevelationExplosionOverlay = (props: {
               />
             </svg>
           </Grow>
-          <Grow in timeout={1500}>
+          <Grow in={cast !== null && cast.value >= 100} timeout={1500}>
             <svg
               height="700"
               width="700"

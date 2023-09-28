@@ -1,4 +1,4 @@
-import { Positions3 } from "../Positions3/positions3State";
+import { DivisiveOverrulingState } from "../DivisiveOverruling/divisiveOverrulingState";
 import {
   Position,
   Action,
@@ -9,28 +9,11 @@ import {
   Marker3,
   Player,
   IGameState,
-  Role,
-  Marker2,
-  Marker4,
-  MarkerB,
-  MarkerD,
+  Cast,
+  getDefaultPos,
 } from "../gameState";
 import { JuryOverrulingInitialExplosionOverlay } from "./JuryExplosionInitialOverlay";
 import { JuryOverrulingPostExplosionOverlay } from "./JuryExplosionPostOverlay";
-
-type JuryOverrulingGameState = {
-  bossColour: "Dark" | "Light";
-};
-
-export type JuryOverrulingInitialExplosionGameState = {
-  bossColour: "Dark" | "Light";
-  nextState: IGameState;
-};
-
-export type JuryOverrulingPostExplosionGameState = {
-  bossColour: "Dark" | "Light";
-  nextState: IGameState;
-};
 
 const getSafeSpot = (
   player: Player,
@@ -72,115 +55,68 @@ const getSafeSpot = (
   }
 };
 
-const getCorrectInitialPos = (
-  role: Role,
-  tether: "Short" | "Long",
-  tetheredRole: Role
-): Position => {
-  if (role === "Healer" && tether === "Short") {
-    return MarkerB;
-  }
-  if (role === "Healer" && tether === "Long") {
-    return MarkerC;
-  }
-  if (role === "Tank" && tether === "Short") {
-    return MarkerD;
-  }
-  if (role === "Tank" && tether === "Long") {
-    return MarkerA;
-  }
-  if (tetheredRole === "Tank" && tether === "Short") {
-    return Marker4;
-  }
-  if (tetheredRole === "Tank" && tether === "Long") {
-    return Marker3;
-  }
-  if (tetheredRole === "Healer" && tether === "Short") {
-    return Marker2;
-  }
-  if (tetheredRole === "Healer" && tether === "Long") {
-    return Marker1;
-  }
-  throw "Something went wrong";
-};
-
-export class JuryOverrulingInitialExplosionState implements IGameState {
-  bossColour: "Dark" | "Light";
-  cast = {
-    name: "Jury Overruling",
-    value: 0,
-  };
-  constructor(state: JuryOverrulingInitialExplosionGameState) {
-    this.state = state;
-    this.bossColour = state.bossColour;
-  }
-  private state: JuryOverrulingInitialExplosionGameState;
-  overlay = (dispatch: (action: Action) => void) => (
-    <JuryOverrulingInitialExplosionOverlay
-      state={this.state}
-      dispatch={dispatch}
-    />
-  );
-  nextState = () => {
-    return this.state.nextState;
-  };
-  isSafe = (player: Player) =>
-    distanceTo(
-      player.position,
-      getCorrectInitialPos(
-        player.role,
-        player.tetherLength,
-        player.tetheredRole
-      )
-    ) < 0.1;
-  getSafeSpot = (player: Player): Position =>
-    getCorrectInitialPos(player.role, player.tetherLength, player.tetheredRole);
-}
-
 export class JuryOverrulingState implements IGameState {
-  bossColour: "Dark" | "Light";
-  cast = {
-    name: "Jury Overruling",
-    value: 50,
-  };
-  constructor(state: JuryOverrulingGameState) {
-    this.bossColour = state.bossColour;
+  bossColour: "Dark" | "Light" | null;
+  cast: Cast | null;
+  explosions: "Before" | "Lines" | "Move" | "AOE";
+  constructor(
+    bossColour?: "Dark" | "Light",
+    cast?: Cast,
+    explosions?: JuryOverrulingState["explosions"]
+  ) {
+    this.bossColour = bossColour ?? null;
+    this.cast = cast ?? null;
+    this.explosions = explosions ?? "Before";
   }
-  overlay = () => <></>;
-  nextState = () => {
-    const nextState = new Positions3();
-    return new JuryOverrulingExplosionState({
-      ...nextState,
-      nextState,
-      bossColour: this.bossColour,
-    });
-  };
-  isSafe = (player: Player) =>
-    distanceTo(player.position, getSafeSpot(player, this.bossColour)) < 0.1;
-  getSafeSpot = (player: Player): Position =>
-    getSafeSpot(player, this.bossColour);
-}
-
-export class JuryOverrulingExplosionState implements IGameState {
-  bossColour: "Dark" | "Light";
-  cast = {
-    name: "Jury Overruling",
-    value: 100,
-  };
-  constructor(state: JuryOverrulingPostExplosionGameState) {
-    this.state = state;
-    this.bossColour = state.bossColour;
-  }
-  private state: JuryOverrulingPostExplosionGameState;
   overlay = (dispatch: (action: Action) => void) => (
-    <JuryOverrulingPostExplosionOverlay
-      state={this.state}
-      dispatch={dispatch}
-    />
+    <>
+      {this.bossColour && this.explosions === "Lines" && (
+        <JuryOverrulingInitialExplosionOverlay
+          bossColour={this.bossColour}
+          dispatch={dispatch}
+        />
+      )}
+      {this.bossColour && this.explosions === "AOE" && (
+        <JuryOverrulingPostExplosionOverlay
+          bossColour={this.bossColour}
+          dispatch={dispatch}
+        />
+      )}
+    </>
   );
-  nextState = () => this.state.nextState;
-  isSafe = (player: Player) =>
-    distanceTo(player.position, getSafeSpot(player, this.bossColour)) < 0.1;
-  getSafeSpot = (player: Player): Position =>
-    getSafeSpot(player, this.bossColour);
+  nextState = () => {
+    if (this.cast === null) {
+      return new JuryOverrulingState(
+        Math.random() < 0.5 ? "Dark" : "Light",
+        {
+          name: "Jury Overruling",
+          value: 100,
+        },
+        "Lines"
+      );
+    }
+    if (this.explosions === "Lines") {
+      return new JuryOverrulingState(this.bossColour!, this.cast, "Move");
+    }
+    if (this.explosions === "Move") {
+      return new JuryOverrulingState(this.bossColour!, this.cast, "AOE");
+    }
+    return new DivisiveOverrulingState();
+  };
+  isSafe = (player: Player) => {
+    if (!this.bossColour) return true;
+    if (this.explosions === "AOE")
+      return (
+        distanceTo(player.position, getSafeSpot(player, this.bossColour)) < 0.1
+      );
+    if (this.explosions === "Lines")
+      return distanceTo(player.position, getDefaultPos(player)) < 0.1;
+    return true;
+  };
+
+  getSafeSpot = (player: Player): Position => {
+    if (!this.bossColour) return getDefaultPos(player);
+    if (this.explosions === "AOE") return getSafeSpot(player, this.bossColour);
+    return getDefaultPos(player);
+  };
 }

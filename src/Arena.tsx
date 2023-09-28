@@ -151,7 +151,7 @@ const Boss = (props: { bossColour: "Light" | "Dark" | null }) => (
           cy="90"
           r="85"
           stroke={props.bossColour === "Dark" ? "purple" : "yellow"}
-          stroke-width="5"
+          strokeWidth="5"
           opacity={0.8}
           fill="transparent"
         />

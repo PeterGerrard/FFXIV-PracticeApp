@@ -1,10 +1,9 @@
 import { Grow } from "@mui/material";
-import { DivisiveOverrulingGameState } from "./divisiveOverrulingState";
 
 export const DisvisiveOverrulingInitialExplosionOverlay = (props: {
-  state: DivisiveOverrulingGameState;
+  bossColour: "Dark" | "Light";
 }) => {
-  const { state } = props;
+  const { bossColour } = props;
 
   return (
     <Grow in timeout={1500}>
@@ -22,7 +21,7 @@ export const DisvisiveOverrulingInitialExplosionOverlay = (props: {
         <rect
           width={400}
           height={2000}
-          fill={state.bossColour === "Dark" ? "purple" : "yellow"}
+          fill={bossColour === "Dark" ? "purple" : "yellow"}
           opacity={0.4}
         />
       </svg>

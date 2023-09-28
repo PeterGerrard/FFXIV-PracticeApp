@@ -10,8 +10,8 @@ import {
   createPlayer,
   isTetherSafe,
 } from "./gameState";
-import { Positions1 } from "./positions1State";
 import { useSetup } from "./Setup/setupState";
+import { RevelationState } from "./Revelation/revelationsState";
 
 export type { Role, Position, Player, Action };
 export { isTetherSafe };
@@ -29,7 +29,7 @@ const reducerClass =
         return {
           player,
           otherPlayer,
-          gameState: new Positions1(),
+          gameState: new RevelationState(),
           isDead: false,
         };
 
@@ -41,31 +41,33 @@ const reducerClass =
     }
     switch (action.type) {
       case "MOVE":
+        const nextState = gameState.gameState.nextState();
         const updatedPlayer = {
           ...gameState.player,
           position: action.target,
         };
         const updatedOtherPlayer = {
           ...gameState.otherPlayer,
-          position: gameState.gameState.getSafeSpot(gameState.otherPlayer),
+          position: nextState.getSafeSpot(gameState.otherPlayer),
         };
         const lived =
-          gameState.gameState.isSafe(updatedPlayer) &&
+          nextState.isSafe(updatedPlayer) &&
           isTetherSafe(updatedPlayer, updatedOtherPlayer);
         return {
           player: updatedPlayer,
           otherPlayer: updatedOtherPlayer,
-          gameState: gameState.gameState.nextState(),
+          gameState: nextState,
           isDead: !lived,
         };
       case "ANIMATIONEND":
+        const nextState2 = gameState.gameState.nextState();
         const lived2 =
-          gameState.gameState.isSafe(gameState.player) &&
+          nextState2.isSafe(gameState.player) &&
           isTetherSafe(gameState.player, gameState.otherPlayer);
         return {
           player: gameState.player,
           otherPlayer: gameState.otherPlayer,
-          gameState: gameState.gameState.nextState(),
+          gameState: nextState2,
           isDead: !lived2,
         };
     }

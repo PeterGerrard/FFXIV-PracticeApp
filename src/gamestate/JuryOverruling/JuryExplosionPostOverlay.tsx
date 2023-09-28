@@ -11,13 +11,12 @@ import {
   MarkerD,
 } from "../gameState";
 import { useEffect } from "react";
-import { JuryOverrulingPostExplosionGameState } from "./juryOverrulingState";
 
 export const JuryOverrulingPostExplosionOverlay = (props: {
-  state: JuryOverrulingPostExplosionGameState;
+  bossColour: "Dark" | "Light";
   dispatch: (action: Action) => void;
 }) => {
-  const { state, dispatch } = props;
+  const { bossColour, dispatch } = props;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -40,7 +39,7 @@ export const JuryOverrulingPostExplosionOverlay = (props: {
       ].map((d, i) => {
         return (
           <Grow in timeout={1500} key={i}>
-            {state.bossColour === "Dark" ? (
+            {bossColour === "Dark" ? (
               <svg
                 height="400"
                 width="400"
