@@ -1,5 +1,6 @@
 import Slide from "@mui/material/Slide";
 import { Position } from "..";
+import { useEffect, useState } from "react";
 
 export type LineAoEProps = {
   source: Position;
@@ -11,6 +12,11 @@ export type LineAoEProps = {
 };
 
 export const LineAoE = (props: LineAoEProps) => {
+  const [height, setHeight] = useState(0);
+  useEffect(() => {
+    setHeight(props.length ? props.length : 1);
+    setTimeout(props.onAnimationEnd, 1500);
+  });
   return (
     <svg
       height="100%"
@@ -21,12 +27,14 @@ export const LineAoE = (props: LineAoEProps) => {
       viewBox="0 0 1 1"
     >
       <rect
-        height={`${props.length ? props.length : 1}`}
+        height={height}
         width={`${props.width}`}
         x={props.source[0] - props.width / 2}
         y={props.source[1]}
         fill={props.colour ?? "orange"}
         style={{
+          transitionDuration: "1500ms",
+          transition: "height 1500ms",
           opacity: 0.4,
           transformOrigin: `${props.source[0]}px ${props.source[1]}px`,
           transform: `rotate(${props.angle - 180}deg)`,

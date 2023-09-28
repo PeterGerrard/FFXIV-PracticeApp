@@ -3,9 +3,9 @@ import { LineAoE, LineAoEProps, isLineSafe } from "./LineAoE";
 import Slider from "@mui/material/Slider";
 
 export const LineTest = () => {
-  const [x, setX] = useState(0);
-  const [y, setY] = useState(0);
-  const [angle, setAngle] = useState(0);
+  const [x, setX] = useState(0.5);
+  const [y, setY] = useState(0.5);
+  const [angle, setAngle] = useState(45);
   const line: LineAoEProps = {
     source: [x, y],
     angle: angle,
