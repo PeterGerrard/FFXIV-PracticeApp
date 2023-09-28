@@ -4,7 +4,6 @@ import { Arena } from "../Arena";
 import { LetterOfTheLawPlayer } from "../gameState";
 import { Tower } from "../../Tower";
 import { DismissalOverrulingState, towerPos } from ".";
-import Grow from "@mui/material/Grow";
 import { LineAoE } from "../../Mechanics/LineAoE";
 import {
   DangerPuddle,
