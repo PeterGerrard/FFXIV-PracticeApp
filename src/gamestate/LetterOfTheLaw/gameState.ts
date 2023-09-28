@@ -7,7 +7,7 @@ export type LetterOfTheLawPlayer = Player & {
 };
 
 export type LetterOfTheLawState = GameState & {
-  bossColour: "Dark" | "Light";
+  bossColour: "Dark" | "Light" | null;
 };
 
 export const createPlayer = (

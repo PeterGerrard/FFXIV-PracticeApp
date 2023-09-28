@@ -14,7 +14,7 @@ export const Arena = forwardRef(
       player: LetterOfTheLawPlayer;
       isDead: boolean;
       moveTo: (p: Position) => void;
-      bossColour: "Dark" | "Light";
+      bossColour: "Dark" | "Light" | null;
     }>,
     ref: Ref<HTMLImageElement>
   ) => {

@@ -55,6 +55,7 @@ export const JuryOverrulingPostExplosionOverlay = (props: {
                   r="28.125%"
                   strokeWidth="31.25%"
                   stroke="purple"
+                  fill="transparent"
                   opacity={0.4}
                 />
               </svg>

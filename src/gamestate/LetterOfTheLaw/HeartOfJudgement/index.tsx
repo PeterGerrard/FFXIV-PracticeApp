@@ -3,12 +3,17 @@ import { useRef, useState, useEffect } from "react";
 import Xarrow, { useXarrow } from "react-xarrows";
 import { Position } from "../..";
 import { Bombs } from "../../Bombs";
-import { InterCardinal, GameLoop1, distanceTo } from "../../gameState";
+import { InterCardinal, distanceTo, GameLoop2 } from "../../gameState";
 import { Add } from "../Add";
 import { Arena } from "../Arena";
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
+import {
+  TwofoldRevelationState,
+  twofoldRevelation,
+} from "../Twofold Revelation";
 
 export type HeartOfJudgementState = LetterOfTheLawState & {
+  bossColour: "Dark" | "Light";
   topBomb: "Dark" | "Light";
   darkAddLocation: InterCardinal;
   lightAddLocation: InterCardinal;
@@ -16,9 +21,10 @@ export type HeartOfJudgementState = LetterOfTheLawState & {
   lightBoxLocation: InterCardinal;
 };
 
-export const heartOfJudgement: GameLoop1<
+export const heartOfJudgement: GameLoop2<
   LetterOfTheLawPlayer,
-  HeartOfJudgementState
+  HeartOfJudgementState,
+  TwofoldRevelationState
 > = {
   arena: (player, _, isDead, gameState, moveTo, animationEnd) => {
     const updateXarrow = useXarrow();
@@ -305,4 +311,5 @@ export const heartOfJudgement: GameLoop1<
     }
     return s;
   },
+  nextLoop: twofoldRevelation,
 };

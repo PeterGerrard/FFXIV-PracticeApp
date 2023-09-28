@@ -85,7 +85,7 @@ export const stepGame1 = <TPlayer, T extends GameState>(
     return game;
   }
 
-  const nextState = game.game.nextState(game.gameState);
+  const nextState = game.game.nextState(game.gameState, game.player);
   const otherPlayers = game.otherPlayers.map((o) => ({
     ...o,
     position: game.game.getSafeSpot(nextState, o),
