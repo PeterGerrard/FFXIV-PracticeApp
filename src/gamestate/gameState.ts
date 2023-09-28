@@ -31,6 +31,12 @@ export type GameState =
       tetheredTo: Player;
     }
   | {
+      stage: "jury-overruling";
+      player: Player;
+      tetheredTo: Player;
+      bossColour: "Light" | "Dark";
+    }
+  | {
       stage: "end";
       player: Player;
       tetheredTo: Player;

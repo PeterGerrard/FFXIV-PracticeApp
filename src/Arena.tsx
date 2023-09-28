@@ -109,10 +109,33 @@ const Tether = (props: {
   );
 };
 
+const Boss = (props: { bossColour: "Light" | "Dark" }) => (
+  <svg
+    height="100"
+    width="100"
+    style={{
+      position: "absolute",
+      left: `50%`,
+      top: `50%`,
+      transform: "translate(-50%, -50%)",
+    }}
+  >
+    <circle
+      cx="50"
+      cy="50"
+      r="40"
+      stroke="black"
+      stroke-width="3"
+      fill={props.bossColour === "Dark" ? "purple" : "yellow"}
+    />
+  </svg>
+);
+
 export const Arena = (
   props: PropsWithChildren<{
     player: Player;
     tetheredTo: Player;
+    bossColour: "Dark" | "Light" | null;
     dispatch: (action: Action) => void;
   }>
 ) => {
@@ -126,6 +149,7 @@ export const Arena = (
         display: "inline-block",
         overflow: "hidden",
         height: "1000px",
+        width: "1000px",
       }}
       onClick={(e) => {
         const [xOff, yOff] = getPosition(e.currentTarget);
@@ -143,6 +167,7 @@ export const Arena = (
         {props.children}
         <Player ref={tetheredRef} player={props.tetheredTo} />
         <Player ref={playerRef} player={props.player} />
+        {props.bossColour && <Boss bossColour={props.bossColour} />}
         {props.player.alive && props.tetheredTo.alive && (
           <Tether
             playerRef={playerRef}

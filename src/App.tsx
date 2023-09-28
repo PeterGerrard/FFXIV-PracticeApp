@@ -44,6 +44,7 @@ function App() {
             dispatch={dispatch}
             player={state.player}
             tetheredTo={state.tetheredTo}
+            bossColour={"bossColour" in state ? state.bossColour : null}
           >
             <>
               {state.stage == "revelation" && (

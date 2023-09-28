@@ -59,7 +59,7 @@ const move = (
   );
   if (distanceTo(position, safeLocation) < 0.1) {
     return {
-      stage: "end",
+      stage: "jury-overruling",
       player: {
         ...gameState.player,
         position: position,
@@ -73,7 +73,8 @@ const move = (
             : "Short",
           gameState.player.role
         ),
-      }
+      },
+      bossColour: Math.random() < 0.5 ? "Dark" : "Light",
     };
   } else {
     return {
