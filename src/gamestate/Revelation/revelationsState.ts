@@ -1,7 +1,10 @@
-import { GameState, Position, Action, distanceTo } from "../gameState";
+import { GameState, Position, Action, distanceTo, Player } from "../gameState";
 
 export type RevelationGameState = GameState & {
   stage: "revelation";
+};
+export type RevelationExplosionGameState = GameState & {
+  stage: "revelation-explosion";
 };
 
 const getSafeRevelationSpot = (gameState: RevelationGameState): Position => {
@@ -53,7 +56,7 @@ const getSafeRevelationSpot = (gameState: RevelationGameState): Position => {
 const move = (
   gameState: RevelationGameState,
   position: Position
-): GameState => {
+): GameState & { player: Player; tetheredTo: Player } => {
   const bombLocations: Position[] =
     gameState.bossColour === gameState.topBomb
       ? [
@@ -107,7 +110,24 @@ export const revalationReducer = (
   action: Action
 ): GameState | undefined => {
   if (action.type === "MOVE") {
-    return move(gameState, action.target);
+    const nextState = move(gameState, action.target);
+    return {
+      ...gameState,
+      stage: "revelation-explosion",
+      player: nextState.player,
+      tetheredTo: nextState.tetheredTo,
+      nextState,
+    };
+  }
+  return undefined;
+};
+
+export const revalationExplosionReducer = (
+  gameState: RevelationExplosionGameState,
+  action: Action
+): GameState | undefined => {
+  if (action.type === "ANIMATIONEND") {
+    return gameState.nextState;
   }
   return undefined;
 };

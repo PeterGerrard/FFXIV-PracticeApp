@@ -17,6 +17,7 @@ import { SetupForm } from "./gamestate/Setup/SetupForm";
 import { Arena } from "./Arena";
 import { RevelationOverlay } from "./gamestate/Revelation/RevelationOverlay";
 import { DeathOverlay } from "./gamestate/Death/DeathOverlay";
+import { RevelationExplosionOverlay } from "./gamestate/Revelation/RevelationExplosionOverlay";
 
 const CastBar = (props: { stage: GameState["stage"] }) => {
   switch (props.stage) {
@@ -98,6 +99,7 @@ const CastBar = (props: { stage: GameState["stage"] }) => {
       );
     case "end":
       return <h1>VICTORY</h1>;
+    case "revelation-explosion":
     case "dead":
       return <></>;
   }
@@ -135,6 +137,9 @@ function App() {
             <>
               {state.stage == "revelation" && (
                 <RevelationOverlay state={state} />
+              )}
+              {state.stage == "revelation-explosion" && (
+                <RevelationExplosionOverlay state={state} dispatch={dispatch} />
               )}
               {state.stage == "dead" && <DeathOverlay state={state} />}
             </>

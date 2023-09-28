@@ -26,6 +26,14 @@ export type GameState =
       bossColour: "Light" | "Dark";
     }
   | {
+      stage: "revelation-explosion";
+      player: Player;
+      tetheredTo: Player;
+      topBomb: "Light" | "Dark";
+      bossColour: "Light" | "Dark";
+      nextState: GameState;
+    }
+  | {
       stage: "positions2";
       player: Player;
       tetheredTo: Player;
@@ -68,7 +76,8 @@ export type Action =
   | { type: "RESET" }
   | { type: "START" }
   | { type: "MOVE"; target: Position }
-  | { type: "SELECTROLE"; role: Role };
+  | { type: "SELECTROLE"; role: Role }
+  | { type: "ANIMATIONEND" };
 
 export const MarkerA: Position = [0.498, 0.206];
 export const Marker1: Position = [0.714, 0.289];

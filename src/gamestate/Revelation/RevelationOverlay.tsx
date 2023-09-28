@@ -19,7 +19,7 @@ const Bombs = (props: { state: RevelationGameState }) => {
           cy="50"
           r="40"
           stroke="black"
-          stroke-width="3"
+          strokeWidth="3"
           fill={state.topBomb === "Dark" ? "purple" : "yellow"}
         />
       </svg>
