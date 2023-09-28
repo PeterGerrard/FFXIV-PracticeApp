@@ -1,5 +1,3 @@
-import { useContext } from "react";
-import { SetupContext } from "../Setup/Setup";
 import { useGameState } from "..";
 import LinearProgress from "@mui/material/LinearProgress";
 import Button from "@mui/material/Button";
@@ -8,10 +6,7 @@ import Stack from "@mui/material/Stack";
 import { startLetterOfTheLaw } from ".";
 
 export const LetterOfTheLaw = () => {
-  const { state: setup } = useContext(SetupContext);
-  const [state, restart, arena] = useGameState(() =>
-    startLetterOfTheLaw(setup)
-  );
+  const [state, restart, arena] = useGameState(startLetterOfTheLaw);
 
   return (
     <Stack flexDirection="column">

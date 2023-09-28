@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   Action,
   GameLoop1,
@@ -9,8 +9,10 @@ import {
   GameState,
   Position,
   Role,
+  Setup,
 } from "./gameState";
 import { DeathOverlay } from "./Death/DeathOverlay";
+import { SetupContext } from "./Setup/Setup";
 
 export type { Role, Position, Action };
 
@@ -305,15 +307,20 @@ export const useGameState = <
   T2 extends GameState,
   T3 extends GameState
 >(
-  start: () => IterateGames3<TPlayer, T1, T2, T3>
+  start: (setup: Setup) => IterateGames3<TPlayer, T1, T2, T3>
 ) => {
+  const { state: setup } = useContext(SetupContext);
   const [gameState, setGameState] = useState<
     IterateGames3<TPlayer, T1, T2, T3>
-  >(start());
+  >(start(setup));
+
+  const restart = () => setGameState(start(setup));
+
+  useEffect(restart, [setup]);
 
   return [
     gameState,
-    () => setGameState(start()),
+    restart,
     () => {
       const inner =
         gameState &&

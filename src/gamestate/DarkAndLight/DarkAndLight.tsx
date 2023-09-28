@@ -1,5 +1,3 @@
-import { useContext } from "react";
-import { SetupContext } from "../Setup/Setup";
 import { useGameState } from "..";
 import { startDarkAndLight } from ".";
 import LinearProgress from "@mui/material/LinearProgress";
@@ -8,8 +6,7 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import Stack from "@mui/material/Stack";
 
 export const DarkAndLight = () => {
-  const { state: setup } = useContext(SetupContext);
-  const [state, restart, arena] = useGameState(() => startDarkAndLight(setup));
+  const [state, restart, arena] = useGameState(startDarkAndLight);
 
   return (
     <Stack flexDirection="column">
