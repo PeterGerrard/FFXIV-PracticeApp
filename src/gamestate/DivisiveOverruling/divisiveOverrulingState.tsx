@@ -1,17 +1,23 @@
+import { DeathClass } from "../Death/DeathOverlay";
 import {
-  GameState,
   Position,
   Action,
   Marker1,
   Marker3,
   Player,
+  IGameState,
 } from "../gameState";
+import { DivisivePostState } from "./divisiveOverrulingPostExplosionState";
 
-type DivisiveOverrulingGameState = GameState & {
-  stage: "divisive-overruling";
+export type DivisiveOverrulingGameState = {
+  player: Player;
+  tetheredTo: Player;
+  bossColour: "Dark" | "Light";
 };
-export type DivisiveOverrulingInitialExplosionGameState = GameState & {
-  stage: "divisive-overruling-initial-explosion";
+export type DivisiveOverrulingInitialExplosionGameState = {
+  player: Player;
+  tetheredTo: Player;
+  bossColour: "Dark" | "Light";
 };
 
 const getSafeSpot = (gameState: DivisiveOverrulingGameState): Position => {
@@ -48,17 +54,12 @@ const getSafeSpot = (gameState: DivisiveOverrulingGameState): Position => {
 };
 
 const move = (
-  gameState: DivisiveOverrulingGameState,
+  gameState: DivisiveOverrulingInitialExplosionGameState,
   position: Position
-): GameState & {
-  player: Player;
-  tetheredTo: Player;
-  bossColour: "Light" | "Dark";
-} => {
+): IGameState => {
   const safeLocation = getSafeSpot(gameState);
   if (Math.abs(0.5 - position[0]) > 0.2) {
-    return {
-      stage: "divisive-overruling-post-explosion",
+    return new DivisivePostState({
       player: {
         ...gameState.player,
         position: position,
@@ -72,11 +73,9 @@ const move = (
         }),
       },
       bossColour: gameState.bossColour,
-      setup: gameState.setup,
-    };
+    });
   } else {
-    return {
-      stage: "dead",
+    return new DeathClass({
       player: {
         ...gameState.player,
         alive: false,
@@ -93,36 +92,30 @@ const move = (
       },
       safeLocation: safeLocation,
       bossColour: gameState.bossColour,
-      setup: gameState.setup,
-    };
+    });
   }
 };
 
-export const divisiveOverrulingReducer = (
-  gameState: DivisiveOverrulingGameState,
-  action: Action
-): GameState | undefined => {
-  if (action.type === "MOVE") {
-    const nextState = move(gameState, action.target);
-
-    return {
-      ...gameState,
-      stage: "divisive-overruling-initial-explosion",
-      player: nextState.player,
-      tetheredTo: nextState.tetheredTo,
-      nextState,
-      bossColour: nextState.bossColour,
-    };
+export class DivisiveOverrulingInitialExplosionState implements IGameState {
+  player: Player;
+  tetheredTo: Player;
+  bossColour: "Dark" | "Light";
+  cast = {
+    name: "Divisive Overruling",
+    value: 50,
+  };
+  constructor(state: DivisiveOverrulingInitialExplosionGameState) {
+    this.state = state;
+    this.player = state.player;
+    this.tetheredTo = state.tetheredTo;
+    this.bossColour = state.bossColour;
   }
-  return undefined;
-};
-
-export const divisiveOverrulingInitialExplosionReducer = (
-  gameState: DivisiveOverrulingInitialExplosionGameState,
-  action: Action
-): GameState | undefined => {
-  if (action.type === "ANIMATIONEND") {
-    return gameState.nextState;
-  }
-  return undefined;
-};
+  private state: DivisiveOverrulingInitialExplosionGameState;
+  overlay = () => <></>;
+  reduce = (action: Action) => {
+    if (action.type === "MOVE") {
+      return move(this.state, action.target);
+    }
+    return this;
+  };
+}

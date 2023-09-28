@@ -1,22 +1,16 @@
-import { Action, GameState, createPartner, createPlayer } from "../gameState";
+import { useReducer } from "react";
+import { Action, Role } from "../gameState";
 
-export type SetupGameState = GameState & { stage: "setup" };
+export type SetupGameState = { role: Role };
 
-export const setupReducer = (
-  gameState: SetupGameState,
+const setupReducer = (
+  state: SetupGameState,
   action: Action
-): GameState | undefined => {
-  if (action.type === "START") {
-    const player = createPlayer(gameState.setup);
-    const tetheredTo = createPartner(player);
-    return {
-      stage: "positions1",
-      player,
-      tetheredTo,
-      setup: gameState.setup,
-    };
-  } else if (action.type === "SELECTROLE") {
-    return { ...gameState, setup: { role: action.role } };
+): SetupGameState => {
+  if (action.type === "SELECTROLE") {
+    return { role: action.role };
   }
-  return undefined;
+  return state;
 };
+
+export const useSetup = () => useReducer(setupReducer, { role: "Healer" });

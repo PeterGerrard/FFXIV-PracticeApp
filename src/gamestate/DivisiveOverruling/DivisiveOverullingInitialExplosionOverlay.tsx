@@ -1,10 +1,10 @@
 import { Grow } from "@mui/material";
 import { Action } from "../gameState";
 import { useEffect } from "react";
-import { DivisiveOverrulingInitialExplosionGameState } from "./divisiveOverrulingState";
+import { DivisiveOverrulingGameState } from "./divisiveOverrulingState";
 
 export const DisvisiveOverrulingInitialExplosionOverlay = (props: {
-  state: DivisiveOverrulingInitialExplosionGameState;
+  state: DivisiveOverrulingGameState;
   dispatch: (action: Action) => void;
 }) => {
   const { state, dispatch } = props;

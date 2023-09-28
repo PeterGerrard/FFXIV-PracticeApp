@@ -1,7 +1,12 @@
-import { GameState } from "..";
+import { IGameState, Player, Position } from "../gameState";
 
 export const DeathOverlay = (props: {
-  state: GameState & { stage: "dead" };
+  state: {
+    player: Player;
+    tetheredTo: Player;
+    bossColour: "Dark" | "Light" | null;
+    safeLocation: Position;
+  };
 }) => (
   <svg
     height="100"
@@ -24,3 +29,31 @@ export const DeathOverlay = (props: {
     />
   </svg>
 );
+
+export class DeathClass implements IGameState {
+  player: Player;
+  tetheredTo: Player;
+  bossColour: "Dark" | "Light" | null;
+  cast = null;
+  constructor(state: {
+    player: Player;
+    tetheredTo: Player;
+    bossColour: "Dark" | "Light" | null;
+    safeLocation: Position;
+  }) {
+    this.state = state;
+    this.player = state.player;
+    this.tetheredTo = state.tetheredTo;
+    this.bossColour = state.bossColour;
+  }
+  private state: {
+    player: Player;
+    tetheredTo: Player;
+    bossColour: "Dark" | "Light" | null;
+    safeLocation: Position;
+  };
+  overlay = () => <DeathOverlay state={this.state} />;
+  reduce = () => {
+    return this;
+  };
+}

@@ -1,10 +1,21 @@
-import { GameState, Position, Action, distanceTo, Player } from "../gameState";
+import { DeathClass } from "../Death/DeathOverlay";
+import { Positions2 } from "../Positions2/positions2State";
+import { Position, Action, distanceTo, Player, IGameState } from "../gameState";
+import { RevelationExplosionOverlay } from "./RevelationExplosionOverlay";
+import { RevelationOverlay } from "./RevelationOverlay";
 
-export type RevelationGameState = GameState & {
-  stage: "revelation";
+export type RevelationGameState = {
+  player: Player;
+  tetheredTo: Player;
+  bossColour: "Dark" | "Light";
+  topBomb: "Dark" | "Light";
 };
-export type RevelationExplosionGameState = GameState & {
-  stage: "revelation-explosion";
+export type RevelationExplosionGameState = {
+  player: Player;
+  tetheredTo: Player;
+  bossColour: "Dark" | "Light";
+  topBomb: "Dark" | "Light";
+  nextState: IGameState;
 };
 
 const getSafeRevelationSpot = (gameState: RevelationGameState): Position => {
@@ -56,7 +67,7 @@ const getSafeRevelationSpot = (gameState: RevelationGameState): Position => {
 const move = (
   gameState: RevelationGameState,
   position: Position
-): GameState & { player: Player; tetheredTo: Player } => {
+): IGameState => {
   const bombLocations: Position[] =
     gameState.bossColour === gameState.topBomb
       ? [
@@ -68,8 +79,7 @@ const move = (
           [0.8, 0.5],
         ];
   if (bombLocations.every((p) => distanceTo(position, p) > 0.4)) {
-    return {
-      stage: "positions2",
+    return new Positions2({
       player: {
         ...gameState.player,
         position: position,
@@ -82,12 +92,9 @@ const move = (
           tetheredTo: gameState.player,
         }),
       },
-      bossColour: Math.random() < 0.5 ? "Dark" : "Light",
-      setup: gameState.setup,
-    };
+    });
   } else {
-    return {
-      stage: "dead",
+    return new DeathClass({
       player: {
         ...gameState.player,
         alive: false,
@@ -104,34 +111,61 @@ const move = (
       },
       safeLocation: getSafeRevelationSpot(gameState),
       bossColour: Math.random() < 0.5 ? "Dark" : "Light",
-      setup: gameState.setup,
-    };
+    });
   }
 };
 
-export const revalationReducer = (
-  gameState: RevelationGameState,
-  action: Action
-): GameState | undefined => {
-  if (action.type === "MOVE") {
-    const nextState = move(gameState, action.target);
-    return {
-      ...gameState,
-      stage: "revelation-explosion",
-      player: nextState.player,
-      tetheredTo: nextState.tetheredTo,
-      nextState,
-    };
+export class RevelationState implements IGameState {
+  player: Player;
+  tetheredTo: Player;
+  bossColour: "Dark" | "Light";
+  cast = {
+    name: "Arcane Revelation",
+    value: 50,
+  };
+  constructor(state: RevelationGameState) {
+    this.state = state;
+    this.player = state.player;
+    this.tetheredTo = state.tetheredTo;
+    this.bossColour = state.bossColour;
   }
-  return undefined;
-};
-
-export const revalationExplosionReducer = (
-  gameState: RevelationExplosionGameState,
-  action: Action
-): GameState | undefined => {
-  if (action.type === "ANIMATIONEND") {
-    return gameState.nextState;
+  private state: RevelationGameState;
+  overlay = () => <RevelationOverlay state={this.state} />;
+  reduce = (action: Action) => {
+    if (action.type === "MOVE") {
+      const nextState = move(this.state, action.target);
+      return new RevelationExplosionState({
+        ...this.state,
+        player: nextState.player,
+        tetheredTo: nextState.tetheredTo,
+        nextState,
+      });
+    }
+    return this;
+  };
+}
+export class RevelationExplosionState implements IGameState {
+  player: Player;
+  tetheredTo: Player;
+  bossColour: "Dark" | "Light";
+  cast = {
+    name: "Arcane Revelation",
+    value: 100,
+  };
+  constructor(state: RevelationExplosionGameState) {
+    this.state = state;
+    this.player = state.player;
+    this.tetheredTo = state.tetheredTo;
+    this.bossColour = state.bossColour;
   }
-  return undefined;
-};
+  private state: RevelationExplosionGameState;
+  overlay = (dispatch: (action: Action) => void) => (
+    <RevelationExplosionOverlay state={this.state} dispatch={dispatch} />
+  );
+  reduce = (action: Action) => {
+    if (action.type === "ANIMATIONEND") {
+      return this.state.nextState;
+    }
+    return this;
+  };
+}

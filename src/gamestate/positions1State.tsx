@@ -1,6 +1,7 @@
+import { DeathClass } from "./Death/DeathOverlay";
 import {
   Action,
-  GameState,
+  IGameState,
   Marker1,
   Marker2,
   Marker3,
@@ -9,12 +10,17 @@ import {
   MarkerB,
   MarkerC,
   MarkerD,
+  Player,
   Position,
   Role,
   distanceTo,
 } from "./gameState";
+import { RevelationState } from "./Revelation/revelationsState";
 
-type Positions1GameState = GameState & { stage: "positions1" };
+type Positions1GameState = {
+  player: Player;
+  tetheredTo: Player;
+};
 
 const getCorrectPos = (
   role: Role,
@@ -51,15 +57,14 @@ const getCorrectPos = (
 const move = (
   gameState: Positions1GameState,
   position: Position
-): GameState => {
+): IGameState => {
   const safeLocation = getCorrectPos(
     gameState.player.role,
     gameState.player.debuff === gameState.tetheredTo.debuff ? "Long" : "Short",
     gameState.tetheredTo.role
   );
   if (distanceTo(position, safeLocation) < 0.1) {
-    return {
-      stage: "revelation",
+    return new RevelationState({
       player: {
         ...gameState.player,
         position: position,
@@ -76,11 +81,9 @@ const move = (
       },
       bossColour: Math.random() < 0.5 ? "Dark" : "Light",
       topBomb: Math.random() < 0.5 ? "Dark" : "Light",
-      setup: gameState.setup,
-    };
+    });
   } else {
-    return {
-      stage: "dead",
+    return new DeathClass({
       player: {
         ...gameState.player,
         alive: false,
@@ -99,17 +102,28 @@ const move = (
       },
       safeLocation,
       bossColour: Math.random() < 0.5 ? "Dark" : "Light",
-      setup: gameState.setup,
-    };
+    });
   }
 };
 
-export const positions1Reducer = (
-  gameState: Positions1GameState,
-  action: Action
-): GameState | undefined => {
-  if (action.type === "MOVE") {
-    return move(gameState, action.target);
+export class Positions1 implements IGameState {
+  player: Player;
+  tetheredTo: Player;
+  bossColour: null;
+  cast = null;
+  constructor(state: Positions1GameState) {
+    this.state = state;
+    this.player = state.player;
+    this.tetheredTo = state.tetheredTo;
+    this.bossColour = null;
   }
-  return undefined;
-};
+  private state: Positions1GameState;
+  overlay = () => <></>;
+  reduce = (action: Action) => {
+    if (action.type === "MOVE") {
+      const nextState = move(this.state, action.target);
+      return nextState;
+    }
+    return this;
+  };
+}

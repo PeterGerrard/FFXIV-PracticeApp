@@ -12,140 +12,12 @@ import {
   createTheme,
   useMediaQuery,
 } from "@mui/material";
-import { Action, GameState, useGameState } from "./gamestate";
-import { SetupForm } from "./gamestate/Setup/SetupForm";
+import { useGameState } from "./gamestate";
 import { Arena } from "./Arena";
-import { RevelationOverlay } from "./gamestate/Revelation/RevelationOverlay";
-import { DeathOverlay } from "./gamestate/Death/DeathOverlay";
-import { RevelationExplosionOverlay } from "./gamestate/Revelation/RevelationExplosionOverlay";
-import { JuryOverrulingInitialExplosionOverlay } from "./gamestate/JuryOverruling/JuryExplosionInitialOverlay";
-import { JuryOverrulingPostExplosionOverlay } from "./gamestate/JuryOverruling/JuryExplosionPostOverlay";
-import { DisvisiveOverrulingInitialExplosionOverlay } from "./gamestate/DivisiveOverruling/DivisiveOverullingInitialExplosionOverlay";
-import { EndOverlay } from "./gamestate/DivisiveOverruling/EndOverlay";
-
-const CastBar = (props: {
-  stage: GameState["stage"];
-  dispatch: (action: Action) => void;
-}) => {
-  switch (props.stage) {
-    case "setup":
-      return <></>;
-    case "positions1":
-      return (
-        <>
-          <h1>Dark and Light</h1>
-          <LinearProgress
-            sx={{ height: "16px" }}
-            color="warning"
-            variant="determinate"
-            value={50}
-          />
-        </>
-      );
-    case "revelation":
-      return (
-        <>
-          <h1>Arcane Revelation</h1>
-          <LinearProgress
-            sx={{ height: "16px" }}
-            color="warning"
-            variant="determinate"
-            value={50}
-          />
-        </>
-      );
-    case "positions2":
-      return (
-        <>
-          <h1>Jury Overruling</h1>
-          <LinearProgress
-            sx={{ height: "16px" }}
-            color="warning"
-            variant="determinate"
-            value={50}
-          />
-        </>
-      );
-    case "jury-overruling-initial-explosion":
-      return (
-        <>
-          <h1>Jury Overruling</h1>
-          <LinearProgress
-            sx={{ height: "16px" }}
-            color="warning"
-            variant="determinate"
-            value={100}
-          />
-        </>
-      );
-    case "jury-overruling":
-      return (
-        <>
-          <h1>Jury Overruling</h1>
-          <LinearProgress
-            sx={{ height: "16px" }}
-            color="warning"
-            variant="determinate"
-            value={100}
-          />
-        </>
-      );
-    case "positions3":
-      return <></>;
-    case "divisive-overruling-initial-explosion":
-      return (
-        <>
-          <h1>Divisive Overruling</h1>
-          <LinearProgress
-            sx={{ height: "16px" }}
-            color="warning"
-            variant="determinate"
-            value={50}
-          />
-        </>
-      );
-    case "divisive-overruling":
-      return (
-        <>
-          <h1>Divisive Overruling</h1>
-          <LinearProgress
-            sx={{ height: "16px" }}
-            color="warning"
-            variant="determinate"
-            value={100}
-          />
-        </>
-      );
-    case "divisive-overruling-post-explosion":
-      return (
-        <>
-          <h1>Divisive Overruling</h1>
-          <LinearProgress
-            sx={{ height: "16px" }}
-            color="warning"
-            variant="determinate"
-            value={100}
-          />
-        </>
-      );
-    case "end":
-      return (
-        <>
-          <h1>VICTORY</h1>
-          <Button onClick={() => props.dispatch({ type: "RESTART" })}>
-            Restart
-          </Button>
-        </>
-      );
-    case "revelation-explosion":
-    case "jury-overruling-explosion":
-    case "dead":
-      return <></>;
-  }
-};
+import { SetupForm } from "./gamestate/Setup/SetupForm";
 
 function App() {
-  const [state, dispatch] = useGameState();
+  const [state, setupState, dispatch] = useGameState();
 
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
@@ -163,56 +35,41 @@ function App() {
         <Button onClick={() => dispatch({ type: "RESTART" })}>Restart</Button>
         <Button onClick={() => dispatch({ type: "RESET" })}>Reset</Button>
       </div>
-      <div>
-        {state.stage === "setup" && (
-          <SetupForm state={state} dispatch={dispatch} />
-        )}
-        {state.stage !== "setup" && (
-          <Arena
-            dispatch={dispatch}
-            player={state.player}
-            tetheredTo={state.tetheredTo}
-            bossColour={"bossColour" in state ? state.bossColour : null}
+      {!state && <SetupForm state={setupState} dispatch={dispatch} />}
+      {state && (
+        <>
+          <div>
+            (
+            <Arena
+              dispatch={dispatch}
+              player={state.player}
+              tetheredTo={state.tetheredTo}
+              bossColour={"bossColour" in state ? state.bossColour : null}
+            >
+              {state.overlay(dispatch)}
+            </Arena>
+            )
+          </div>
+          <div
+            style={{
+              maxWidth: "500px",
+              paddingBottom: "50px",
+            }}
           >
-            <>
-              {state.stage == "revelation" && (
-                <RevelationOverlay state={state} />
-              )}
-              {state.stage == "revelation-explosion" && (
-                <RevelationExplosionOverlay state={state} dispatch={dispatch} />
-              )}
-              {state.stage == "jury-overruling-initial-explosion" && (
-                <JuryOverrulingInitialExplosionOverlay
-                  state={state}
-                  dispatch={dispatch}
+            {state.cast && (
+              <>
+                <h1>{state.cast.name}</h1>
+                <LinearProgress
+                  sx={{ height: "16px" }}
+                  color="warning"
+                  variant="determinate"
+                  value={state.cast.value}
                 />
-              )}
-              {state.stage == "jury-overruling-explosion" && (
-                <JuryOverrulingPostExplosionOverlay
-                  state={state}
-                  dispatch={dispatch}
-                />
-              )}
-              {state.stage == "divisive-overruling-initial-explosion" && (
-                <DisvisiveOverrulingInitialExplosionOverlay
-                  state={state}
-                  dispatch={dispatch}
-                />
-              )}
-              {state.stage == "end" && <EndOverlay state={state} />}
-              {state.stage == "dead" && <DeathOverlay state={state} />}
-            </>
-          </Arena>
-        )}
-      </div>
-      <div
-        style={{
-          maxWidth: "500px",
-          paddingBottom: "50px",
-        }}
-      >
-        <CastBar stage={state.stage} dispatch={dispatch} />
-      </div>
+              </>
+            )}
+          </div>
+        </>
+      )}
     </ThemeProvider>
   );
 }

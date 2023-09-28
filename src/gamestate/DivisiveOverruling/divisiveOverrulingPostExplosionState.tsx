@@ -1,5 +1,5 @@
+import { DeathClass } from "../Death/DeathOverlay";
 import {
-  GameState,
   Position,
   Action,
   MarkerB,
@@ -7,10 +7,16 @@ import {
   Marker3,
   Marker1,
   isTetherSafe,
+  IGameState,
+  Player,
 } from "../gameState";
+import { DisvisiveOverrulingInitialExplosionOverlay } from "./DivisiveOverullingInitialExplosionOverlay";
+import { EndClass } from "./EndOverlay";
 
-export type DivisiveOverrulingPostExplosionGameState = GameState & {
-  stage: "divisive-overruling-post-explosion";
+type DivisiveOverrulingPostExplosionGameState = {
+  player: Player;
+  tetheredTo: Player;
+  bossColour: "Dark" | "Light";
 };
 
 const getSafeSpot = (
@@ -66,7 +72,7 @@ const getSafeSpot = (
 const move = (
   gameState: DivisiveOverrulingPostExplosionGameState,
   position: Position
-): GameState => {
+): IGameState => {
   const safeLocation = getSafeSpot(gameState);
 
   if (
@@ -75,8 +81,7 @@ const move = (
         Math.abs(0.5 - position[0]) > 0.3)) &&
     isTetherSafe(gameState.player, gameState.tetheredTo)
   ) {
-    return {
-      stage: "end",
+    return new EndClass({
       player: {
         ...gameState.player,
         position: position,
@@ -90,11 +95,9 @@ const move = (
         }),
       },
       bossColour: gameState.bossColour,
-      setup: gameState.setup,
-    };
+    });
   } else {
-    return {
-      stage: "dead",
+    return new DeathClass({
       player: {
         ...gameState.player,
         alive: false,
@@ -111,17 +114,35 @@ const move = (
       },
       safeLocation: safeLocation,
       bossColour: null,
-      setup: gameState.setup,
-    };
+    });
   }
 };
 
-export const divisiveOverrulingPostExplosionReducer = (
-  gameState: DivisiveOverrulingPostExplosionGameState,
-  action: Action
-): GameState | undefined => {
-  if (action.type === "MOVE") {
-    return move(gameState, action.target);
+export class DivisivePostState implements IGameState {
+  player: Player;
+  tetheredTo: Player;
+  bossColour: "Dark" | "Light";
+  cast = {
+    name: "Divisive Overruling",
+    value: 100,
+  };
+  constructor(state: DivisiveOverrulingPostExplosionGameState) {
+    this.state = state;
+    this.player = state.player;
+    this.tetheredTo = state.tetheredTo;
+    this.bossColour = state.bossColour;
   }
-  return undefined;
-};
+  private state: DivisiveOverrulingPostExplosionGameState;
+  overlay = (dispatch: (action: Action) => void) => (
+    <DisvisiveOverrulingInitialExplosionOverlay
+      state={this.state}
+      dispatch={dispatch}
+    />
+  );
+  reduce = (action: Action) => {
+    if (action.type === "MOVE") {
+      return move(this.state, action.target);
+    }
+    return this;
+  };
+}

@@ -19,7 +19,7 @@ export const RevelationExplosionOverlay = (props: {
 
   return (
     <>
-      <RevelationOverlay state={{ ...state, stage: "revelation" }} />
+      <RevelationOverlay state={state} />
       {state.topBomb === state.bossColour ? (
         <>
           <Grow in timeout={1500}>

@@ -1,3 +1,5 @@
+import React from "react";
+
 export type Role = "Tank" | "Healer" | "DPS";
 export type Position = [number, number];
 
@@ -12,107 +14,19 @@ export type Setup = {
   role: Role;
 };
 
-export type GameState =
-  | {
-      stage: "setup";
-      setup: Setup;
-    }
-  | {
-      stage: "positions1";
-      player: Player;
-      tetheredTo: Player;
-      setup: Setup;
-    }
-  | {
-      stage: "revelation";
-      player: Player;
-      tetheredTo: Player;
-      topBomb: "Light" | "Dark";
-      bossColour: "Light" | "Dark";
-      setup: Setup;
-    }
-  | {
-      stage: "revelation-explosion";
-      player: Player;
-      tetheredTo: Player;
-      topBomb: "Light" | "Dark";
-      bossColour: "Light" | "Dark";
-      nextState: GameState;
-      setup: Setup;
-    }
-  | {
-      stage: "positions2";
-      player: Player;
-      tetheredTo: Player;
-      bossColour: "Light" | "Dark";
-      setup: Setup;
-    }
-  | {
-      stage: "jury-overruling-initial-explosion";
-      player: Player;
-      tetheredTo: Player;
-      bossColour: "Light" | "Dark";
-      nextState: GameState;
-      setup: Setup;
-    }
-  | {
-      stage: "jury-overruling";
-      player: Player;
-      tetheredTo: Player;
-      bossColour: "Light" | "Dark";
-      setup: Setup;
-    }
-  | {
-      stage: "jury-overruling-explosion";
-      player: Player;
-      tetheredTo: Player;
-      bossColour: "Light" | "Dark";
-      nextState: GameState;
-      setup: Setup;
-    }
-  | {
-      stage: "positions3";
-      player: Player;
-      tetheredTo: Player;
-      setup: Setup;
-    }
-  | {
-      stage: "divisive-overruling-initial-explosion";
-      player: Player;
-      tetheredTo: Player;
-      bossColour: "Light" | "Dark";
-      setup: Setup;
-      nextState: GameState;
-    }
-  | {
-      stage: "divisive-overruling";
-      player: Player;
-      tetheredTo: Player;
-      bossColour: "Light" | "Dark";
-      setup: Setup;
-    }
-  | {
-      stage: "divisive-overruling-post-explosion";
-      player: Player;
-      tetheredTo: Player;
-      bossColour: "Light" | "Dark";
-      setup: Setup;
-    }
-  | {
-      stage: "end";
-      player: Player;
-      tetheredTo: Player;
-      bossColour: "Light" | "Dark";
-      setup: Setup;
-    }
-  | {
-      stage: "dead";
-      player: Player;
-      tetheredTo: Player;
-      safeLocation: Position;
-      bossColour: "Dark" | "Light" | null;
-      setup: Setup;
-    };
+export type Cast = {
+  name: string;
+  value: number;
+};
+
+export interface IGameState {
+  overlay: (dispatch: (action: Action) => void) => React.ReactElement;
+  reduce: (action: Action) => IGameState;
+  player: Player;
+  tetheredTo: Player;
+  bossColour: "Dark" | "Light" | null;
+  cast: Cast | null;
+}
 
 export type Action =
   | { type: "RESET" }
@@ -171,26 +85,4 @@ export const createPartner = (player: Player): Player => {
     debuff: Math.random() <= 0.5 ? "Light" : "Dark",
     alive: true,
   };
-};
-
-export const defaultReducer = (
-  gameState: GameState,
-  action: Action
-): GameState | undefined => {
-  if (action.type === "RESET") {
-    return {
-      stage: "setup",
-      setup: gameState.setup,
-    };
-  } else if (action.type === "RESTART") {
-    const player = createPlayer(gameState.setup);
-    const tetheredTo = createPartner(player);
-    return {
-      stage: "positions1",
-      player,
-      tetheredTo,
-      setup: gameState.setup,
-    };
-  }
-  return undefined;
 };

@@ -1,6 +1,8 @@
+import { DeathClass } from "../Death/DeathOverlay";
+import { DivisiveOverrulingInitialExplosionState } from "../DivisiveOverruling/divisiveOverrulingState";
 import {
   Action,
-  GameState,
+  IGameState,
   Marker1,
   Marker2,
   Marker3,
@@ -15,7 +17,10 @@ import {
   distanceTo,
 } from "../gameState";
 
-type Positions2GameState = GameState & { stage: "positions2" };
+type Positions3GameState = {
+  player: Player;
+  tetheredTo: Player;
+};
 
 const getCorrectPos = (
   role: Role,
@@ -50,21 +55,16 @@ const getCorrectPos = (
 };
 
 const move = (
-  gameState: Positions2GameState,
+  gameState: Positions3GameState,
   position: Position
-): GameState & {
-  player: Player;
-  tetheredTo: Player;
-  bossColour: "Dark" | "Light";
-} => {
+): IGameState => {
   const safeLocation = getCorrectPos(
     gameState.player.role,
     gameState.player.debuff === gameState.tetheredTo.debuff ? "Long" : "Short",
     gameState.tetheredTo.role
   );
   if (distanceTo(position, safeLocation) < 0.1) {
-    return {
-      stage: "jury-overruling",
+    return new DivisiveOverrulingInitialExplosionState({
       player: {
         ...gameState.player,
         position: position,
@@ -79,49 +79,49 @@ const move = (
           gameState.player.role
         ),
       },
-      bossColour: gameState.bossColour,
-      setup: gameState.setup,
-    };
-  } else {
-    return {
-      stage: "dead",
-      player: {
-        ...gameState.player,
-        alive: false,
-        position: position,
-      },
-      tetheredTo: {
-        ...gameState.tetheredTo,
-        alive: false,
-        position: getCorrectPos(
-          gameState.tetheredTo.role,
-          gameState.player.debuff === gameState.tetheredTo.debuff
-            ? "Long"
-            : "Short",
-          gameState.player.role
-        ),
-      },
-      safeLocation,
       bossColour: Math.random() < 0.5 ? "Dark" : "Light",
-      setup: gameState.setup,
-    };
+    });
+  } else {
+    return new DeathClass({
+      player: {
+        ...gameState.player,
+        alive: false,
+        position: position,
+      },
+      tetheredTo: {
+        ...gameState.tetheredTo,
+        alive: false,
+        position: getCorrectPos(
+          gameState.tetheredTo.role,
+          gameState.player.debuff === gameState.tetheredTo.debuff
+            ? "Long"
+            : "Short",
+          gameState.player.role
+        ),
+      },
+      bossColour: null,
+      safeLocation,
+    });
   }
 };
 
-export const positions2Reducer = (
-  gameState: Positions2GameState,
-  action: Action
-): GameState | undefined => {
-  if (action.type === "MOVE") {
-    const nextState = move(gameState, action.target);
-    return {
-      ...gameState,
-      stage: "jury-overruling-initial-explosion",
-      player: nextState.player,
-      tetheredTo: nextState.tetheredTo,
-      bossColour: nextState.bossColour,
-      nextState,
-    };
+export class Positions3 implements IGameState {
+  player: Player;
+  tetheredTo: Player;
+  bossColour: null;
+  cast = null;
+  constructor(state: Positions3GameState) {
+    this.state = state;
+    this.player = state.player;
+    this.tetheredTo = state.tetheredTo;
+    this.bossColour = null;
   }
-  return undefined;
-};
+  private state: Positions3GameState;
+  overlay = () => <></>;
+  reduce = (action: Action) => {
+    if (action.type === "MOVE") {
+      return move(this.state, action.target);
+    }
+    return this;
+  };
+}
