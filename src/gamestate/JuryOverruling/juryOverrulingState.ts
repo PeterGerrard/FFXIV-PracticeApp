@@ -7,10 +7,15 @@ import {
   MarkerA,
   Marker1,
   Marker3,
+  Player,
 } from "../gameState";
 
 type JuryOverrulingGameState = GameState & {
   stage: "jury-overruling";
+};
+
+export type JuryOverrulingInitialExplosionGameState = GameState & {
+  stage: "jury-overruling-initial-explosion";
 };
 
 const getSafeSpot = (gameState: JuryOverrulingGameState): Position => {
@@ -62,7 +67,7 @@ const getSafeSpot = (gameState: JuryOverrulingGameState): Position => {
 const move = (
   gameState: JuryOverrulingGameState,
   position: Position
-): GameState => {
+): GameState & { player: Player; tetheredTo: Player } => {
   const safeLocation = getSafeSpot(gameState);
   if (distanceTo(position, safeLocation) < 0.1) {
     return {
@@ -98,6 +103,7 @@ const move = (
         }),
       },
       safeLocation: getSafeSpot(gameState),
+      bossColour: null,
     };
   }
 };
@@ -108,6 +114,16 @@ export const juryOverrulingReducer = (
 ): GameState | undefined => {
   if (action.type === "MOVE") {
     return move(gameState, action.target);
+  }
+  return undefined;
+};
+
+export const juryOverrulingInitialExplosionReducer = (
+  gameState: JuryOverrulingInitialExplosionGameState,
+  action: Action
+): GameState | undefined => {
+  if (action.type === "ANIMATIONEND") {
+    return gameState.nextState;
   }
   return undefined;
 };

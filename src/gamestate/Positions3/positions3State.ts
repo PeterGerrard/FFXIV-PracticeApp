@@ -96,6 +96,7 @@ const move = (
         ),
       },
       safeLocation,
+      bossColour: Math.random() < 0.5 ? "Dark" : "Light",
     };
   }
 };

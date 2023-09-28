@@ -37,12 +37,27 @@ export type GameState =
       stage: "positions2";
       player: Player;
       tetheredTo: Player;
+      bossColour: "Light" | "Dark";
+    }
+  | {
+      stage: "jury-overruling-initial-explosion";
+      player: Player;
+      tetheredTo: Player;
+      bossColour: "Light" | "Dark";
+      nextState: GameState;
     }
   | {
       stage: "jury-overruling";
       player: Player;
       tetheredTo: Player;
       bossColour: "Light" | "Dark";
+    }
+  | {
+      stage: "jury-overruling-explosion";
+      player: Player;
+      tetheredTo: Player;
+      bossColour: "Light" | "Dark";
+      nextState: GameState;
     }
   | {
       stage: "positions3";
@@ -70,6 +85,7 @@ export type GameState =
       player: Player;
       tetheredTo: Player;
       safeLocation: Position;
+      bossColour: "Dark" | "Light" | null;
     };
 
 export type Action =

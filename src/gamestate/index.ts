@@ -15,7 +15,10 @@ import {
   revalationReducer,
 } from "./Revelation/revelationsState";
 import { positions2Reducer } from "./Positions2/positions2State";
-import { juryOverrulingReducer } from "./JuryOverruling/juryOverrulingState";
+import {
+  juryOverrulingInitialExplosionReducer,
+  juryOverrulingReducer,
+} from "./JuryOverruling/juryOverrulingState";
 import { positions3Reducer } from "./Positions3/positions3State";
 import { divisiveOverrulingReducer } from "./DivisiveOverruling/divisiveOverrulingState";
 import { divisiveOverrulingDarkReducer } from "./DivisiveOverrulingDark/divisiveOverrulingDarkState";
@@ -36,6 +39,8 @@ const applyStateReducer = (
       return revalationReducer(gameState, action);
     case "revelation-explosion":
       return revalationExplosionReducer(gameState, action);
+    case "jury-overruling-initial-explosion":
+      return juryOverrulingInitialExplosionReducer(gameState, action);
     case "positions2":
       return positions2Reducer(gameState, action);
     case "jury-overruling":

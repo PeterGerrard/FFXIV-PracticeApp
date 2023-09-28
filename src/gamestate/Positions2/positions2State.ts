@@ -9,6 +9,7 @@ import {
   MarkerB,
   MarkerC,
   MarkerD,
+  Player,
   Position,
   Role,
   distanceTo,
@@ -51,7 +52,11 @@ const getCorrectPos = (
 const move = (
   gameState: Positions2GameState,
   position: Position
-): GameState => {
+): GameState & {
+  player: Player;
+  tetheredTo: Player;
+  bossColour: "Dark" | "Light";
+} => {
   const safeLocation = getCorrectPos(
     gameState.player.role,
     gameState.player.debuff === gameState.tetheredTo.debuff ? "Long" : "Short",
@@ -96,6 +101,7 @@ const move = (
         ),
       },
       safeLocation,
+      bossColour: Math.random() < 0.5 ? "Dark" : "Light",
     };
   }
 };
@@ -105,7 +111,15 @@ export const positions2Reducer = (
   action: Action
 ): GameState | undefined => {
   if (action.type === "MOVE") {
-    return move(gameState, action.target);
+    const nextState = move(gameState, action.target);
+    return {
+      ...gameState,
+      stage: "jury-overruling-initial-explosion",
+      player: nextState.player,
+      tetheredTo: nextState.tetheredTo,
+      bossColour: nextState.bossColour,
+      nextState,
+    };
   }
   return undefined;
 };

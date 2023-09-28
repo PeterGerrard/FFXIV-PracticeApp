@@ -18,6 +18,7 @@ import { Arena } from "./Arena";
 import { RevelationOverlay } from "./gamestate/Revelation/RevelationOverlay";
 import { DeathOverlay } from "./gamestate/Death/DeathOverlay";
 import { RevelationExplosionOverlay } from "./gamestate/Revelation/RevelationExplosionOverlay";
+import { JuryOverrulingInitialExplosionOverlay } from "./gamestate/JuryOverruling/JuryExplosionInitialOverlay";
 
 const CastBar = (props: { stage: GameState["stage"] }) => {
   switch (props.stage) {
@@ -56,6 +57,18 @@ const CastBar = (props: { stage: GameState["stage"] }) => {
             color="warning"
             variant="determinate"
             value={50}
+          />
+        </>
+      );
+    case "jury-overruling-initial-explosion":
+      return (
+        <>
+          <h1>Jury Overruling</h1>
+          <LinearProgress
+            sx={{ height: "16px" }}
+            color="warning"
+            variant="determinate"
+            value={100}
           />
         </>
       );
@@ -100,6 +113,7 @@ const CastBar = (props: { stage: GameState["stage"] }) => {
     case "end":
       return <h1>VICTORY</h1>;
     case "revelation-explosion":
+    case "jury-overruling-explosion":
     case "dead":
       return <></>;
   }
@@ -140,6 +154,12 @@ function App() {
               )}
               {state.stage == "revelation-explosion" && (
                 <RevelationExplosionOverlay state={state} dispatch={dispatch} />
+              )}
+              {state.stage == "jury-overruling-initial-explosion" && (
+                <JuryOverrulingInitialExplosionOverlay
+                  state={state}
+                  dispatch={dispatch}
+                />
               )}
               {state.stage == "dead" && <DeathOverlay state={state} />}
             </>

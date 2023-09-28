@@ -77,6 +77,7 @@ const move = (
         }),
       },
       safeLocation: safeLocation,
+      bossColour: null,
     };
   }
 };
