@@ -7,13 +7,12 @@ import {
   GameLoop4,
   GameLoop5,
   GameState,
-  Player,
   Position,
   Role,
 } from "./gameState";
 import { DeathOverlay } from "./Death/DeathOverlay";
 
-export type { Role, Position, Player, Action };
+export type { Role, Position, Action };
 
 type Game1<TPlayer, T> = {
   loop: 1;
@@ -241,7 +240,7 @@ export const stepGame5 = <
   }
 
   const nextState = game.game.nextState(game.gameState);
-  const otherPlayers = game.otherPlayers.map(o => ({
+  const otherPlayers = game.otherPlayers.map((o) => ({
     ...o,
     position: game.game.getSafeSpot(nextState, o),
   }));

@@ -1,12 +1,9 @@
 import { Position } from "../..";
 import { Loop, distanceTo } from "../../gameState";
+import { MarkerC, MarkerA, Marker1, Marker3 } from "../../p11sMarkers";
 import { Arena } from "../Arena";
 import { DivisiveOverrulingState } from "../DivisiveOverruling/divisiveOverrulingState";
 import {
-  MarkerC,
-  MarkerA,
-  Marker1,
-  Marker3,
   getDefaultPos,
   DarkAndLightPlayer,
   DarkAndLightGameState,
@@ -86,19 +83,19 @@ export const JuryOverrulingState: Loop<
       moveTo={moveTo}
     >
       <>
-      {gameState.bossColour && gameState.explosions === "Lines" && (
-        <JuryOverrulingInitialExplosionOverlay
-          bossColour={gameState.bossColour}
-          animationEnd={animationEnd}
-        />
-      )}
-      {gameState.bossColour && gameState.explosions === "AOE" && (
-        <JuryOverrulingPostExplosionOverlay
-          bossColour={gameState.bossColour}
-          animationEnd={animationEnd}
-        />
-      )}
-    </>
+        {gameState.bossColour && gameState.explosions === "Lines" && (
+          <JuryOverrulingInitialExplosionOverlay
+            bossColour={gameState.bossColour}
+            animationEnd={animationEnd}
+          />
+        )}
+        {gameState.bossColour && gameState.explosions === "AOE" && (
+          <JuryOverrulingPostExplosionOverlay
+            bossColour={gameState.bossColour}
+            animationEnd={animationEnd}
+          />
+        )}
+      </>
     </Arena>
   ),
   nextState: (gameState: JuryOverrulingGameState): JuryOverrulingGameState => {

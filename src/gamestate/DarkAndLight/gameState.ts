@@ -1,4 +1,21 @@
-import { GameState, Player, Position, Role, distanceTo, getRandomPos } from "../gameState";
+import { Player } from "../Player";
+import {
+  GameState,
+  Position,
+  Role,
+  distanceTo,
+  getRandomPos,
+} from "../gameState";
+import {
+  Marker1,
+  Marker2,
+  Marker3,
+  Marker4,
+  MarkerA,
+  MarkerB,
+  MarkerC,
+  MarkerD,
+} from "../p11sMarkers";
 
 export type DarkAndLightPlayer = Player & {
   debuff: "Light" | "Dark";
@@ -9,15 +26,6 @@ export type DarkAndLightPlayer = Player & {
 export type DarkAndLightGameState = GameState & {
   bossColour: "Dark" | "Light" | null;
 };
-
-export const MarkerA: Position = [0.498, 0.206];
-export const Marker1: Position = [0.714, 0.289];
-export const MarkerB: Position = [0.664, 0.502];
-export const Marker2: Position = [0.617, 0.621];
-export const MarkerC: Position = [0.498, 0.816];
-export const Marker3: Position = [0.278, 0.719];
-export const MarkerD: Position = [0.332, 0.502];
-export const Marker4: Position = [0.383, 0.391];
 
 export const isTetherSafe = (
   p1: DarkAndLightPlayer,

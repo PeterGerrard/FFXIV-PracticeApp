@@ -9,7 +9,7 @@ import {
   MarkerB,
   MarkerC,
   MarkerD,
-} from "../gameState";
+} from "../../p11sMarkers";
 
 export const JuryOverrulingPostExplosionOverlay = (props: {
   bossColour: "Dark" | "Light";

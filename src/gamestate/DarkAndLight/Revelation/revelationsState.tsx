@@ -1,4 +1,4 @@
-import { Position, Player } from "../..";
+import { Position } from "../..";
 import { Bombs } from "../../Bombs";
 import { GameState, Loop, distanceTo } from "../../gameState";
 import { Arena } from "../Arena";
@@ -43,7 +43,7 @@ const getSafeRevelationSpot = (
 };
 
 const isSafe = (
-  player: Player,
+  player: DarkAndLightPlayer,
   bossColour: "Dark" | "Light",
   topBomb: "Dark" | "Light"
 ) => {
@@ -119,7 +119,7 @@ export const RevelationState: Loop<
       hasFinished: true,
     };
   },
-  isSafe: (gameState: RevelationGameState, player: Player) =>
+  isSafe: (gameState: RevelationGameState, player: DarkAndLightPlayer) =>
     gameState.bossColour === null ||
     gameState.cast === null ||
     gameState.cast.value < 100 ||

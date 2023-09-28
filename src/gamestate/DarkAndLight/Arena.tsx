@@ -1,18 +1,15 @@
 /// <reference types="vite-plugin-svgr/client" />
 
-import { PropsWithChildren, Ref, forwardRef, useRef } from "react";
+import { PropsWithChildren, useRef } from "react";
 import arenaPng from "./assets/arena.png";
-import healerPng from "./assets/healer.png";
-import dpsPng from "./assets/dps.png";
-import tankPng from "./assets/tank.png";
-import skullPng from "./assets/Skull_and_Crossbones.png";
 import { ReactComponent as ForwardArrowSvg } from "./assets/forward-arrow.svg";
 import { ReactComponent as BackwardArrowSvg } from "./assets/backward-arrow.svg";
 
 import Xarrow from "react-xarrows";
-import { Position, Player } from "..";
+import { Position } from "..";
 import { DarkAndLightPlayer, isTetherSafe } from "./gameState";
 import { Themis } from "../Themis";
+import { PlayerComponent } from "../Player";
 
 // helper function to get an element's exact position
 function getPosition(e: HTMLElement): Position {
@@ -34,33 +31,6 @@ function getPosition(e: HTMLElement): Position {
   }
   return [xPosition, yPosition];
 }
-
-const Player = forwardRef(
-  (props: { player: Player; isDead: boolean }, ref: Ref<HTMLImageElement>) => {
-    return (
-      <img
-        ref={ref}
-        src={
-          props.isDead
-            ? skullPng
-            : props.player.role === "Healer"
-            ? healerPng
-            : props.player.role === "Tank"
-            ? tankPng
-            : dpsPng
-        }
-        style={{
-          position: "absolute",
-          left: `${props.player.position[0] * 100}%`,
-          top: `${props.player.position[1] * 100}%`,
-          height: "80px",
-          width: "80px",
-          transform: "translate(-50%, -50%)",
-        }}
-      ></img>
-    );
-  }
-);
 
 const Tether = (props: {
   playerRef: React.MutableRefObject<unknown>;
@@ -141,8 +111,16 @@ export const Arena = (
       <img src={arenaPng} height="100%"></img>
       <>
         <Themis bossColour={props.bossColour} />
-        <Player ref={tetheredRef} player={props.otherPlayer} isDead={false} />
-        <Player ref={playerRef} player={props.player} isDead={props.isDead} />
+        <PlayerComponent
+          ref={tetheredRef}
+          player={props.otherPlayer}
+          isDead={false}
+        />
+        <PlayerComponent
+          ref={playerRef}
+          player={props.player}
+          isDead={props.isDead}
+        />
         {!props.isDead && (
           <Tether
             playerRef={playerRef}

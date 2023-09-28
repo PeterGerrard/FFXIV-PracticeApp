@@ -23,11 +23,6 @@ export type InterCardinal =
   | "South West"
   | "North West";
 
-export type Player = {
-  role: Role;
-  position: Position;
-};
-
 export type Setup = {
   role: Role;
   clockSpot: ClockSpot;

@@ -1,11 +1,8 @@
-import { Player, Position } from "../..";
+import { Position } from "../..";
 import { FinalLoop } from "../../gameState";
+import { Marker3, Marker1, MarkerB, MarkerD } from "../../p11sMarkers";
 import { Arena } from "../Arena";
 import {
-  Marker3,
-  Marker1,
-  MarkerB,
-  MarkerD,
   getDefaultPos,
   DarkAndLightPlayer,
   DarkAndLightGameState,
@@ -76,11 +73,11 @@ const getSafeSpot2 = (
   return [MarkerD[0], Marker3[1]];
 };
 
-const isSafe1 = (player: Player) => {
+const isSafe1 = (player: DarkAndLightPlayer) => {
   return Math.abs(0.5 - player.position[0]) > 0.2;
 };
 
-const isSafe2 = (player: Player, bossColour: "Dark" | "Light") => {
+const isSafe2 = (player: DarkAndLightPlayer, bossColour: "Dark" | "Light") => {
   return (
     (bossColour === "Dark" && Math.abs(0.5 - player.position[0]) < 0.2) ||
     (bossColour === "Light" && Math.abs(0.5 - player.position[0]) > 0.3)
@@ -164,7 +161,10 @@ export const DivisiveOverrulingState: FinalLoop<
       hasFinished: true,
     };
   },
-  isSafe: (gameState: DivisiveOverrulingGameState, player: Player) => {
+  isSafe: (
+    gameState: DivisiveOverrulingGameState,
+    player: DarkAndLightPlayer
+  ) => {
     if (!gameState.bossColour) return true;
     if (gameState.stage === "Explosion1") return isSafe1(player);
     if (gameState.stage === "Explosion2")
