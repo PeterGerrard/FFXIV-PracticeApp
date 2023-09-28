@@ -193,10 +193,9 @@ export const Arena = (
     >
       <img src={arenaPng} height="100%"></img>
       <>
-        {props.children}
+        <Boss bossColour={props.bossColour} />
         <Player ref={tetheredRef} player={props.tetheredTo} />
         <Player ref={playerRef} player={props.player} />
-        <Boss bossColour={props.bossColour} />
         {props.player.alive && props.tetheredTo.alive && (
           <Tether
             playerRef={playerRef}
@@ -205,6 +204,7 @@ export const Arena = (
             tetheredTo={props.tetheredTo}
           />
         )}
+        {props.children}
       </>
     </div>
   );
