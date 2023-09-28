@@ -1,8 +1,12 @@
+/// <reference types="vite-plugin-svgr/client" />
+
 import { Ref, forwardRef, useReducer, useRef } from "react";
 import arenaPng from "./assets/arena.png";
 import healerPng from "./assets/healer.png";
 import dpsPng from "./assets/dps.png";
 import tankPng from "./assets/tank.png";
+import { ReactComponent as ForwardArrowSvg } from "./assets/forward-arrow.svg";
+import { ReactComponent as BackwardArrowSvg } from "./assets/backward-arrow.svg";
 
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
@@ -30,7 +34,8 @@ type Player = {
 };
 
 // helper function to get an element's exact position
-function getPosition(el: any): Position {
+function getPosition(e: HTMLElement): Position {
+  let el: HTMLElement | null = e;
   var xPosition = 0;
   var yPosition = 0;
   while (el) {
@@ -44,7 +49,7 @@ function getPosition(el: any): Position {
       xPosition += el.offsetLeft - el.scrollLeft + el.clientLeft;
       yPosition += el.offsetTop - el.scrollTop + el.clientTop;
     }
-    el = el.offsetParent;
+    el = el.offsetParent as HTMLElement | null;
   }
   return [xPosition, yPosition];
 }
@@ -83,14 +88,14 @@ type Action =
   | { type: "MOVE"; target: Position }
   | { type: "SELECTROLE"; role: Role };
 
-const MarkerA: Position = [585, 242];
-const Marker1: Position = [839, 340];
-const MarkerB: Position = [780, 590];
-const Marker2: Position = [725, 730];
-const MarkerC: Position = [585, 959];
-const Marker3: Position = [327, 845];
-const MarkerD: Position = [390, 590];
-const Marker4: Position = [450, 460];
+const MarkerA: Position = [0.498, 0.206];
+const Marker1: Position = [0.714, 0.289];
+const MarkerB: Position = [0.664, 0.502];
+const Marker2: Position = [0.617, 0.621];
+const MarkerC: Position = [0.498, 0.816];
+const Marker3: Position = [0.278, 0.719];
+const MarkerD: Position = [0.332, 0.502];
+const Marker4: Position = [0.383, 0.391];
 
 const distanceTo = (source: Position, target: Position) =>
   Math.sqrt(
@@ -100,7 +105,7 @@ const distanceTo = (source: Position, target: Position) =>
 const isSafe = (p1: Player, p2: Player) => {
   const d = distanceTo(p1.position, p2.position);
 
-  return p1.debuff === p2.debuff ? d > 400 : d < 200;
+  return p1.debuff === p2.debuff ? d > 0.34 : d < 0.17;
 };
 
 const getCorrectPos = (
@@ -142,7 +147,15 @@ const isInCorrectBasicPosition = (
   position: Position
 ) => {
   const correctPos = getCorrectPos(myRole, tether, tetheredRole);
-  return distanceTo(position, correctPos) < 100;
+  return distanceTo(position, correctPos) < 0.09;
+};
+
+const getRandomPos = (): Position => {
+  const p: Position = [Math.random(), Math.random()];
+  if (distanceTo(p, [0.5, 0.5]) < 0.5) {
+    return p;
+  }
+  return getRandomPos();
 };
 
 const move = (gameState: GameState, position: Position): GameState => {
@@ -164,7 +177,7 @@ const move = (gameState: GameState, position: Position): GameState => {
                 ? "Tank"
                 : "Healer"
               : "DPS",
-          position: [500, 500],
+          position: getRandomPos(),
           debuff: Math.random() <= 0.5 ? "Light" : "Dark",
         },
         success: 0,
@@ -230,14 +243,61 @@ const Player = forwardRef(
         }
         style={{
           position: "absolute",
-          left: props.player.position[0],
-          top: props.player.position[1],
+          left: `${props.player.position[0] * 100}%`,
+          top: `${props.player.position[1] * 100}%`,
           transform: "translate(-50%, -50%)",
         }}
       ></img>
     );
   }
 );
+
+const Tether = (props: {
+  playerRef: React.MutableRefObject<unknown>;
+  tetheredRef: React.MutableRefObject<unknown>;
+  state: GameState & { stage: "positions1" | "end" };
+}) => {
+  const { playerRef, tetheredRef, state } = props;
+  return (
+    <Xarrow
+      start={tetheredRef}
+      startAnchor="middle"
+      end={playerRef}
+      endAnchor="middle"
+      path="straight"
+      strokeWidth={20}
+      lineColor={
+        isSafe(state.player, state.tetheredTo)
+          ? "blue"
+          : state.player.debuff === "Dark"
+          ? "purple"
+          : "yellow"
+      }
+      showHead={!isSafe(state.player, state.tetheredTo)}
+      headColor={state.tetheredTo.debuff === "Dark" ? "purple" : "yellow"}
+      headShape={{
+        svgElem:
+          state.player.debuff === state.tetheredTo.debuff ? (
+            <ForwardArrowSvg />
+          ) : (
+            <BackwardArrowSvg />
+          ),
+        offsetForward: 1,
+      }}
+      showTail={!isSafe(state.player, state.tetheredTo)}
+      tailColor={state.player.debuff === "Dark" ? "purple" : "yellow"}
+      tailShape={{
+        svgElem:
+          state.player.debuff === state.tetheredTo.debuff ? (
+            <ForwardArrowSvg />
+          ) : (
+            <BackwardArrowSvg />
+          ),
+        offsetForward: 1,
+      }}
+    />
+  );
+};
 
 function App() {
   const [state, dispatch] = useReducer(reducer, defaultState);
@@ -289,7 +349,10 @@ function App() {
             const [xOff, yOff] = getPosition(e.currentTarget);
             return dispatch({
               type: "MOVE",
-              target: [e.clientX - xOff, e.clientY - yOff],
+              target: [
+                (e.clientX - xOff) / e.currentTarget.offsetWidth,
+                (e.clientY - yOff) / e.currentTarget.offsetHeight,
+              ],
             });
           }}
         >
@@ -298,22 +361,10 @@ function App() {
             <>
               <Player ref={tetheredRef} player={state.tetheredTo} />
               <Player ref={playerRef} player={state.player} />
-              <Xarrow
-                start={tetheredRef}
-                startAnchor="middle"
-                end={playerRef}
-                endAnchor="middle"
-                path="straight"
-                strokeWidth={30}
-                lineColor={
-                  isSafe(state.player, state.tetheredTo)
-                    ? "blue"
-                    : state.player.debuff === "Dark"
-                    ? "purple"
-                    : "yellow"
-                }
-                showHead={false}
-                showTail={false}
+              <Tether
+                tetheredRef={tetheredRef}
+                playerRef={playerRef}
+                state={state}
               />
             </>
           )}
@@ -321,22 +372,10 @@ function App() {
             <>
               <Player ref={tetheredRef} player={state.tetheredTo} />
               <Player ref={playerRef} player={state.player} />
-              <Xarrow
-                start={tetheredRef}
-                startAnchor="middle"
-                end={playerRef}
-                endAnchor="middle"
-                path="straight"
-                strokeWidth={30}
-                lineColor={
-                  isSafe(state.player, state.tetheredTo)
-                    ? "blue"
-                    : state.player.debuff === "Dark"
-                    ? "purple"
-                    : "yellow"
-                }
-                showHead={false}
-                showTail={false}
+              <Tether
+                tetheredRef={tetheredRef}
+                playerRef={playerRef}
+                state={state}
               />
             </>
           )}
