@@ -18,7 +18,7 @@ import {
   createTheme,
   useMediaQuery,
 } from "@mui/material";
-import Xarrow, { Xwrapper, useXarrow } from "react-xarrows";
+import Xarrow from "react-xarrows";
 
 type Role = "Tank" | "Healer" | "DPS";
 type Position = [number, number];
@@ -240,7 +240,6 @@ const Player = forwardRef(
 );
 
 function App() {
-  const updateXarrow = useXarrow();
   const [state, dispatch] = useReducer(reducer, defaultState);
   const playerRef = useRef<HTMLImageElement>(null);
   const tetheredRef = useRef<HTMLImageElement>(null);
