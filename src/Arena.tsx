@@ -6,6 +6,8 @@ import healerPng from "./assets/healer.png";
 import dpsPng from "./assets/dps.png";
 import tankPng from "./assets/tank.png";
 import skullPng from "./assets/Skull_and_Crossbones.png";
+import bossPng from "./assets/boss.png";
+import indicatorPng from "./assets/indicator.png";
 import { ReactComponent as ForwardArrowSvg } from "./assets/forward-arrow.svg";
 import { ReactComponent as BackwardArrowSvg } from "./assets/backward-arrow.svg";
 
@@ -109,26 +111,53 @@ const Tether = (props: {
   );
 };
 
-const Boss = (props: { bossColour: "Light" | "Dark" }) => (
-  <svg
-    height="100"
-    width="100"
-    style={{
-      position: "absolute",
-      left: `50%`,
-      top: `50%`,
-      transform: "translate(-50%, -50%)",
-    }}
-  >
-    <circle
-      cx="50"
-      cy="50"
-      r="40"
-      stroke="black"
-      stroke-width="3"
-      fill={props.bossColour === "Dark" ? "purple" : "yellow"}
-    />
-  </svg>
+const Boss = (props: { bossColour: "Light" | "Dark" | null }) => (
+  <>
+    <img
+      src={bossPng}
+      height="25%"
+      width="25%"
+      style={{
+        position: "absolute",
+        left: `50%`,
+        top: `50%`,
+        transform: "translate(-50%, -50%)",
+      }}
+    ></img>
+    <img
+      src={indicatorPng}
+      height="40%"
+      width="40%"
+      style={{
+        position: "absolute",
+        left: `50%`,
+        top: `45%`,
+        transform: "translate(-50%, -50%)",
+      }}
+    ></img>
+    {props.bossColour !== null && (
+      <svg
+        height="180"
+        width="180"
+        style={{
+          position: "absolute",
+          left: `50%`,
+          top: `43%`,
+          transform: "translate(-50%, -50%)",
+        }}
+      >
+        <circle
+          cx="90"
+          cy="90"
+          r="85"
+          stroke={props.bossColour === "Dark" ? "purple" : "yellow"}
+          stroke-width="5"
+          opacity={0.8}
+          fill="transparent"
+        />
+      </svg>
+    )}
+  </>
 );
 
 export const Arena = (
@@ -167,7 +196,7 @@ export const Arena = (
         {props.children}
         <Player ref={tetheredRef} player={props.tetheredTo} />
         <Player ref={playerRef} player={props.player} />
-        {props.bossColour && <Boss bossColour={props.bossColour} />}
+        <Boss bossColour={props.bossColour} />
         {props.player.alive && props.tetheredTo.alive && (
           <Tether
             playerRef={playerRef}
