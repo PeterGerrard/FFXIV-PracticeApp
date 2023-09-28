@@ -1,7 +1,6 @@
 import {
   ClockSpot,
   GameState,
-  InterCardinal,
   Player,
   Position,
   Role,
@@ -15,8 +14,6 @@ export type LetterOfTheLawPlayer = Player & {
 
 export type LetterOfTheLawState = GameState & {
   bossColour: "Dark" | "Light";
-  add1Location: InterCardinal;
-  add2Location: InterCardinal;
 };
 
 export const MarkerA: Position = [0.498, 0.206];

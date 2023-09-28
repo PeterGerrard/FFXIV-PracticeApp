@@ -13,6 +13,9 @@ import {
   LetterOfTheLawState,
   createPlayer,
 } from "./gameState";
+import bossPng from "../DarkAndLight/assets/boss.png";
+import { Ref, forwardRef, useEffect, useRef, useState } from "react";
+import Xarrow, { useXarrow } from "react-xarrows";
 
 type LetterOfTheLawGame = IterateGames1<
   LetterOfTheLawPlayer,
@@ -21,13 +24,51 @@ type LetterOfTheLawGame = IterateGames1<
 
 type HeartOfJudgementState = LetterOfTheLawState & {
   topBomb: "Dark" | "Light";
+  darkAddLocation: InterCardinal;
+  lightAddLocation: InterCardinal;
   darkBoxLocation: InterCardinal;
   lightBoxLocation: InterCardinal;
 };
 
+const addPosition = (inter: InterCardinal): Position => {
+  switch (inter) {
+    case "North East":
+      return [0.875, 0.125];
+    case "South East":
+      return [0.875, 0.875];
+    case "South West":
+      return [0.125, 0.875];
+    case "North West":
+      return [0.125, 0.125];
+  }
+};
+
+const Add = forwardRef(
+  (props: { inter: InterCardinal }, ref: Ref<HTMLImageElement>) => {
+    const pos = addPosition(props.inter);
+    return (
+      <img
+        ref={ref}
+        src={bossPng}
+        height="15%"
+        width="15%"
+        style={{
+          position: "absolute",
+          left: `${pos[0] * 100}%`,
+          top: `${pos[1] * 100}%`,
+          transform: "translate(-50%, -50%)",
+        }}
+      ></img>
+    );
+  }
+);
+
 const heartOfJudgement: GameLoop1<LetterOfTheLawPlayer, HeartOfJudgementState> =
   {
     arena: (player, _, isDead, gameState, moveTo) => {
+      const updateXarrow = useXarrow();
+      const playerRef = useRef<HTMLImageElement>(null);
+      const addRef = useRef<HTMLImageElement>(null);
       const [bombSpot1, bombSpot2] =
         gameState.bossColour == gameState.topBomb
           ? [
@@ -58,14 +99,40 @@ const heartOfJudgement: GameLoop1<LetterOfTheLawPlayer, HeartOfJudgementState> =
             return 315;
         }
       };
+
+      const [moved, setMoved] = useState(0);
+      useEffect(() => updateXarrow(), [moved, player, gameState]);
+
       return (
         <Arena
+          ref={playerRef}
           player={player}
           isDead={isDead}
-          moveTo={moveTo}
-          adds={[gameState.add1Location, gameState.add2Location]}
+          moveTo={(p) => {
+            setMoved((x) => x + 1);
+            moveTo(p);
+          }}
           bossColour={gameState.bossColour}
         >
+          <Add
+            ref={player.role === "Tank" ? addRef : null}
+            inter={gameState.darkAddLocation}
+          />
+          <Add
+            ref={player.role !== "Tank" ? addRef : null}
+            inter={gameState.lightAddLocation}
+          />
+          {player.isTethered && (
+            <Xarrow
+              start={playerRef}
+              end={addRef}
+              showHead={false}
+              endAnchor="middle"
+              startAnchor="middle"
+              showTail={false}
+              path="straight"
+            />
+          )}
           <svg
             height="70%"
             width="70%"
@@ -302,6 +369,7 @@ export const startLetterOfTheLaw = (setup: Setup): LetterOfTheLawGame => {
   const adds = pickOne<[InterCardinal, InterCardinal]>(paired);
   const empty = InterCardinals.filter((a) => !adds.includes(a));
   const darkBox = pickOne(empty);
+  const i = Math.round(Math.random());
   return {
     player,
     otherPlayers: [],
@@ -309,8 +377,8 @@ export const startLetterOfTheLaw = (setup: Setup): LetterOfTheLawGame => {
     gameState: {
       hasFinished: false,
       cast: null,
-      add1Location: adds[0],
-      add2Location: adds[1],
+      darkAddLocation: adds[i],
+      lightAddLocation: adds[1 - i],
       bossColour: pickOne(["Dark", "Light"]),
       topBomb: pickOne(["Dark", "Light"]),
       darkBoxLocation: darkBox,
