@@ -7,16 +7,26 @@ import "@fontsource/roboto/700.css";
 import {
   Button,
   CssBaseline,
-  LinearProgress,
   ThemeProvider,
   createTheme,
   useMediaQuery,
 } from "@mui/material";
-import { useGameState } from "./gamestate";
-import { SetupForm } from "./gamestate/Setup/SetupForm";
+import { Outlet, useNavigate } from "react-router-dom";
+import { SetupContext } from "./gamestate/Setup/Setup";
+import { useEffect, useState } from "react";
+import { Setup } from "./gamestate/gameState";
+import SettingsIcon from "@mui/icons-material/Settings";
+
+const defaultSetup: Setup = { role: "Healer", clockSpot: "East" };
 
 function App() {
-  const [state, setupState, dispatch, arena] = useGameState();
+  const navigate = useNavigate();
+  const [setup, setSetup] = useState<Setup | undefined>();
+  const saveSetup = (updatedSetup: Partial<Setup>) => {
+    const newSetup = { ...defaultSetup, ...setup, ...updatedSetup };
+    localStorage.setItem("setup", JSON.stringify(newSetup));
+    setSetup(newSetup);
+  };
 
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
@@ -26,47 +36,36 @@ function App() {
     },
   });
 
+  useEffect(() => {
+    const stored = localStorage.getItem("setup");
+    if (stored) {
+      setSetup(JSON.parse(stored) as Setup);
+    } else {
+      saveSetup(defaultSetup);
+      navigate("/setup");
+    }
+  });
+
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <div>
-        <h1 style={{ display: "inline-block" }}>Themis Practice</h1>
-        <Button onClick={() => dispatch({ type: "RESTART" })}>Restart</Button>
-        <Button onClick={() => dispatch({ type: "RESET" })}>Reset</Button>
-      </div>
-      {!state && <SetupForm state={setupState} dispatch={dispatch} />}
-      {state && (
-        <>
-          <div
-            style={{
-              display: "inline-block",
-              width: "75vh",
-              height: "75vh",
-              position: "relative",
-            }}
+      <SetupContext.Provider
+        value={{
+          state: setup ?? defaultSetup,
+          update: saveSetup,
+        }}
+      >
+        <CssBaseline />
+        <div>
+          <h1 style={{ display: "inline-block" }}>Themis Practice</h1>
+          <Button
+            startIcon={<SettingsIcon />}
+            onClick={() => navigate("/setup")}
           >
-            {arena()}
-          </div>
-          <div
-            style={{
-              maxWidth: "500px",
-              paddingBottom: "50px",
-            }}
-          >
-            {state.gameState.cast && (
-              <>
-                <h1>{state.gameState.cast.name}</h1>
-                <LinearProgress
-                  sx={{ height: "16px" }}
-                  color="warning"
-                  variant="determinate"
-                  value={state.gameState.cast.value}
-                />
-              </>
-            )}
-          </div>
-        </>
-      )}
+            Setup
+          </Button>
+        </div>
+        {setup && <Outlet />}
+      </SetupContext.Provider>
     </ThemeProvider>
   );
 }

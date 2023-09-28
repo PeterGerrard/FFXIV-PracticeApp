@@ -1,5 +1,5 @@
 import { Position } from "../..";
-import { Loop } from "../../gameState";
+import { Loop, distanceTo } from "../../gameState";
 import { Arena } from "../Arena";
 import { DivisiveOverrulingState } from "../DivisiveOverruling/divisiveOverrulingState";
 import {
@@ -7,7 +7,6 @@ import {
   MarkerA,
   Marker1,
   Marker3,
-  distanceTo,
   getDefaultPos,
   DarkAndLightPlayer,
   DarkAndLightGameState,
@@ -73,7 +72,7 @@ export const JuryOverrulingState: Loop<
 > = {
   arena: (
     player: DarkAndLightPlayer,
-    otherPlayer: DarkAndLightPlayer,
+    otherPlayers: DarkAndLightPlayer[],
     isDead: boolean,
     gameState: JuryOverrulingGameState,
     moveTo: (p: Position) => void,
@@ -81,7 +80,7 @@ export const JuryOverrulingState: Loop<
   ) => (
     <Arena
       player={player}
-      otherPlayer={otherPlayer}
+      otherPlayer={otherPlayers[0]}
       bossColour={gameState.bossColour}
       isDead={isDead}
       moveTo={moveTo}

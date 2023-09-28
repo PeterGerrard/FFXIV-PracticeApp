@@ -1,8 +1,8 @@
 import { Position, Player } from "../..";
-import { GameState, Loop } from "../../gameState";
+import { GameState, Loop, distanceTo } from "../../gameState";
 import { Arena } from "../Arena";
 import { JuryOverrulingState } from "../JuryOverruling/juryOverrulingState";
-import { DarkAndLightPlayer, distanceTo, getDefaultPos } from "../gameState";
+import { DarkAndLightPlayer, getDefaultPos } from "../gameState";
 import { RevelationExplosionOverlay } from "./RevelationExplosionOverlay";
 
 const getSafeRevelationSpot = (
@@ -72,7 +72,7 @@ export const RevelationState: Loop<
 > = {
   arena: (
     player: DarkAndLightPlayer,
-    otherPlayer: DarkAndLightPlayer,
+    otherPlayers: DarkAndLightPlayer[],
     isDead: boolean,
     gameState: RevelationGameState,
     moveTo: (p: Position) => void,
@@ -80,7 +80,7 @@ export const RevelationState: Loop<
   ) => (
     <Arena
       player={player}
-      otherPlayer={otherPlayer}
+      otherPlayer={otherPlayers[0]}
       bossColour={gameState.cast ? gameState.bossColour : null}
       isDead={isDead}
       moveTo={moveTo}

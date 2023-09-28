@@ -104,14 +104,14 @@ export const DivisiveOverrulingState: FinalLoop<
 > = {
   arena: (
     player: DarkAndLightPlayer,
-    otherPlayer: DarkAndLightPlayer,
+    otherPlayers: DarkAndLightPlayer[],
     isDead: boolean,
     gameState: DivisiveOverrulingGameState,
     moveTo: (p: Position) => void
   ) => (
     <Arena
       player={player}
-      otherPlayer={otherPlayer}
+      otherPlayer={otherPlayers[0]}
       bossColour={gameState.bossColour}
       isDead={isDead}
       moveTo={moveTo}

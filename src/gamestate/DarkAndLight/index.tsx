@@ -1,4 +1,5 @@
-import { IterateGames3, Role } from "..";
+import { IterateGames3 } from "..";
+import { Setup } from "../gameState";
 import {
   DivisiveOverrulingGameState,
   DivisiveOverrulingState,
@@ -27,12 +28,12 @@ export type DarkAndLightState = IterateGames3<
   DivisiveOverrulingGameState
 >;
 
-export const startDarkAndLight = (role: Role): DarkAndLightState => {
-  const player = createPlayer(role);
+export const startDarkAndLight = (setup: Setup): DarkAndLightState => {
+  const player = createPlayer(setup.role);
   const otherPlayer = createPartner(player);
   return {
     player,
-    otherPlayer,
+    otherPlayers: [otherPlayer],
     game: RevelationState,
     gameState: {
       hasFinished: false,
@@ -40,7 +41,7 @@ export const startDarkAndLight = (role: Role): DarkAndLightState => {
       topBomb: Math.random() < 0.5 ? "Dark" : "Light",
       cast: null,
     },
-    isSafe: isTetherSafe,
+    isSafe: (p, ps) => isTetherSafe(p, ps[0]),
     isDead: false,
     next: [
       [JuryOverrulingState, initialJuryOverrullingState],

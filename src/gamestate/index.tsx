@@ -11,8 +11,6 @@ import {
   Position,
   Role,
 } from "./gameState";
-import { useSetup } from "./Setup/setupState";
-import { DarkAndLightState, startDarkAndLight } from "./DarkAndLight";
 import { DeathOverlay } from "./Death/DeathOverlay";
 
 export type { Role, Position, Player, Action };
@@ -22,8 +20,8 @@ type Game1<TPlayer, T> = {
   game: GameLoop1<TPlayer, T>;
   gameState: T;
   player: TPlayer;
-  otherPlayer: TPlayer;
-  isSafe: (player: TPlayer, otherPlayer: TPlayer) => boolean;
+  otherPlayers: TPlayer[];
+  isSafe: (player: TPlayer, otherPlayers: TPlayer[]) => boolean;
   isDead: boolean;
   next: [];
 };
@@ -33,8 +31,8 @@ type Game2<TPlayer, T1, T2> = {
   game: GameLoop2<TPlayer, T1, T2>;
   gameState: T1;
   player: TPlayer;
-  otherPlayer: TPlayer;
-  isSafe: (player: TPlayer, otherPlayer: TPlayer) => boolean;
+  otherPlayers: TPlayer[];
+  isSafe: (player: TPlayer, otherPlayers: TPlayer[]) => boolean;
   isDead: boolean;
   next: [[GameLoop1<TPlayer, T2>, T2]];
 };
@@ -44,8 +42,8 @@ type Game3<TPlayer, T1, T2, T3> = {
   game: GameLoop3<TPlayer, T1, T2, T3>;
   gameState: T1;
   player: TPlayer;
-  otherPlayer: TPlayer;
-  isSafe: (player: TPlayer, otherPlayer: TPlayer) => boolean;
+  otherPlayers: TPlayer[];
+  isSafe: (player: TPlayer, otherPlayers: TPlayer[]) => boolean;
   isDead: boolean;
   next: [[GameLoop2<TPlayer, T2, T3>, T2], [GameLoop1<TPlayer, T3>, T3]];
 };
@@ -55,8 +53,8 @@ type Game4<TPlayer, T1, T2, T3, T4> = {
   game: GameLoop4<TPlayer, T1, T2, T3, T4>;
   gameState: T1;
   player: TPlayer;
-  otherPlayer: TPlayer;
-  isSafe: (player: TPlayer, otherPlayer: TPlayer) => boolean;
+  otherPlayers: TPlayer[];
+  isSafe: (player: TPlayer, otherPlayers: TPlayer[]) => boolean;
   isDead: boolean;
   next: [
     [GameLoop3<TPlayer, T2, T3, T4>, T2],
@@ -70,8 +68,8 @@ type Game5<TPlayer, T1, T2, T3, T4, T5> = {
   game: GameLoop5<TPlayer, T1, T2, T3, T4, T5>;
   gameState: T1;
   player: TPlayer;
-  otherPlayer: TPlayer;
-  isSafe: (player: TPlayer, otherPlayer: TPlayer) => boolean;
+  otherPlayers: TPlayer[];
+  isSafe: (player: TPlayer, otherPlayers: TPlayer[]) => boolean;
   isDead: boolean;
   next: [
     [GameLoop4<TPlayer, T2, T3, T4, T5>, T2],
@@ -89,16 +87,16 @@ export const stepGame1 = <TPlayer, T extends GameState>(
   }
 
   const nextState = game.game.nextState(game.gameState);
-  const otherPlayer = {
-    ...game.otherPlayer,
-    position: game.game.getSafeSpot(nextState, game.otherPlayer),
-  };
+  const otherPlayers = game.otherPlayers.map((o) => ({
+    ...o,
+    position: game.game.getSafeSpot(nextState, o),
+  }));
   const lived =
     game.game.isSafe(nextState, game.player) &&
-    game.isSafe(game.player, otherPlayer);
+    game.isSafe(game.player, otherPlayers);
   return {
     ...game,
-    otherPlayer,
+    otherPlayers,
     gameState: nextState,
     isDead: !lived,
   };
@@ -114,7 +112,7 @@ export const stepGame2 = <TPlayer, T extends GameState, T1 extends GameState>(
       gameState: x[1],
       isDead: game.isDead,
       player: game.player,
-      otherPlayer: game.otherPlayer,
+      otherPlayers: game.otherPlayers,
       isSafe: game.isSafe,
       next: ys,
       loop: 1,
@@ -123,16 +121,16 @@ export const stepGame2 = <TPlayer, T extends GameState, T1 extends GameState>(
   }
 
   const nextState = game.game.nextState(game.gameState);
-  const otherPlayer = {
-    ...game.otherPlayer,
-    position: game.game.getSafeSpot(nextState, game.otherPlayer),
-  };
+  const otherPlayers = game.otherPlayers.map((o) => ({
+    ...o,
+    position: game.game.getSafeSpot(nextState, o),
+  }));
   const lived =
     game.game.isSafe(nextState, game.player) &&
-    game.isSafe(game.player, otherPlayer);
+    game.isSafe(game.player, otherPlayers);
   return {
     ...game,
-    otherPlayer,
+    otherPlayers,
     gameState: nextState,
     isDead: !lived,
   };
@@ -153,7 +151,7 @@ export const stepGame3 = <
       gameState: x[1],
       isDead: game.isDead,
       player: game.player,
-      otherPlayer: game.otherPlayer,
+      otherPlayers: game.otherPlayers,
       isSafe: game.isSafe,
       next: ys,
       loop: 2,
@@ -162,16 +160,16 @@ export const stepGame3 = <
   }
 
   const nextState = game.game.nextState(game.gameState);
-  const otherPlayer = {
-    ...game.otherPlayer,
-    position: game.game.getSafeSpot(nextState, game.otherPlayer),
-  };
+  const otherPlayers = game.otherPlayers.map((o) => ({
+    ...o,
+    position: game.game.getSafeSpot(nextState, o),
+  }));
   const lived =
     game.game.isSafe(nextState, game.player) &&
-    game.isSafe(game.player, otherPlayer);
+    game.isSafe(game.player, otherPlayers);
   return {
     ...game,
-    otherPlayer,
+    otherPlayers,
     gameState: nextState,
     isDead: !lived,
   };
@@ -193,7 +191,7 @@ export const stepGame4 = <
       gameState: x[1],
       isDead: game.isDead,
       player: game.player,
-      otherPlayer: game.otherPlayer,
+      otherPlayers: game.otherPlayers,
       isSafe: game.isSafe,
       next: ys,
       loop: 3,
@@ -202,16 +200,16 @@ export const stepGame4 = <
   }
 
   const nextState = game.game.nextState(game.gameState);
-  const otherPlayer = {
-    ...game.otherPlayer,
-    position: game.game.getSafeSpot(nextState, game.otherPlayer),
-  };
+  const otherPlayers = game.otherPlayers.map((o) => ({
+    ...o,
+    position: game.game.getSafeSpot(nextState, o),
+  }));
   const lived =
     game.game.isSafe(nextState, game.player) &&
-    game.isSafe(game.player, otherPlayer);
+    game.isSafe(game.player, otherPlayers);
   return {
     ...game,
-    otherPlayer,
+    otherPlayers,
     gameState: nextState,
     isDead: !lived,
   };
@@ -234,7 +232,7 @@ export const stepGame5 = <
       gameState: x[1],
       isDead: game.isDead,
       player: game.player,
-      otherPlayer: game.otherPlayer,
+      otherPlayers: game.otherPlayers,
       isSafe: game.isSafe,
       next: ys,
       loop: 4,
@@ -243,16 +241,16 @@ export const stepGame5 = <
   }
 
   const nextState = game.game.nextState(game.gameState);
-  const otherPlayer = {
-    ...game.otherPlayer,
-    position: game.game.getSafeSpot(nextState, game.otherPlayer),
-  };
+  const otherPlayers = game.otherPlayers.map(o => ({
+    ...o,
+    position: game.game.getSafeSpot(nextState, o),
+  }));
   const lived =
     game.game.isSafe(nextState, game.player) &&
-    game.isSafe(game.player, otherPlayer);
+    game.isSafe(game.player, otherPlayers);
   return {
     ...game,
-    otherPlayer,
+    otherPlayers,
     gameState: nextState,
     isDead: !lived,
   };
@@ -302,27 +300,21 @@ export type IterateGames2<TPlayer, T1, T2> =
   | IterateGames1<TPlayer, T2>;
 export type IterateGames1<TPlayer, T1> = Game1<TPlayer, T1>;
 
-export const useGameState = () => {
-  const [setupState, dispatchSetup] = useSetup();
-  const [gameState, setGameState] = useState<DarkAndLightState | null>(null);
-
-  const dispatch = (a: Action) => {
-    dispatchSetup(a);
-    switch (a.type) {
-      case "RESET":
-        setGameState(null);
-        break;
-      case "RESTART":
-      case "START":
-        setGameState(startDarkAndLight(setupState.role));
-        break;
-    }
-  };
+export const useGameState = <
+  TPlayer,
+  T1 extends GameState,
+  T2 extends GameState,
+  T3 extends GameState
+>(
+  start: () => IterateGames3<TPlayer, T1, T2, T3>
+) => {
+  const [gameState, setGameState] = useState<
+    IterateGames3<TPlayer, T1, T2, T3>
+  >(start());
 
   return [
     gameState,
-    setupState,
-    dispatch,
+    () => setGameState(start()),
     () => {
       const inner =
         gameState &&
@@ -372,7 +364,7 @@ const arena = <TPlayer, T1, T2, T3>(
     case 1:
       return gameState.game.arena(
         gameState.player,
-        gameState.otherPlayer,
+        gameState.otherPlayers,
         gameState.isDead,
         gameState.gameState,
         moveTo,
@@ -381,7 +373,7 @@ const arena = <TPlayer, T1, T2, T3>(
     case 2:
       return gameState.game.arena(
         gameState.player,
-        gameState.otherPlayer,
+        gameState.otherPlayers,
         gameState.isDead,
         gameState.gameState,
         moveTo,
@@ -390,7 +382,7 @@ const arena = <TPlayer, T1, T2, T3>(
     case 3:
       return gameState.game.arena(
         gameState.player,
-        gameState.otherPlayer,
+        gameState.otherPlayers,
         gameState.isDead,
         gameState.gameState,
         moveTo,

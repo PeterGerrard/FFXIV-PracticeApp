@@ -1,4 +1,4 @@
-import { GameState, Player, Position, Role } from "../gameState";
+import { GameState, Player, Position, Role, distanceTo, getRandomPos } from "../gameState";
 
 export type DarkAndLightPlayer = Player & {
   debuff: "Light" | "Dark";
@@ -19,11 +19,6 @@ export const Marker3: Position = [0.278, 0.719];
 export const MarkerD: Position = [0.332, 0.502];
 export const Marker4: Position = [0.383, 0.391];
 
-export const distanceTo = (source: Position, target: Position) =>
-  Math.sqrt(
-    Math.pow(target[0] - source[0], 2) + Math.pow(target[1] - source[1], 2)
-  );
-
 export const isTetherSafe = (
   p1: DarkAndLightPlayer,
   p2: DarkAndLightPlayer
@@ -31,14 +26,6 @@ export const isTetherSafe = (
   const d = distanceTo(p1.position, p2.position);
 
   return p1.debuff === p2.debuff ? d > 0.34 : d < 0.17;
-};
-
-export const getRandomPos = (): Position => {
-  const p: Position = [Math.random(), Math.random()];
-  if (distanceTo(p, [0.5, 0.5]) < 0.35) {
-    return p;
-  }
-  return getRandomPos();
 };
 
 export const createPlayer = (role: Role): DarkAndLightPlayer => {

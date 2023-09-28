@@ -2,6 +2,15 @@ import React from "react";
 
 export type Role = "Tank" | "Healer" | "DPS";
 export type Position = [number, number];
+export type ClockSpot =
+  | "North"
+  | "North East"
+  | "East"
+  | "South East"
+  | "South"
+  | "South West"
+  | "West"
+  | "North West";
 
 export type Player = {
   role: Role;
@@ -10,6 +19,7 @@ export type Player = {
 
 export type Setup = {
   role: Role;
+  clockSpot: ClockSpot;
 };
 
 export type Cast = {
@@ -25,7 +35,7 @@ export type GameState = {
 export type Loop<TPlayer, T, TNextLoop> = {
   arena: (
     player: TPlayer,
-    otherPlayer: TPlayer,
+    otherPlayers: TPlayer[],
     isDead: boolean,
     gameState: T,
     moveTo: (p: Position) => void,
@@ -40,7 +50,7 @@ export type Loop<TPlayer, T, TNextLoop> = {
 export type FinalLoop<TPlayer, T> = {
   arena: (
     player: TPlayer,
-    otherPlayer: TPlayer,
+    otherPlayers: TPlayer[],
     isDead: boolean,
     gameState: T,
     moveTo: (p: Position) => void,
