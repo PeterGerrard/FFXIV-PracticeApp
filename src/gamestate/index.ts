@@ -59,7 +59,7 @@ const applyStateReducer = (
 
 const defaultState: GameState = {
   stage: "setup",
-  role: "Healer",
+  setup: { role: "Healer" },
 };
 
 const reducer = (gameState: GameState, action: Action): GameState =>

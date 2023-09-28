@@ -8,15 +8,20 @@ export type Player = {
   alive: boolean;
 };
 
+export type Setup = {
+  role: Role;
+};
+
 export type GameState =
   | {
       stage: "setup";
-      role: Role;
+      setup: Setup;
     }
   | {
       stage: "positions1";
       player: Player;
       tetheredTo: Player;
+      setup: Setup;
     }
   | {
       stage: "revelation";
@@ -24,6 +29,7 @@ export type GameState =
       tetheredTo: Player;
       topBomb: "Light" | "Dark";
       bossColour: "Light" | "Dark";
+      setup: Setup;
     }
   | {
       stage: "revelation-explosion";
@@ -32,12 +38,14 @@ export type GameState =
       topBomb: "Light" | "Dark";
       bossColour: "Light" | "Dark";
       nextState: GameState;
+      setup: Setup;
     }
   | {
       stage: "positions2";
       player: Player;
       tetheredTo: Player;
       bossColour: "Light" | "Dark";
+      setup: Setup;
     }
   | {
       stage: "jury-overruling-initial-explosion";
@@ -45,12 +53,14 @@ export type GameState =
       tetheredTo: Player;
       bossColour: "Light" | "Dark";
       nextState: GameState;
+      setup: Setup;
     }
   | {
       stage: "jury-overruling";
       player: Player;
       tetheredTo: Player;
       bossColour: "Light" | "Dark";
+      setup: Setup;
     }
   | {
       stage: "jury-overruling-explosion";
@@ -58,27 +68,32 @@ export type GameState =
       tetheredTo: Player;
       bossColour: "Light" | "Dark";
       nextState: GameState;
+      setup: Setup;
     }
   | {
       stage: "positions3";
       player: Player;
       tetheredTo: Player;
+      setup: Setup;
     }
   | {
       stage: "divisive-overruling";
       player: Player;
       tetheredTo: Player;
       bossColour: "Light" | "Dark";
+      setup: Setup;
     }
   | {
       stage: "divisive-overruling-dark";
       player: Player;
       tetheredTo: Player;
+      setup: Setup;
     }
   | {
       stage: "end";
       player: Player;
       tetheredTo: Player;
+      setup: Setup;
     }
   | {
       stage: "dead";
@@ -86,10 +101,12 @@ export type GameState =
       tetheredTo: Player;
       safeLocation: Position;
       bossColour: "Dark" | "Light" | null;
+      setup: Setup;
     };
 
 export type Action =
   | { type: "RESET" }
+  | { type: "RESTART" }
   | { type: "START" }
   | { type: "MOVE"; target: Position }
   | { type: "SELECTROLE"; role: Role }
@@ -123,6 +140,29 @@ export const getRandomPos = (): Position => {
   return getRandomPos();
 };
 
+export const createPlayer = (setup: Setup): Player => {
+  return {
+    role: setup.role,
+    position: getRandomPos(),
+    debuff: Math.random() <= 0.5 ? "Light" : "Dark",
+    alive: true,
+  };
+};
+
+export const createPartner = (player: Player): Player => {
+  return {
+    role:
+      player.role === "DPS"
+        ? Math.random() <= 0.5
+          ? "Tank"
+          : "Healer"
+        : "DPS",
+    position: getRandomPos(),
+    debuff: Math.random() <= 0.5 ? "Light" : "Dark",
+    alive: true,
+  };
+};
+
 export const defaultReducer = (
   gameState: GameState,
   action: Action
@@ -130,8 +170,16 @@ export const defaultReducer = (
   if (action.type === "RESET") {
     return {
       stage: "setup",
-      role:
-        gameState.stage === "setup" ? gameState.role : gameState.player.role,
+      setup: gameState.setup,
+    };
+  } else if (action.type === "RESTART") {
+    const player = createPlayer(gameState.setup);
+    const tetheredTo = createPartner(player);
+    return {
+      stage: "positions1",
+      player,
+      tetheredTo,
+      setup: gameState.setup,
     };
   }
   return undefined;

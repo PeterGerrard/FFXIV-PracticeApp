@@ -83,6 +83,7 @@ const move = (
         }),
       },
       bossColour: Math.random() < 0.5 ? "Dark" : "Light",
+      setup: gameState.setup,
     };
   } else {
     return {
@@ -103,6 +104,7 @@ const move = (
       },
       safeLocation: getSafeRevelationSpot(gameState),
       bossColour: Math.random() < 0.5 ? "Dark" : "Light",
+      setup: gameState.setup,
     };
   }
 };

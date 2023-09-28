@@ -12,7 +12,7 @@ export const SetupForm = (props: {
   return (
     <FormControl>
       <Select
-        value={props.state.role}
+        value={props.state.setup.role}
         onChange={(c) =>
           c !== null &&
           props.dispatch({ type: "SELECTROLE", role: c.target.value as Role })

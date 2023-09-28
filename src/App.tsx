@@ -12,7 +12,7 @@ import {
   createTheme,
   useMediaQuery,
 } from "@mui/material";
-import { GameState, useGameState } from "./gamestate";
+import { Action, GameState, useGameState } from "./gamestate";
 import { SetupForm } from "./gamestate/Setup/SetupForm";
 import { Arena } from "./Arena";
 import { RevelationOverlay } from "./gamestate/Revelation/RevelationOverlay";
@@ -20,7 +20,10 @@ import { DeathOverlay } from "./gamestate/Death/DeathOverlay";
 import { RevelationExplosionOverlay } from "./gamestate/Revelation/RevelationExplosionOverlay";
 import { JuryOverrulingInitialExplosionOverlay } from "./gamestate/JuryOverruling/JuryExplosionInitialOverlay";
 
-const CastBar = (props: { stage: GameState["stage"] }) => {
+const CastBar = (props: {
+  stage: GameState["stage"];
+  dispatch: (action: Action) => void;
+}) => {
   switch (props.stage) {
     case "setup":
       return <></>;
@@ -111,7 +114,14 @@ const CastBar = (props: { stage: GameState["stage"] }) => {
         </>
       );
     case "end":
-      return <h1>VICTORY</h1>;
+      return (
+        <>
+          <h1>VICTORY</h1>
+          <Button onClick={() => props.dispatch({ type: "RESTART" })}>
+            Restart
+          </Button>
+        </>
+      );
     case "revelation-explosion":
     case "jury-overruling-explosion":
     case "dead":
@@ -135,6 +145,7 @@ function App() {
       <CssBaseline />
       <div>
         <h1 style={{ display: "inline-block" }}>Themis Practice</h1>
+        <Button onClick={() => dispatch({ type: "RESTART" })}>Restart</Button>
         <Button onClick={() => dispatch({ type: "RESET" })}>Reset</Button>
       </div>
       <div>
@@ -172,7 +183,7 @@ function App() {
           paddingBottom: "50px",
         }}
       >
-        <CastBar stage={state.stage} />
+        <CastBar stage={state.stage} dispatch={dispatch} />
       </div>
     </ThemeProvider>
   );

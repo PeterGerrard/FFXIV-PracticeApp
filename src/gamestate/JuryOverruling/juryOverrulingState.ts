@@ -84,6 +84,7 @@ const move = (
           tetheredTo: gameState.player,
         }),
       },
+      setup: gameState.setup,
     };
   } else {
     return {
@@ -104,6 +105,7 @@ const move = (
       },
       safeLocation: getSafeSpot(gameState),
       bossColour: null,
+      setup: gameState.setup,
     };
   }
 };
