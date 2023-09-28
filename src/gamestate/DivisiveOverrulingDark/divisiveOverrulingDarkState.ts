@@ -7,54 +7,45 @@ import {
   MarkerA,
   Marker1,
   Marker3,
+  MarkerB,
+  MarkerD,
 } from "../gameState";
 
-type DivisiveOverrulingGameState = GameState & {
-  stage: "divisive-overruling";
+type DivisiveOverrulingDarkGameState = GameState & {
+  stage: "divisive-overruling-dark";
 };
 
-const getSafeSpot = (gameState: DivisiveOverrulingGameState): Position => {
+const getSafeSpot = (gameState: DivisiveOverrulingDarkGameState): Position => {
   const short = gameState.player.debuff !== gameState.tetheredTo.debuff;
-  const leftSafe: Position = [0.2, 0.5];
-  const rightSafe: Position = [0.8, 0.5];
   if (
     short &&
     (gameState.player.role === "Healer" ||
       gameState.tetheredTo.role === "Healer")
   ) {
-    return gameState.bossColour === "Light"
-      ? rightSafe
-      : [rightSafe[0], Marker3[1]];
+    return [MarkerB[0], MarkerC[1]];
   }
   if (
     !short &&
     (gameState.player.role === "Tank" || gameState.tetheredTo.role === "Healer")
   ) {
-    return gameState.bossColour === "Light"
-      ? rightSafe
-      : [rightSafe[0], Marker1[1]];
+    return [MarkerB[0], MarkerA[1]];
   }
 
   if (short) {
-    return gameState.bossColour === "Light"
-      ? leftSafe
-      : [leftSafe[0], Marker1[1]];
+    return [MarkerD[0], MarkerA[1]];
   }
 
-  return gameState.bossColour === "Light"
-    ? leftSafe
-    : [leftSafe[0], Marker3[1]];
+  return [MarkerD[0], MarkerC[1]];
 };
 
 const move = (
-  gameState: DivisiveOverrulingGameState,
+  gameState: DivisiveOverrulingDarkGameState,
   position: Position
 ): GameState => {
   const safeLocation = getSafeSpot(gameState);
-  if (Math.abs(0.5 - position[0]) > 0.2) {
+  if (distanceTo(position, safeLocation) < 0.1) {
     return {
-      stage:
-        gameState.bossColour === "Dark" ? "divisive-overruling-dark" : "end",
+      stage: "end",
       player: {
         ...gameState.player,
         position: position,
@@ -90,8 +81,8 @@ const move = (
   }
 };
 
-export const divisiveOverrulingReducer = (
-  gameState: DivisiveOverrulingGameState,
+export const divisiveOverrulingDarkReducer = (
+  gameState: DivisiveOverrulingDarkGameState,
   action: Action
 ): GameState | undefined => {
   if (action.type === "MOVE") {

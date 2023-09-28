@@ -15,6 +15,7 @@ import { positions2Reducer } from "./Positions2/positions2State";
 import { juryOverrulingReducer } from "./JuryOverruling/juryOverrulingState";
 import { positions3Reducer } from "./Positions3/positions3State";
 import { divisiveOverrulingReducer } from "./DivisiveOverruling/divisiveOverrulingState";
+import { divisiveOverrulingDarkReducer } from "./DivisiveOverrulingDark/divisiveOverrulingDarkState";
 
 export type { Role, Position, Player, GameState, Action };
 export { isTetherSafe };
@@ -38,6 +39,8 @@ const applyStateReducer = (
       return positions3Reducer(gameState, action);
     case "divisive-overruling":
       return divisiveOverrulingReducer(gameState, action);
+    case "divisive-overruling-dark":
+      return divisiveOverrulingDarkReducer(gameState, action);
     case "end":
     case "dead":
       return undefined;
