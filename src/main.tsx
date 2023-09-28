@@ -6,6 +6,7 @@ import App from "./App.tsx";
 import { DarkAndLight } from "./gamestate/DarkAndLight/DarkAndLight.tsx";
 import { LetterOfTheLaw } from "./gamestate/LetterOfTheLaw/LetterOfTheLaw.tsx";
 import { SelectMechanic } from "./SelectMechanic.tsx";
+import { LineTest } from "./gamestate/Mechanics/LineTest.tsx";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
       {
         path: "letterofthelaw",
         element: <LetterOfTheLaw />,
+      },
+      {
+        path: "linetest",
+        element: <LineTest />,
       },
     ],
   },
