@@ -1,4 +1,3 @@
-import Slide from "@mui/material/Slide";
 import { Position } from "..";
 import { useEffect, useState } from "react";
 
@@ -7,14 +6,14 @@ export type LineAoEProps = {
   angle: number;
   width: number;
   length: number | undefined;
-  colour?: "string";
+  colour?: string;
   onAnimationEnd: () => void;
 };
 
 export const LineAoE = (props: LineAoEProps) => {
   const [height, setHeight] = useState(0);
   useEffect(() => {
-    setHeight(props.length ? props.length : 1);
+    setHeight(props.length ? props.length : 2);
     setTimeout(props.onAnimationEnd, 1500);
   });
   return (
@@ -23,6 +22,8 @@ export const LineAoE = (props: LineAoEProps) => {
       width="100%"
       style={{
         position: "absolute",
+        left: 0,
+        top: 0,
       }}
       viewBox="0 0 1 1"
     >

@@ -6,8 +6,22 @@ import { Bombs } from "../../Bombs";
 import { Add } from "../Add";
 import { Arena } from "../Arena";
 import { LetterOfTheLawPlayer } from "../gameState";
-import { rotation } from "../../gameState";
+import { InterCardinal, rotation } from "../../gameState";
 import { HeartOfJudgementState } from ".";
+import { LineAoE } from "../../Mechanics/LineAoE";
+
+const addLoc = (inter: InterCardinal): Position => {
+  switch (inter) {
+    case "North East":
+      return [0.9, 0.1];
+    case "South East":
+      return [0.9, 0.9];
+    case "South West":
+      return [0.1, 0.9];
+    case "North West":
+      return [0.1, 0.1];
+  }
+};
 
 export const HeartArena = (props: {
   player: LetterOfTheLawPlayer;
@@ -114,25 +128,19 @@ export const HeartArena = (props: {
               y="5%"
               fill={props.gameState.bossColour === "Dark" ? "yellow" : "purple"}
             />
-            <Slide
-              in={props.gameState.cast.value >= 100}
-              timeout={1500}
-              onEntered={props.animationEnd}
-            >
-              <rect
-                height="100%"
-                width="47.5%"
-                x="26.5%"
-                y="0"
-                fill={
-                  props.gameState.bossColour === "Dark" ? "purple" : "yellow"
-                }
-                style={{
-                  opacity: 0.4,
-                }}
-              />
-            </Slide>
           </svg>
+          {props.gameState.cast.value >= 100 && (
+            <LineAoE
+              angle={180 + rotation(innerBox)}
+              onAnimationEnd={() => {}}
+              length={1}
+              source={addLoc(innerBox)}
+              width={0.475}
+              colour={
+                props.gameState.bossColour === "Dark" ? "purple" : "yellow"
+              }
+            />
+          )}
           <svg
             height="100%"
             width="100%"
