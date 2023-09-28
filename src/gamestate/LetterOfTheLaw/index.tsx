@@ -1,5 +1,12 @@
 import { IterateGames1 } from "..";
-import { GameLoop1, InterCardinal, InterCardinals, Setup } from "../gameState";
+import {
+  GameLoop1,
+  InterCardinal,
+  InterCardinals,
+  Position,
+  Setup,
+  distanceTo,
+} from "../gameState";
 import { Arena } from "./Arena";
 import {
   LetterOfTheLawPlayer,
@@ -206,8 +213,79 @@ const heartOfJudgement: GameLoop1<LetterOfTheLawPlayer, HeartOfJudgementState> =
         </Arena>
       );
     },
-    getSafeSpot: () => [0.5, 0.5],
-    isSafe: () => true,
+    getSafeSpot: (
+      gameState: HeartOfJudgementState,
+      player: LetterOfTheLawPlayer
+    ) => {
+      const innerBox =
+        gameState.bossColour === "Dark"
+          ? gameState.darkBoxLocation
+          : gameState.lightBoxLocation;
+      if (gameState.topBomb === gameState.bossColour) {
+        if (player.isTethered && player.role === "Tank") {
+          return [
+            0.83,
+            innerBox === "North West" || innerBox === "South East" ? 0.4 : 0.6,
+          ];
+        } else {
+          return [
+            0.17,
+            innerBox === "North West" || innerBox === "South East" ? 0.6 : 0.4,
+          ];
+        }
+      } else {
+        if (player.isTethered && player.role === "Tank") {
+          return [
+            innerBox === "North West" || innerBox === "South East" ? 0.6 : 0.4,
+            0.17,
+          ];
+        } else {
+          return [
+            innerBox === "North West" || innerBox === "South East" ? 0.4 : 0.6,
+            0.83,
+          ];
+        }
+      }
+    },
+    isSafe: (
+      gameState: HeartOfJudgementState,
+      player: LetterOfTheLawPlayer
+    ) => {
+      const bombs: Position[] =
+        gameState.bossColour == gameState.topBomb
+          ? [
+              [0.5, 0.2],
+              [0.5, 0.8],
+            ]
+          : [
+              [0.2, 0.5],
+              [0.8, 0.5],
+            ];
+      const innerBox =
+        gameState.bossColour === "Dark"
+          ? gameState.darkBoxLocation
+          : gameState.lightBoxLocation;
+      const outerBox =
+        gameState.bossColour === "Dark"
+          ? gameState.lightBoxLocation
+          : gameState.darkBoxLocation;
+      const hitByBomb = bombs.some(
+        (b) => distanceTo(player.position, b) < 0.35
+      );
+      const hitByInner =
+        innerBox === "North West" || innerBox === "South East"
+          ? player.position[0] + player.position[1] < 0.668 ||
+            player.position[0] + player.position[1] > 1.332
+          : player.position[1] - player.position[0] < -0.332 ||
+            player.position[1] - player.position[0] > 0.332;
+      const hitByOuter =
+        outerBox === "North West" || outerBox === "South East"
+          ? player.position[0] + player.position[1] > 0.668 &&
+            player.position[0] + player.position[1] < 1.332
+          : player.position[1] - player.position[0] > -0.332 &&
+            player.position[1] - player.position[0] < 0.332;
+      return !hitByBomb && !hitByInner && !hitByOuter;
+    },
     nextState: (s) => s,
   };
 
