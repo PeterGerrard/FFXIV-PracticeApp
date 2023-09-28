@@ -2,7 +2,6 @@ import {
   GameState,
   Position,
   Action,
-  distanceTo,
   MarkerB,
   MarkerD,
   Marker3,
