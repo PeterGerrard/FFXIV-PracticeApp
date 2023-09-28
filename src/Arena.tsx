@@ -37,12 +37,12 @@ function getPosition(e: HTMLElement): Position {
 }
 
 const Player = forwardRef(
-  (props: { player: Player }, ref: Ref<HTMLImageElement>) => {
+  (props: { player: Player; isDead: boolean }, ref: Ref<HTMLImageElement>) => {
     return (
       <img
         ref={ref}
         src={
-          !props.player.alive
+          props.isDead
             ? skullPng
             : props.player.role === "Healer"
             ? healerPng
@@ -163,8 +163,9 @@ const Boss = (props: { bossColour: "Light" | "Dark" | null }) => (
 export const Arena = (
   props: PropsWithChildren<{
     player: Player;
-    tetheredTo: Player;
+    otherPlayer: Player;
     bossColour: "Dark" | "Light" | null;
+    isDead: boolean;
     dispatch: (action: Action) => void;
   }>
 ) => {
@@ -194,14 +195,14 @@ export const Arena = (
       <img src={arenaPng} height="100%"></img>
       <>
         <Boss bossColour={props.bossColour} />
-        <Player ref={tetheredRef} player={props.tetheredTo} />
-        <Player ref={playerRef} player={props.player} />
-        {props.player.alive && props.tetheredTo.alive && (
+        <Player ref={tetheredRef} player={props.otherPlayer} isDead={false} />
+        <Player ref={playerRef} player={props.player} isDead={props.isDead} />
+        {!props.isDead && (
           <Tether
             playerRef={playerRef}
             tetheredRef={tetheredRef}
             player={props.player}
-            tetheredTo={props.tetheredTo}
+            tetheredTo={props.otherPlayer}
           />
         )}
         {props.children}

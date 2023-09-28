@@ -1,20 +1,10 @@
 import { Grow } from "@mui/material";
-import { Action } from "../gameState";
-import { useEffect } from "react";
 import { DivisiveOverrulingGameState } from "./divisiveOverrulingState";
 
 export const DisvisiveOverrulingInitialExplosionOverlay = (props: {
   state: DivisiveOverrulingGameState;
-  dispatch: (action: Action) => void;
 }) => {
-  const { state, dispatch } = props;
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      dispatch({ type: "ANIMATIONEND" });
-    }, 2500);
-    return () => clearTimeout(timer);
-  }, []);
+  const { state } = props;
 
   return (
     <Grow in timeout={1500}>

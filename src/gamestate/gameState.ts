@@ -7,7 +7,8 @@ export type Player = {
   role: Role;
   position: Position;
   debuff: "Light" | "Dark";
-  alive: boolean;
+  tetherLength: "Short" | "Long";
+  tetheredRole: Role;
 };
 
 export type Setup = {
@@ -21,9 +22,9 @@ export type Cast = {
 
 export interface IGameState {
   overlay: (dispatch: (action: Action) => void) => React.ReactElement;
-  reduce: (action: Action) => IGameState;
-  player: Player;
-  tetheredTo: Player;
+  nextState: () => IGameState;
+  isSafe: (player: Player) => boolean;
+  getSafeSpot: (player: Player) => Position;
   bossColour: "Dark" | "Light" | null;
   cast: Cast | null;
 }
@@ -69,20 +70,23 @@ export const createPlayer = (setup: Setup): Player => {
     role: setup.role,
     position: getRandomPos(),
     debuff: Math.random() <= 0.5 ? "Light" : "Dark",
-    alive: true,
+    tetherLength: Math.random() <= 0.5 ? "Long" : "Short",
+    tetheredRole:
+      setup.role === "DPS" ? (Math.random() <= 0.5 ? "Tank" : "Healer") : "DPS",
   };
 };
 
 export const createPartner = (player: Player): Player => {
   return {
-    role:
-      player.role === "DPS"
-        ? Math.random() <= 0.5
-          ? "Tank"
-          : "Healer"
-        : "DPS",
+    role: player.tetheredRole,
     position: getRandomPos(),
-    debuff: Math.random() <= 0.5 ? "Light" : "Dark",
-    alive: true,
+    debuff:
+      player.tetherLength === "Long"
+        ? player.debuff
+        : player.debuff === "Dark"
+        ? "Light"
+        : "Dark",
+    tetherLength: player.tetherLength,
+    tetheredRole: player.role,
   };
 };

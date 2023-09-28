@@ -1,12 +1,9 @@
-import { DeathClass } from "../Death/DeathOverlay";
 import {
   Position,
-  Action,
   MarkerB,
   MarkerD,
   Marker3,
   Marker1,
-  isTetherSafe,
   IGameState,
   Player,
 } from "../gameState";
@@ -14,29 +11,26 @@ import { DisvisiveOverrulingInitialExplosionOverlay } from "./DivisiveOverulling
 import { EndClass } from "./EndOverlay";
 
 type DivisiveOverrulingPostExplosionGameState = {
-  player: Player;
-  tetheredTo: Player;
   bossColour: "Dark" | "Light";
 };
 
 const getSafeSpot = (
-  gameState: DivisiveOverrulingPostExplosionGameState
+  player: Player,
+  bossColour: "Dark" | "Light"
 ): Position => {
-  const short = gameState.player.debuff !== gameState.tetheredTo.debuff;
-  if (gameState.bossColour === "Light") {
+  const short = player.tetherLength === "Short";
+  if (bossColour === "Light") {
     const leftSafe: Position = [0.2, 0.5];
     const rightSafe: Position = [0.8, 0.5];
     if (
       short &&
-      (gameState.player.role === "Healer" ||
-        gameState.tetheredTo.role === "Healer")
+      (player.role === "Healer" || player.tetheredRole === "Healer")
     ) {
       return rightSafe;
     }
     if (
       !short &&
-      (gameState.player.role === "Tank" ||
-        gameState.tetheredTo.role === "Healer")
+      (player.role === "Tank" || player.tetheredRole === "Healer")
     ) {
       return rightSafe;
     }
@@ -48,17 +42,10 @@ const getSafeSpot = (
     return leftSafe;
   }
 
-  if (
-    short &&
-    (gameState.player.role === "Healer" ||
-      gameState.tetheredTo.role === "Healer")
-  ) {
+  if (short && (player.role === "Healer" || player.tetheredRole === "Healer")) {
     return [MarkerB[0], Marker3[1]];
   }
-  if (
-    !short &&
-    (gameState.player.role === "Tank" || gameState.tetheredTo.role === "Healer")
-  ) {
+  if (!short && (player.role === "Tank" || player.tetheredRole === "Healer")) {
     return [MarkerB[0], Marker1[1]];
   }
 
@@ -69,58 +56,14 @@ const getSafeSpot = (
   return [MarkerD[0], Marker3[1]];
 };
 
-const move = (
-  gameState: DivisiveOverrulingPostExplosionGameState,
-  position: Position
-): IGameState => {
-  const safeLocation = getSafeSpot(gameState);
-
-  if (
-    ((gameState.bossColour === "Dark" && Math.abs(0.5 - position[0]) < 0.2) ||
-      (gameState.bossColour === "Light" &&
-        Math.abs(0.5 - position[0]) > 0.3)) &&
-    isTetherSafe(gameState.player, gameState.tetheredTo)
-  ) {
-    return new EndClass({
-      player: {
-        ...gameState.player,
-        position: position,
-      },
-      tetheredTo: {
-        ...gameState.tetheredTo,
-        position: getSafeSpot({
-          ...gameState,
-          player: gameState.tetheredTo,
-          tetheredTo: gameState.player,
-        }),
-      },
-      bossColour: gameState.bossColour,
-    });
-  } else {
-    return new DeathClass({
-      player: {
-        ...gameState.player,
-        alive: false,
-        position: position,
-      },
-      tetheredTo: {
-        ...gameState.tetheredTo,
-        alive: false,
-        position: getSafeSpot({
-          ...gameState,
-          player: gameState.tetheredTo,
-          tetheredTo: gameState.player,
-        }),
-      },
-      safeLocation: safeLocation,
-      bossColour: null,
-    });
-  }
+const isSafe = (player: Player, bossColour: "Dark" | "Light") => {
+  return (
+    (bossColour === "Dark" && Math.abs(0.5 - player.position[0]) < 0.2) ||
+    (bossColour === "Light" && Math.abs(0.5 - player.position[0]) > 0.3)
+  );
 };
 
 export class DivisivePostState implements IGameState {
-  player: Player;
-  tetheredTo: Player;
   bossColour: "Dark" | "Light";
   cast = {
     name: "Divisive Overruling",
@@ -128,21 +71,20 @@ export class DivisivePostState implements IGameState {
   };
   constructor(state: DivisiveOverrulingPostExplosionGameState) {
     this.state = state;
-    this.player = state.player;
-    this.tetheredTo = state.tetheredTo;
     this.bossColour = state.bossColour;
   }
   private state: DivisiveOverrulingPostExplosionGameState;
-  overlay = (dispatch: (action: Action) => void) => (
+  overlay = () => (
     <DisvisiveOverrulingInitialExplosionOverlay
       state={this.state}
-      dispatch={dispatch}
     />
   );
-  reduce = (action: Action) => {
-    if (action.type === "MOVE") {
-      return move(this.state, action.target);
-    }
-    return this;
+  nextState = () => {
+    return new EndClass({
+      bossColour: this.bossColour,
+    });
   };
+  isSafe = (player: Player) => isSafe(player, this.bossColour);
+  getSafeSpot = (player: Player): Position =>
+    getSafeSpot(player, this.bossColour);
 }

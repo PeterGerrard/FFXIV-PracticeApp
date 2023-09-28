@@ -18,21 +18,65 @@ export { isTetherSafe };
 
 const reducerClass =
   (setup: Setup) =>
-  (gameState: IGameState | null, action: Action): IGameState | null => {
+  (gameState: Game | null, action: Action): Game | null => {
     switch (action.type) {
       case "RESET":
         return null;
       case "RESTART":
       case "START":
         const player = createPlayer(setup);
-        const tetheredTo = createPartner(player);
-        return new Positions1({
+        const otherPlayer = createPartner(player);
+        return {
           player,
-          tetheredTo,
-        });
+          otherPlayer,
+          gameState: new Positions1(),
+          isDead: false,
+        };
+
+      case "SELECTROLE":
+        return null;
     }
-    return gameState ? gameState.reduce(action) ?? gameState : null;
+    if (gameState === null || gameState.isDead) {
+      return gameState;
+    }
+    switch (action.type) {
+      case "MOVE":
+        const updatedPlayer = {
+          ...gameState.player,
+          position: action.target,
+        };
+        const updatedOtherPlayer = {
+          ...gameState.otherPlayer,
+          position: gameState.gameState.getSafeSpot(gameState.otherPlayer),
+        };
+        const lived =
+          gameState.gameState.isSafe(updatedPlayer) &&
+          isTetherSafe(updatedPlayer, updatedOtherPlayer);
+        return {
+          player: updatedPlayer,
+          otherPlayer: updatedOtherPlayer,
+          gameState: gameState.gameState.nextState(),
+          isDead: !lived,
+        };
+      case "ANIMATIONEND":
+        const lived2 =
+          gameState.gameState.isSafe(gameState.player) &&
+          isTetherSafe(gameState.player, gameState.otherPlayer);
+        return {
+          player: gameState.player,
+          otherPlayer: gameState.otherPlayer,
+          gameState: gameState.gameState.nextState(),
+          isDead: !lived2,
+        };
+    }
   };
+
+type Game = {
+  gameState: IGameState;
+  player: Player;
+  otherPlayer: Player;
+  isDead: boolean;
+};
 
 export const useGameState = () => {
   const [setupState, dispatchSetup] = useSetup();

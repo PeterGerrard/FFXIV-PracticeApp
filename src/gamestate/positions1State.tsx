@@ -1,6 +1,4 @@
-import { DeathClass } from "./Death/DeathOverlay";
 import {
-  Action,
   IGameState,
   Marker1,
   Marker2,
@@ -16,11 +14,6 @@ import {
   distanceTo,
 } from "./gameState";
 import { RevelationState } from "./Revelation/revelationsState";
-
-type Positions1GameState = {
-  player: Player;
-  tetheredTo: Player;
-};
 
 const getCorrectPos = (
   role: Role,
@@ -54,76 +47,21 @@ const getCorrectPos = (
   throw "Something went wrong";
 };
 
-const move = (
-  gameState: Positions1GameState,
-  position: Position
-): IGameState => {
-  const safeLocation = getCorrectPos(
-    gameState.player.role,
-    gameState.player.debuff === gameState.tetheredTo.debuff ? "Long" : "Short",
-    gameState.tetheredTo.role
-  );
-  if (distanceTo(position, safeLocation) < 0.1) {
+export class Positions1 implements IGameState {
+  bossColour = null;
+  cast = null;
+  overlay = () => <></>;
+  nextState = () => {
     return new RevelationState({
-      player: {
-        ...gameState.player,
-        position: position,
-      },
-      tetheredTo: {
-        ...gameState.tetheredTo,
-        position: getCorrectPos(
-          gameState.tetheredTo.role,
-          gameState.player.debuff === gameState.tetheredTo.debuff
-            ? "Long"
-            : "Short",
-          gameState.player.role
-        ),
-      },
       bossColour: Math.random() < 0.5 ? "Dark" : "Light",
       topBomb: Math.random() < 0.5 ? "Dark" : "Light",
     });
-  } else {
-    return new DeathClass({
-      player: {
-        ...gameState.player,
-        alive: false,
-        position: position,
-      },
-      tetheredTo: {
-        ...gameState.tetheredTo,
-        alive: false,
-        position: getCorrectPos(
-          gameState.tetheredTo.role,
-          gameState.player.debuff === gameState.tetheredTo.debuff
-            ? "Long"
-            : "Short",
-          gameState.player.role
-        ),
-      },
-      safeLocation,
-      bossColour: Math.random() < 0.5 ? "Dark" : "Light",
-    });
-  }
-};
-
-export class Positions1 implements IGameState {
-  player: Player;
-  tetheredTo: Player;
-  bossColour: null;
-  cast = null;
-  constructor(state: Positions1GameState) {
-    this.state = state;
-    this.player = state.player;
-    this.tetheredTo = state.tetheredTo;
-    this.bossColour = null;
-  }
-  private state: Positions1GameState;
-  overlay = () => <></>;
-  reduce = (action: Action) => {
-    if (action.type === "MOVE") {
-      const nextState = move(this.state, action.target);
-      return nextState;
-    }
-    return this;
   };
+  isSafe = (player: Player) =>
+    distanceTo(
+      player.position,
+      getCorrectPos(player.role, player.tetherLength, player.tetheredRole)
+    ) < 0.1;
+  getSafeSpot = (player: Player): Position =>
+    getCorrectPos(player.role, player.tetherLength, player.tetheredRole);
 }

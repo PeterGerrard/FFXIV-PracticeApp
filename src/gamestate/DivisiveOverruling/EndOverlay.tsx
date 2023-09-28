@@ -1,5 +1,13 @@
 import { Grow } from "@mui/material";
-import { IGameState, Player } from "../gameState";
+import {
+  IGameState,
+  Marker1,
+  Marker3,
+  MarkerB,
+  MarkerD,
+  Player,
+  Position,
+} from "../gameState";
 
 const Explosions = (props: { bossColour: "Dark" | "Light" }) => {
   if (props.bossColour === "Dark") {
@@ -56,10 +64,7 @@ const Explosions = (props: { bossColour: "Dark" | "Light" }) => {
   );
 };
 
-const EndOverlay = (props: {
-  bossColour: "Dark" | "Light";
-  player: Player;
-}) => (
+const EndOverlay = (props: { bossColour: "Dark" | "Light" }) => (
   <>
     <Explosions bossColour={props.bossColour} />
     <h1
@@ -73,34 +78,74 @@ const EndOverlay = (props: {
         color: "hotpink",
       }}
     >
-      Victory!
+      Finished!
     </h1>
   </>
 );
+const isSafe = (player: Player, bossColour: "Dark" | "Light") => {
+  return (
+    (bossColour === "Dark" && Math.abs(0.5 - player.position[0]) < 0.2) ||
+    (bossColour === "Light" && Math.abs(0.5 - player.position[0]) > 0.3)
+  );
+};
+
+const getSafeSpot = (
+  player: Player,
+  bossColour: "Dark" | "Light"
+): Position => {
+  const short = player.tetherLength === "Short";
+  if (bossColour === "Light") {
+    const leftSafe: Position = [0.2, 0.5];
+    const rightSafe: Position = [0.8, 0.5];
+    if (
+      short &&
+      (player.role === "Healer" || player.tetheredRole === "Healer")
+    ) {
+      return rightSafe;
+    }
+    if (
+      !short &&
+      (player.role === "Tank" || player.tetheredRole === "Healer")
+    ) {
+      return rightSafe;
+    }
+
+    if (short) {
+      return leftSafe;
+    }
+
+    return leftSafe;
+  }
+
+  if (short && (player.role === "Healer" || player.tetheredRole === "Healer")) {
+    return [MarkerB[0], Marker3[1]];
+  }
+  if (!short && (player.role === "Tank" || player.tetheredRole === "Healer")) {
+    return [MarkerB[0], Marker1[1]];
+  }
+
+  if (short) {
+    return [MarkerD[0], Marker1[1]];
+  }
+
+  return [MarkerD[0], Marker3[1]];
+};
+
 export class EndClass implements IGameState {
-  player: Player;
-  tetheredTo: Player;
   bossColour: "Dark" | "Light";
   cast = null;
-  constructor(state: {
-    bossColour: "Dark" | "Light";
-    player: Player;
-    tetheredTo: Player;
-  }) {
+  constructor(state: { bossColour: "Dark" | "Light" }) {
     this.state = state;
-    this.player = state.player;
-    this.tetheredTo = state.tetheredTo;
     this.bossColour = state.bossColour;
   }
   private state: {
     bossColour: "Dark" | "Light";
-    player: Player;
-    tetheredTo: Player;
   };
-  overlay = () => (
-    <EndOverlay bossColour={this.state.bossColour} player={this.state.player} />
-  );
-  reduce = () => {
+  overlay = () => <EndOverlay bossColour={this.state.bossColour} />;
+  nextState = () => {
     return this;
   };
+  isSafe = (player: Player) => isSafe(player, this.bossColour);
+  getSafeSpot = (player: Player): Position =>
+    getSafeSpot(player, this.bossColour);
 }

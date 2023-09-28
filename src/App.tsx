@@ -15,6 +15,7 @@ import {
 import { useGameState } from "./gamestate";
 import { Arena } from "./Arena";
 import { SetupForm } from "./gamestate/Setup/SetupForm";
+import { DeathOverlay } from "./gamestate/Death/DeathOverlay";
 
 function App() {
   const [state, setupState, dispatch] = useGameState();
@@ -43,10 +44,23 @@ function App() {
             <Arena
               dispatch={dispatch}
               player={state.player}
-              tetheredTo={state.tetheredTo}
-              bossColour={"bossColour" in state ? state.bossColour : null}
+              otherPlayer={state.otherPlayer}
+              bossColour={
+                "bossColour" in state.gameState
+                  ? state.gameState.bossColour
+                  : null
+              }
+              isDead={state.isDead}
             >
-              {state.overlay(dispatch)}
+              {state.isDead ? (
+                <DeathOverlay
+                  safeLocation={state.gameState.getSafeSpot(state.player)}
+                >
+                  {state.gameState.overlay(() => {})}
+                </DeathOverlay>
+              ) : (
+                state.gameState.overlay(dispatch)
+              )}
             </Arena>
             )
           </div>
@@ -56,14 +70,14 @@ function App() {
               paddingBottom: "50px",
             }}
           >
-            {state.cast && (
+            {state.gameState.cast && (
               <>
-                <h1>{state.cast.name}</h1>
+                <h1>{state.gameState.cast.name}</h1>
                 <LinearProgress
                   sx={{ height: "16px" }}
                   color="warning"
                   variant="determinate"
-                  value={state.cast.value}
+                  value={state.gameState.cast.value}
                 />
               </>
             )}
