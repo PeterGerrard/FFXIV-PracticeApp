@@ -3,7 +3,20 @@ import arenaPng from "./assets/arena.png";
 import healerPng from "./assets/healer.png";
 import dpsPng from "./assets/dps.png";
 import tankPng from "./assets/tank.png";
-import Select, { Options } from "react-select";
+
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
+import {
+  CssBaseline,
+  FormControl,
+  MenuItem,
+  Select,
+  ThemeProvider,
+  createTheme,
+  useMediaQuery,
+} from "@mui/material";
 
 type Role = "Tank" | "Healer" | "DPS";
 type Position = [number, number];
@@ -163,25 +176,32 @@ const reducer = (gameState: GameState, action: Action): GameState => {
 function App() {
   const [state, dispatch] = useReducer(reducer, defaultState);
 
-  const roleOptions: Options<{ value: Role; label: string }> = [
-    { value: "Healer", label: "Healer" },
-    { value: "Tank", label: "Tank" },
-    { value: "DPS", label: "DPS" },
-  ];
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+
+  const theme = createTheme({
+    palette: {
+      mode: prefersDarkMode ? "dark" : "light",
+    },
+  });
 
   return (
-    <>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
       <h1>Themis Practice</h1>
       <div style={{ display: "flex" }}>
-        <form>
+        <FormControl>
           <Select
-            options={roleOptions}
-            defaultValue={roleOptions[0]}
+            value={state.role}
             onChange={(c) =>
-              c !== null && dispatch({ type: "SELECTROLE", role: c.value })
+              c !== null &&
+              dispatch({ type: "SELECTROLE", role: c.target.value as Role })
             }
-          ></Select>
-        </form>
+          >
+            <MenuItem value={"Healer"}>Healer</MenuItem>
+            <MenuItem value={"Tank"}>Tank</MenuItem>
+            <MenuItem value={"DPS"}>DPS</MenuItem>
+          </Select>
+        </FormControl>
         <div
           style={{
             position: "relative",
@@ -231,7 +251,7 @@ function App() {
           )}
         </div>
       </div>
-    </>
+    </ThemeProvider>
   );
 }
 
