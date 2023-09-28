@@ -2,14 +2,12 @@ import React from "react";
 
 export type Role = "Tank" | "Healer" | "DPS";
 export type Position = [number, number];
-export type ClockSpot =
-  | "North"
+export type ClockSpot = Cardinal | InterCardinal;
+export type Cardinal = "North" | "East" | "South" | "West";
+export type InterCardinal =
   | "North East"
-  | "East"
   | "South East"
-  | "South"
   | "South West"
-  | "West"
   | "North West";
 export const InterCardinals: InterCardinal[] = [
   "North East",
@@ -17,11 +15,11 @@ export const InterCardinals: InterCardinal[] = [
   "South West",
   "North West",
 ];
-export type InterCardinal =
-  | "North East"
-  | "South East"
-  | "South West"
-  | "North West";
+export const Cardinals: Cardinal[] = ["North", "East", "South", "West"];
+export const ClockSpots = InterCardinals.flatMap((_, i) => [
+  Cardinals[i],
+  InterCardinals[i],
+]);
 
 export type Group = "Group1" | "Group2";
 

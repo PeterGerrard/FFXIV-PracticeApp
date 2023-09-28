@@ -7,25 +7,33 @@ import "@fontsource/roboto/700.css";
 import {
   Button,
   CssBaseline,
+  Drawer,
   ThemeProvider,
   createTheme,
   useMediaQuery,
 } from "@mui/material";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { SetupContext } from "./gamestate/Setup/Setup";
 import { useEffect, useState } from "react";
 import { Setup } from "./gamestate/gameState";
 import SettingsIcon from "@mui/icons-material/Settings";
+import { SetupForm } from "./gamestate/Setup/SetupForm";
 
 const defaultSetup: Setup = { role: "Healer", clockSpot: "East" };
 
 function App() {
-  const navigate = useNavigate();
-  const [setup, setSetup] = useState<Setup | undefined>();
-  const saveSetup = (updatedSetup: Partial<Setup>) => {
-    const newSetup = { ...defaultSetup, ...setup, ...updatedSetup };
-    localStorage.setItem("setup", JSON.stringify(newSetup));
-    setSetup(newSetup);
+  const [setup, setSetup] = useState<Setup>(() => {
+    const stored = localStorage.getItem("setup");
+    if (stored) {
+      return { ...defaultSetup, ...JSON.parse(stored) };
+    } else {
+      return defaultSetup;
+    }
+  });
+  const [showSetup, setShowSetup] = useState(false);
+  const saveSetup = () => {
+    localStorage.setItem("setup", JSON.stringify(setup));
+    setShowSetup(false);
   };
 
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -36,22 +44,13 @@ function App() {
     },
   });
 
-  useEffect(() => {
-    const stored = localStorage.getItem("setup");
-    if (stored) {
-      setSetup(JSON.parse(stored) as Setup);
-    } else {
-      saveSetup(defaultSetup);
-      navigate("/setup");
-    }
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <ThemeProvider theme={theme}>
       <SetupContext.Provider
         value={{
           state: setup ?? defaultSetup,
-          update: saveSetup,
         }}
       >
         <CssBaseline />
@@ -59,12 +58,19 @@ function App() {
           <h1 style={{ display: "inline-block" }}>Themis Practice</h1>
           <Button
             startIcon={<SettingsIcon />}
-            onClick={() => navigate("/setup")}
+            onClick={() => setShowSetup(true)}
           >
             Setup
           </Button>
         </div>
         {setup && <Outlet />}
+        <Drawer open={!setup || showSetup} onClose={() => setShowSetup(false)}>
+          <SetupForm
+            setup={setup}
+            save={saveSetup}
+            update={(p) => setSetup((s) => ({ ...s, ...p }))}
+          />
+        </Drawer>
       </SetupContext.Provider>
     </ThemeProvider>
   );

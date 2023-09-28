@@ -3,9 +3,9 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
-import { SetupForm } from "./gamestate/Setup/SetupForm.tsx";
 import { DarkAndLight } from "./gamestate/DarkAndLight/DarkAndLight.tsx";
 import { LetterOfTheLaw } from "./gamestate/LetterOfTheLaw/LetterOfTheLaw.tsx";
+import { SelectMechanic } from "./SelectMechanic.tsx";
 
 const router = createBrowserRouter([
   {
@@ -14,11 +14,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <SetupForm />,
-      },
-      {
-        path: "setup",
-        element: <SetupForm />,
+        element: <SelectMechanic />,
       },
       {
         path: "darkandlight",
