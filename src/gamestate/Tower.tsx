@@ -1,4 +1,4 @@
-import { Position } from "../..";
+import { Position } from ".";
 
 export const Tower = (props: { position: Position }) => (
   <svg

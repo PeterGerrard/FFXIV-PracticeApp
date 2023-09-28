@@ -53,7 +53,7 @@ export type Loop<TPlayer, T, TNextLoop> = {
     moveTo: (p: Position) => void,
     animationEnd: () => void
   ) => React.ReactElement;
-  nextState: (gameState: T) => T;
+  nextState: (gameState: T, player: TPlayer) => T;
   isSafe: (gameState: T, player: TPlayer) => boolean;
   getSafeSpot: (gameState: T, player: TPlayer) => Position;
   nextLoop: TNextLoop;

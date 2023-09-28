@@ -121,7 +121,7 @@ export const stepGame2 = <TPlayer, T extends GameState, T1 extends GameState>(
     return result;
   }
 
-  const nextState = game.game.nextState(game.gameState);
+  const nextState = game.game.nextState(game.gameState, game.player);
   const otherPlayers = game.otherPlayers.map((o) => ({
     ...o,
     position: game.game.getSafeSpot(nextState, o),
@@ -160,7 +160,7 @@ export const stepGame3 = <
     return result;
   }
 
-  const nextState = game.game.nextState(game.gameState);
+  const nextState = game.game.nextState(game.gameState, game.player);
   const otherPlayers = game.otherPlayers.map((o) => ({
     ...o,
     position: game.game.getSafeSpot(nextState, o),
@@ -200,7 +200,7 @@ export const stepGame4 = <
     return result;
   }
 
-  const nextState = game.game.nextState(game.gameState);
+  const nextState = game.game.nextState(game.gameState, game.player);
   const otherPlayers = game.otherPlayers.map((o) => ({
     ...o,
     position: game.game.getSafeSpot(nextState, o),
@@ -241,7 +241,7 @@ export const stepGame5 = <
     return result;
   }
 
-  const nextState = game.game.nextState(game.gameState);
+  const nextState = game.game.nextState(game.gameState, game.player);
   const otherPlayers = game.otherPlayers.map((o) => ({
     ...o,
     position: game.game.getSafeSpot(nextState, o),

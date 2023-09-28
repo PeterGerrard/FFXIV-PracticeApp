@@ -6,7 +6,7 @@ export const SelectMechanic = () => (
       <NavLink to="/darkandlight">Dark and Light</NavLink>
     </li>
     <li>
-      <NavLink to="/letterofthelaw">Letter of the Law (Beta)</NavLink>
+      <NavLink to="/letterofthelaw">Letter of the Law</NavLink>
     </li>
   </ul>
 );

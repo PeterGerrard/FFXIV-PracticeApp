@@ -1,17 +1,12 @@
-import { Slide } from "@mui/material";
-import { useRef, useState, useEffect } from "react";
-import Xarrow, { useXarrow } from "react-xarrows";
 import { Position } from "../..";
-import { Bombs } from "../../Bombs";
-import { InterCardinal, distanceTo, GameLoop2 } from "../../gameState";
-import { Add } from "../Add";
-import { Arena } from "../Arena";
+import { InterCardinal, distanceTo, GameLoop3 } from "../../gameState";
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
 import {
   TwofoldRevelationState,
   twofoldRevelation,
 } from "../Twofold Revelation";
-import { rotation } from "../../gameState";
+import { DismissalOverrulingState } from "../DismissalOverruling";
+import { HeartArena } from "./HeartArena";
 
 export type HeartOfJudgementState = LetterOfTheLawState & {
   bossColour: "Dark" | "Light";
@@ -21,191 +16,21 @@ export type HeartOfJudgementState = LetterOfTheLawState & {
   darkBoxLocation: InterCardinal;
   lightBoxLocation: InterCardinal;
 };
-export const heartOfJudgement: GameLoop2<
+export const heartOfJudgement: GameLoop3<
   LetterOfTheLawPlayer,
   HeartOfJudgementState,
-  TwofoldRevelationState
+  TwofoldRevelationState,
+  DismissalOverrulingState
 > = {
   arena: (player, _, isDead, gameState, moveTo, animationEnd) => {
-    const updateXarrow = useXarrow();
-    const playerRef = useRef<HTMLImageElement>(null);
-    const addRef = useRef<HTMLImageElement>(null);
-    const innerBox =
-      gameState.bossColour === "Dark"
-        ? gameState.darkBoxLocation
-        : gameState.lightBoxLocation;
-    const outerBox =
-      gameState.bossColour === "Dark"
-        ? gameState.lightBoxLocation
-        : gameState.darkBoxLocation;
-
-    const [moved, setMoved] = useState(0);
-    useEffect(() => updateXarrow(), [moved, player, gameState]);
-
     return (
-      <Arena
-        ref={playerRef}
-        player={player}
+      <HeartArena
+        animationEnd={animationEnd}
+        gameState={gameState}
         isDead={isDead}
-        moveTo={(p) => {
-          setMoved((x) => x + 1);
-          moveTo(p);
-        }}
-        bossColour={gameState.bossColour}
-      >
-        <Add
-          ref={player.role === "Tank" ? addRef : null}
-          inter={gameState.darkAddLocation}
-          colour="Dark"
-        />
-        <Add
-          ref={player.role !== "Tank" ? addRef : null}
-          inter={gameState.lightAddLocation}
-          colour="Light"
-        />
-        {player.isTethered && (
-          <Xarrow
-            start={playerRef}
-            end={addRef}
-            showHead={false}
-            endAnchor="middle"
-            startAnchor="middle"
-            showTail={false}
-            path="straight"
-          />
-        )}
-
-        {gameState.cast && (
-          <>
-            <Bombs
-              topBomb={gameState.topBomb}
-              bossColour={gameState.bossColour}
-              explode={gameState.cast !== null && gameState.cast.value >= 100}
-              animationEnd={animationEnd}
-            />
-            <svg
-              height="100%"
-              width="100%"
-              style={{
-                position: "absolute",
-                transformOrigin: "50% 50%",
-                left: "50%",
-                top: "50%",
-                transform: `translate(-50%, -50%) rotate(${rotation(
-                  innerBox
-                )}deg)`,
-              }}
-            >
-              <rect
-                height="5%"
-                width="5%"
-                x="11.6875%"
-                y="5%"
-                fill={gameState.bossColour === "Dark" ? "yellow" : "purple"}
-              />
-              <rect
-                height="5%"
-                width="5%"
-                x="35.5625%"
-                y="5%"
-                fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
-              />
-              <rect
-                height="5%"
-                width="5%"
-                x="59.4375%"
-                y="5%"
-                fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
-              />
-              <rect
-                height="5%"
-                width="5%"
-                x="83.3125%"
-                y="5%"
-                fill={gameState.bossColour === "Dark" ? "yellow" : "purple"}
-              />
-              <Slide
-                in={gameState.cast.value >= 100}
-                timeout={1500}
-                onEntered={animationEnd}
-              >
-                <rect
-                  height="100%"
-                  width="47.5%"
-                  x="26.5%"
-                  y="0"
-                  fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
-                  style={{
-                    opacity: 0.4,
-                  }}
-                />
-              </Slide>
-            </svg>
-            <svg
-              height="100%"
-              width="100%"
-              style={{
-                position: "absolute",
-                transformOrigin: "50% 50%",
-                left: "50%",
-                top: "50%",
-                transform: `translate(-50%, -50%) rotate(${rotation(
-                  outerBox
-                )}deg)`,
-              }}
-            >
-              <rect
-                height="5%"
-                width="5%"
-                x="11.6875%"
-                y="5%"
-                fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
-              />
-              <rect
-                height="5%"
-                width="5%"
-                x="35.5625%"
-                y="5%"
-                fill={gameState.bossColour === "Dark" ? "yellow" : "purple"}
-              />
-              <rect
-                height="5%"
-                width="5%"
-                x="59.4375%"
-                y="5%"
-                fill={gameState.bossColour === "Dark" ? "yellow" : "purple"}
-              />
-              <rect
-                height="5%"
-                width="5%"
-                x="83.3125%"
-                y="5%"
-                fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
-              />
-              <Slide in={gameState.cast.value >= 100} timeout={1500}>
-                <rect
-                  height="100%"
-                  width="26.5%"
-                  x="73.5%"
-                  y="0"
-                  fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
-                  opacity={0.4}
-                />
-              </Slide>
-              <Slide in={gameState.cast.value >= 100} timeout={1500}>
-                <rect
-                  height="100%"
-                  width="26.5%"
-                  x="0"
-                  y="0"
-                  fill={gameState.bossColour === "Dark" ? "purple" : "yellow"}
-                  opacity={0.4}
-                />
-              </Slide>
-            </svg>
-          </>
-        )}
-      </Arena>
+        moveTo={moveTo}
+        player={player}
+      />
     );
   },
   getSafeSpot: (
