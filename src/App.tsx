@@ -44,7 +44,7 @@ function App() {
       saveSetup(defaultSetup);
       navigate("/setup");
     }
-  });
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>

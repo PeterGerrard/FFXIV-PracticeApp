@@ -11,6 +11,17 @@ export type ClockSpot =
   | "South West"
   | "West"
   | "North West";
+export const InterCardinals: InterCardinal[] = [
+  "North East",
+  "South East",
+  "South West",
+  "North West",
+];
+export type InterCardinal =
+  | "North East"
+  | "South East"
+  | "South West"
+  | "North West";
 
 export type Player = {
   role: Role;

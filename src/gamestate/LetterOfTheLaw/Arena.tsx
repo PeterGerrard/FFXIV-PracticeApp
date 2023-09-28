@@ -7,9 +7,10 @@ import dpsPng from "../DarkAndLight/assets/dps.png";
 import tankPng from "../DarkAndLight/assets/tank.png";
 import skullPng from "../DarkAndLight/assets/Skull_and_Crossbones.png";
 import bossPng from "../DarkAndLight/assets/boss.png";
-import indicatorPng from "../DarkAndLight/assets/indicator.png";
 import { Position, Player } from "..";
 import { LetterOfTheLawPlayer } from "./gameState";
+import { InterCardinal } from "../gameState";
+import { Themis } from "../Themis";
 
 // helper function to get an element's exact position
 function getPosition(e: HTMLElement): Position {
@@ -55,39 +56,41 @@ const Player = (props: { player: Player; isDead: boolean }) => {
     ></img>
   );
 };
-const Boss = () => (
-  <>
-    <img
-      src={bossPng}
-      height="25%"
-      width="25%"
-      style={{
-        position: "absolute",
-        left: `50%`,
-        top: `50%`,
-        transform: "translate(-50%, -50%)",
-      }}
-    ></img>
-    <img
-      src={indicatorPng}
-      height="52%"
-      width="52%"
-      style={{
-        position: "absolute",
-        left: `50%`,
-        top: `42.5%`,
-        transform: "translate(-50%, -50%)",
-      }}
-    ></img>
-  </>
+
+const addPosition = (pos: InterCardinal): Position => {
+  switch (pos) {
+    case "North East":
+      return [0.875, 0.125];
+    case "South East":
+      return [0.875, 0.875];
+    case "South West":
+      return [0.125, 0.875];
+    case "North West":
+      return [0.125, 0.125];
+  }
+};
+
+const Add = (props: { pos: Position }) => (
+  <img
+    src={bossPng}
+    height="15%"
+    width="15%"
+    style={{
+      position: "absolute",
+      left: `${props.pos[0] * 100}%`,
+      top: `${props.pos[1] * 100}%`,
+      transform: "translate(-50%, -50%)",
+    }}
+  ></img>
 );
 
 export const Arena = (
   props: PropsWithChildren<{
     player: LetterOfTheLawPlayer;
-    otherPlayer: LetterOfTheLawPlayer;
     isDead: boolean;
     moveTo: (p: Position) => void;
+    adds: InterCardinal[];
+    bossColour: "Dark" | "Light";
   }>
 ) => {
   return (
@@ -95,7 +98,6 @@ export const Arena = (
       style={{
         position: "relative",
         display: "inline-block",
-        overflow: "hidden",
         height: "100%",
       }}
       onClick={(e) => {
@@ -108,8 +110,11 @@ export const Arena = (
     >
       <img src={arenaPng} height="100%"></img>
       <>
-        <Boss />
-        <Player player={props.otherPlayer} isDead={false} />
+        {props.adds.map((a) => (
+          <Add key={a} pos={addPosition(a)} />
+        ))}
+        <Themis bossColour={props.bossColour} />
+        <Player player={props.player} isDead={props.isDead} />
         {props.children}
       </>
     </div>

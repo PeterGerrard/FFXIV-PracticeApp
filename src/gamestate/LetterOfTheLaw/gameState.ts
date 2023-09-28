@@ -1,5 +1,7 @@
 import {
   ClockSpot,
+  GameState,
+  InterCardinal,
   Player,
   Position,
   Role,
@@ -9,6 +11,12 @@ import {
 export type LetterOfTheLawPlayer = Player & {
   clockSpot: ClockSpot;
   isTethered: boolean;
+};
+
+export type LetterOfTheLawState = GameState & {
+  bossColour: "Dark" | "Light";
+  add1Location: InterCardinal;
+  add2Location: InterCardinal;
 };
 
 export const MarkerA: Position = [0.498, 0.206];
@@ -28,6 +36,6 @@ export const createPlayer = (
     role,
     position: getRandomPos(),
     clockSpot,
-    isTethered: role === "Tank" && Math.random() < 0.5,
+    isTethered: Math.random() < (role === "Tank" ? 0.5 : 1 / 6),
   };
 };
