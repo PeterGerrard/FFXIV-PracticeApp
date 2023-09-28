@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { Ref, forwardRef, useReducer, useRef } from "react";
 import arenaPng from "./assets/arena.png";
 import healerPng from "./assets/healer.png";
 import dpsPng from "./assets/dps.png";
@@ -18,6 +18,7 @@ import {
   createTheme,
   useMediaQuery,
 } from "@mui/material";
+import Xarrow, { Xwrapper, useXarrow } from "react-xarrows";
 
 type Role = "Tank" | "Healer" | "DPS";
 type Position = [number, number];
@@ -25,6 +26,7 @@ type Position = [number, number];
 type Player = {
   role: Role;
   position: Position;
+  debuff: "Light" | "Dark";
 };
 
 // helper function to get an element's exact position
@@ -57,7 +59,6 @@ type GameState =
   | {
       stage: "positions1";
       player: Player;
-      tether: "Short" | "Long";
       tetheredTo: Player;
       success: number;
       failure: number;
@@ -95,6 +96,12 @@ const distanceTo = (source: Position, target: Position) =>
   Math.sqrt(
     Math.pow(target[0] - source[0], 2) + Math.pow(target[1] - source[1], 2)
   );
+
+const isSafe = (p1: Player, p2: Player) => {
+  const d = distanceTo(p1.position, p2.position);
+
+  return p1.debuff === p2.debuff ? d > 400 : d < 200;
+};
 
 const getCorrectPos = (
   role: Role,
@@ -148,8 +155,8 @@ const move = (gameState: GameState, position: Position): GameState => {
         player: {
           role: gameState.role,
           position: position,
+          debuff: Math.random() <= 0.5 ? "Light" : "Dark",
         },
-        tether: Math.random() <= 0.5 ? "Short" : "Long",
         tetheredTo: {
           role:
             gameState.role === "DPS"
@@ -158,6 +165,7 @@ const move = (gameState: GameState, position: Position): GameState => {
                 : "Healer"
               : "DPS",
           position: [500, 500],
+          debuff: Math.random() <= 0.5 ? "Light" : "Dark",
         },
         success: 0,
         failure: 0,
@@ -165,21 +173,25 @@ const move = (gameState: GameState, position: Position): GameState => {
     case "positions1":
       const correctPosition = isInCorrectBasicPosition(
         gameState.player.role,
-        gameState.tether,
+        gameState.player.debuff === gameState.tetheredTo.debuff
+          ? "Long"
+          : "Short",
         gameState.tetheredTo.role,
         position
       );
       return {
         stage: "end",
         player: {
-          role: gameState.player.role,
+          ...gameState.player,
           position: position,
         },
         tetheredTo: {
-          role: gameState.tetheredTo.role,
+          ...gameState.tetheredTo,
           position: getCorrectPos(
             gameState.tetheredTo.role,
-            gameState.tether,
+            gameState.player.debuff === gameState.tetheredTo.debuff
+              ? "Long"
+              : "Short",
             gameState.player.role
           ),
         },
@@ -204,28 +216,34 @@ const reducer = (gameState: GameState, action: Action): GameState => {
   }
 };
 
-const Player = (props: { player: Player }) => {
-  return (
-    <img
-      src={
-        props.player.role === "Healer"
-          ? healerPng
-          : props.player.role === "Tank"
-          ? tankPng
-          : dpsPng
-      }
-      style={{
-        position: "absolute",
-        left: props.player.position[0],
-        top: props.player.position[1],
-        transform: "translate(-50%, -50%)",
-      }}
-    ></img>
-  );
-};
+const Player = forwardRef(
+  (props: { player: Player }, ref: Ref<HTMLImageElement>) => {
+    return (
+      <img
+        ref={ref}
+        src={
+          props.player.role === "Healer"
+            ? healerPng
+            : props.player.role === "Tank"
+            ? tankPng
+            : dpsPng
+        }
+        style={{
+          position: "absolute",
+          left: props.player.position[0],
+          top: props.player.position[1],
+          transform: "translate(-50%, -50%)",
+        }}
+      ></img>
+    );
+  }
+);
 
 function App() {
+  const updateXarrow = useXarrow();
   const [state, dispatch] = useReducer(reducer, defaultState);
+  const playerRef = useRef<HTMLImageElement>(null);
+  const tetheredRef = useRef<HTMLImageElement>(null);
 
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
@@ -277,22 +295,58 @@ function App() {
           }}
         >
           <img src={arenaPng}></img>
-          {state.stage !== "setup" && <Player player={state.tetheredTo} />}
-          {state.stage !== "setup" && <Player player={state.player} />}
+          {state.stage === "positions1" && (
+            <>
+              <Player ref={tetheredRef} player={state.tetheredTo} />
+              <Player ref={playerRef} player={state.player} />
+              <Xarrow
+                start={tetheredRef}
+                startAnchor="middle"
+                end={playerRef}
+                endAnchor="middle"
+                path="straight"
+                strokeWidth={30}
+                lineColor={
+                  isSafe(state.player, state.tetheredTo)
+                    ? "blue"
+                    : state.player.debuff === "Dark"
+                    ? "purple"
+                    : "yellow"
+                }
+                showHead={false}
+                showTail={false}
+              />
+            </>
+          )}
+          {state.stage === "end" && (
+            <>
+              <Player ref={tetheredRef} player={state.tetheredTo} />
+              <Player ref={playerRef} player={state.player} />
+              <Xarrow
+                start={tetheredRef}
+                startAnchor="middle"
+                end={playerRef}
+                endAnchor="middle"
+                path="straight"
+                strokeWidth={30}
+                lineColor={
+                  isSafe(state.player, state.tetheredTo)
+                    ? "blue"
+                    : state.player.debuff === "Dark"
+                    ? "purple"
+                    : "yellow"
+                }
+                showHead={false}
+                showTail={false}
+              />
+            </>
+          )}
         </div>
         <div>
           Success: {state.success}
           <br />
           Failure: {state.failure}
           <br />
-          {state.stage === "positions1" && (
-            <>
-              Length: {state.tether}
-              <br />
-              Partner: {state.tetheredTo.role}
-              <br />
-            </>
-          )}
         </div>
       </div>
     </ThemeProvider>
