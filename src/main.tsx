@@ -9,6 +9,7 @@ import { SelectMechanic } from "./SelectMechanic.tsx";
 import { LineTest } from "./gamestate/Mechanics/LineTest.tsx";
 import { CircleTest } from "./gamestate/Mechanics/CircleTest.tsx";
 import { DonutTest } from "./gamestate/Mechanics/DonutTest.tsx";
+import { P12SP1Testing } from "./gamestate/P12SP1/P12SP1.tsx";
 
 const router = createBrowserRouter([
   {
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
       {
         path: "donuttest",
         element: <DonutTest />,
+      },
+      {
+        path: "p12sp1",
+        element: <P12SP1Testing />,
       },
     ],
   },
