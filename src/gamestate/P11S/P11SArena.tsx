@@ -1,21 +1,20 @@
 /// <reference types="vite-plugin-svgr/client" />
 
 import { PropsWithChildren, Ref, forwardRef } from "react";
-import arenaPng from "../assets/arena.png";
-import { Position } from "../..";
-import { LetterOfTheLawPlayer } from "./gameState";
-import { Themis } from "../Themis";
-import { getPosition } from "../../htmlHelpers";
-import { PlayerComponent } from "../../Player";
+import arenaPng from "./assets/arena.png";
+import { Position } from "..";
+import { Themis } from "./Themis";
+import { getPosition } from "../htmlHelpers";
+import { Player, PlayerComponent } from "../Player";
 import {
   DangerPuddles,
   DangerPuddlesDisplay,
-} from "../../Mechanics/DangerPuddles";
+} from "../Mechanics/DangerPuddles";
 
 export const Arena = forwardRef(
   (
     props: PropsWithChildren<{
-      player: LetterOfTheLawPlayer;
+      player: Player;
       isDead: boolean;
       moveTo: (p: Position) => void;
       dangerPuddles: DangerPuddles;

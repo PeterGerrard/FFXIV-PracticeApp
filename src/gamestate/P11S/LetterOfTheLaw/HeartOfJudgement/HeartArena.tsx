@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import Xarrow, { useXarrow } from "react-xarrows";
 import { Position } from "../../..";
 import { Add } from "../Add";
-import { Arena } from "../Arena";
+import { Arena } from "../../P11SArena";
 import { LetterOfTheLawPlayer } from "../gameState";
 import { rotation } from "../../../gameState";
 import { HeartOfJudgementState } from ".";

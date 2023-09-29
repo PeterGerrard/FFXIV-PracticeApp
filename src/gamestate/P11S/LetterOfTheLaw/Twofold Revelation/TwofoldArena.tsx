@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import Xarrow, { useXarrow } from "react-xarrows";
 import { Position } from "../../../gameState";
 import { Add } from "../Add";
-import { Arena } from "../Arena";
+import { Arena } from "../../P11SArena";
 import { LetterOfTheLawPlayer } from "../gameState";
 import Grow from "@mui/material/Grow";
 import { TwofoldRevelationState, towerPos } from ".";
