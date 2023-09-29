@@ -1,10 +1,10 @@
-import { Position } from "../..";
+import { Position } from "../../..";
 import {
   InterCardinal,
   distanceTo,
   GameLoop3,
   rotation,
-} from "../../gameState";
+} from "../../../gameState";
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
 import {
   TwofoldRevelationState,
@@ -12,7 +12,7 @@ import {
 } from "../Twofold Revelation";
 import { DismissalOverrulingState } from "../DismissalOverruling";
 import { HeartArena } from "./HeartArena";
-import { DangerPuddles, survivePuddles } from "../../Mechanics/DangerPuddles";
+import { DangerPuddles, survivePuddles } from "../../../Mechanics/DangerPuddles";
 
 const addLoc = (inter: InterCardinal, offset?: number): Position => {
   const o = offset ? offset / Math.sqrt(2) : 0;

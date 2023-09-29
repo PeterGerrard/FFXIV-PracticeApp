@@ -5,11 +5,11 @@ import {
   getGroup,
   distanceTo,
   rotation,
-} from "../../gameState";
+} from "../../../gameState";
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
-import { pickOne } from "../../helpers";
+import { pickOne } from "../../../helpers";
 import { DismissalArena } from "./DismissalArena";
-import { DangerPuddles, survivePuddles } from "../../Mechanics/DangerPuddles";
+import { DangerPuddles, survivePuddles } from "../../../Mechanics/DangerPuddles";
 
 const addLoc = (inter: InterCardinal, offset?: number): Position => {
   const o = offset ? offset / Math.sqrt(2) : 0;

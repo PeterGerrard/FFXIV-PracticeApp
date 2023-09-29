@@ -1,5 +1,5 @@
-import { IterateGames3 } from "..";
-import { Setup } from "../gameState";
+import { IterateGames3 } from "../..";
+import { Setup } from "../../gameState";
 import {
   DivisiveOverrulingGameState,
   DivisiveOverrulingState,

@@ -1,13 +1,13 @@
 import { useRef, useState, useEffect } from "react";
 import Xarrow, { useXarrow } from "react-xarrows";
-import { Position } from "../..";
-import { Bombs } from "../../Bombs";
+import { Position } from "../../..";
 import { Add } from "../Add";
 import { Arena } from "../Arena";
 import { LetterOfTheLawPlayer } from "../gameState";
-import { rotation } from "../../gameState";
+import { rotation } from "../../../gameState";
 import { HeartOfJudgementState } from ".";
-import { DangerPuddles } from "../../Mechanics/DangerPuddles";
+import { DangerPuddles } from "../../../Mechanics/DangerPuddles";
+import { Bombs } from "../../Bombs";
 
 export const HeartArena = (props: {
   player: LetterOfTheLawPlayer;

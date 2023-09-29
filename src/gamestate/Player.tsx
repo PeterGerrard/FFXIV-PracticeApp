@@ -1,8 +1,8 @@
 import { Ref, forwardRef } from "react";
-import healerPng from "./DarkAndLight/assets/healer.png";
-import dpsPng from "./DarkAndLight/assets/dps.png";
-import tankPng from "./DarkAndLight/assets/tank.png";
-import skullPng from "./DarkAndLight/assets/Skull_and_Crossbones.png";
+import healerPng from "./assets/healer.png";
+import dpsPng from "./assets/dps.png";
+import tankPng from "./assets/tank.png";
+import skullPng from "./assets/Skull_and_Crossbones.png";
 import { Position, Role } from "./gameState";
 
 export type Player = {

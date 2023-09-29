@@ -1,11 +1,11 @@
-import { InterCardinal, Position, rotation } from "../../gameState";
+import { InterCardinal, Position, rotation } from "../../../gameState";
 import { Add } from "../Add";
 import { Arena } from "../Arena";
 import { LetterOfTheLawPlayer } from "../gameState";
-import { Tower } from "../../Tower";
 import { DismissalOverrulingState, towerPos } from ".";
-import { LineAoE } from "../../Mechanics/LineAoE";
-import { DangerPuddles } from "../../Mechanics/DangerPuddles";
+import { LineAoE } from "../../../Mechanics/LineAoE";
+import { DangerPuddles } from "../../../Mechanics/DangerPuddles";
+import { Tower } from "../../Tower";
 
 const addLoc = (inter: InterCardinal, offset?: number): Position => {
   const o = offset ? offset / Math.sqrt(2) : 0;

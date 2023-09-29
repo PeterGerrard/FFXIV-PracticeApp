@@ -4,7 +4,7 @@ import {
   Position,
   Cast,
   GameLoop2,
-} from "../../gameState";
+} from "../../../gameState";
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
 import {
   DismissalOverrulingState,

@@ -1,11 +1,11 @@
-import { Player } from "../Player";
+import { Player } from "../../Player";
 import {
   GameState,
   Position,
   Role,
   distanceTo,
   getRandomPos,
-} from "../gameState";
+} from "../../gameState";
 import {
   Marker1,
   Marker2,

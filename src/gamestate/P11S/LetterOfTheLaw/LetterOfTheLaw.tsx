@@ -1,12 +1,12 @@
-import { useGameState } from "..";
-import { startDarkAndLight } from ".";
+import { useGameState } from "../..";
 import LinearProgress from "@mui/material/LinearProgress";
 import Button from "@mui/material/Button";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import Stack from "@mui/material/Stack";
+import { startLetterOfTheLaw } from ".";
 
-export const DarkAndLight = () => {
-  const [state, restart, arena] = useGameState(startDarkAndLight);
+export const LetterOfTheLaw = () => {
+  const [state, restart, arena] = useGameState(startLetterOfTheLaw);
 
   return (
     <Stack flexDirection="column">

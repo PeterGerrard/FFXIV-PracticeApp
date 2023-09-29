@@ -1,5 +1,5 @@
-import bossPng from "./DarkAndLight/assets/boss.png";
-import indicatorPng from "./DarkAndLight/assets/indicator.png";
+import bossPng from "./assets/boss.png";
+import indicatorPng from "../assets/indicator.png";
 
 export const Themis = (props: { bossColour: "Light" | "Dark" | null }) => (
   <>

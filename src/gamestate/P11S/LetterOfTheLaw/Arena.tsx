@@ -1,16 +1,16 @@
 /// <reference types="vite-plugin-svgr/client" />
 
 import { PropsWithChildren, Ref, forwardRef } from "react";
-import arenaPng from "../DarkAndLight/assets/arena.png";
-import { Position } from "..";
+import arenaPng from "../assets/arena.png";
+import { Position } from "../..";
 import { LetterOfTheLawPlayer } from "./gameState";
 import { Themis } from "../Themis";
-import { getPosition } from "../htmlHelpers";
-import { PlayerComponent } from "../Player";
+import { getPosition } from "../../htmlHelpers";
+import { PlayerComponent } from "../../Player";
 import {
   DangerPuddles,
   DangerPuddlesDisplay,
-} from "../Mechanics/DangerPuddles";
+} from "../../Mechanics/DangerPuddles";
 
 export const Arena = forwardRef(
   (

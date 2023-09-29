@@ -1,13 +1,13 @@
 import { useRef, useState, useEffect } from "react";
 import Xarrow, { useXarrow } from "react-xarrows";
-import { Position } from "../../gameState";
+import { Position } from "../../../gameState";
 import { Add } from "../Add";
 import { Arena } from "../Arena";
 import { LetterOfTheLawPlayer } from "../gameState";
 import Grow from "@mui/material/Grow";
-import { Tower } from "../../Tower";
 import { TwofoldRevelationState, towerPos } from ".";
-import { DangerPuddles } from "../../Mechanics/DangerPuddles";
+import { DangerPuddles } from "../../../Mechanics/DangerPuddles";
+import { Tower } from "../../Tower";
 
 export const TwofoldArena = (props: {
   player: LetterOfTheLawPlayer;

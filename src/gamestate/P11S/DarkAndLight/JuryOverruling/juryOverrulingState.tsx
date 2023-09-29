@@ -1,10 +1,10 @@
-import { Position } from "../..";
+import { Position } from "../../..";
 import {
   DangerPuddle,
   DangerPuddles,
   survivePuddles,
-} from "../../Mechanics/DangerPuddles";
-import { Loop } from "../../gameState";
+} from "../../../Mechanics/DangerPuddles";
+import { Loop } from "../../../gameState";
 import {
   MarkerC,
   MarkerA,

@@ -1,11 +1,11 @@
-import { Position } from "../..";
+import { Position } from "../../..";
 import { Bombs } from "../../Bombs";
 import {
   DangerPuddle,
   DangerPuddles,
   survivePuddles,
-} from "../../Mechanics/DangerPuddles";
-import { GameState, Loop } from "../../gameState";
+} from "../../../Mechanics/DangerPuddles";
+import { GameState, Loop } from "../../../gameState";
 import { Arena } from "../Arena";
 import { JuryOverrulingState } from "../JuryOverruling/juryOverrulingState";
 import { DarkAndLightPlayer, getDefaultPos } from "../gameState";

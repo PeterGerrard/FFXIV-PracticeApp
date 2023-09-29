@@ -1,6 +1,9 @@
-import { Position } from "../..";
-import { DangerPuddles, survivePuddles } from "../../Mechanics/DangerPuddles";
-import { FinalLoop } from "../../gameState";
+import { Position } from "../../..";
+import {
+  DangerPuddles,
+  survivePuddles,
+} from "../../../Mechanics/DangerPuddles";
+import { FinalLoop } from "../../../gameState";
 import { Marker3, Marker1, MarkerB, MarkerD } from "../../p11sMarkers";
 import { Arena } from "../Arena";
 import {

@@ -1,19 +1,19 @@
 /// <reference types="vite-plugin-svgr/client" />
 
 import { PropsWithChildren, useRef } from "react";
-import arenaPng from "./assets/arena.png";
+import arenaPng from "../assets/arena.png";
 import { ReactComponent as ForwardArrowSvg } from "./assets/forward-arrow.svg";
 import { ReactComponent as BackwardArrowSvg } from "./assets/backward-arrow.svg";
 
 import Xarrow from "react-xarrows";
-import { Position } from "..";
+import { Position } from "../..";
 import { DarkAndLightPlayer, isTetherSafe } from "./gameState";
 import { Themis } from "../Themis";
-import { PlayerComponent } from "../Player";
+import { PlayerComponent } from "../../Player";
 import {
   DangerPuddles,
   DangerPuddlesDisplay,
-} from "../Mechanics/DangerPuddles";
+} from "../../Mechanics/DangerPuddles";
 
 // helper function to get an element's exact position
 function getPosition(e: HTMLElement): Position {

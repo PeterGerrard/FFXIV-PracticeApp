@@ -1,5 +1,5 @@
-import { InterCardinal, Position } from "../gameState";
-import bossPng from "../DarkAndLight/assets/boss.png";
+import { InterCardinal, Position } from "../../gameState";
+import bossPng from "../assets/boss.png";
 import { Ref, forwardRef } from "react";
 
 const addPosition = (inter: InterCardinal): Position => {

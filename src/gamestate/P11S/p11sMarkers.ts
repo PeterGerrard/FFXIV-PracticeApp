@@ -1,4 +1,4 @@
-import { Position } from ".";
+import { Position } from "..";
 
 export const MarkerA: Position = [0.498, 0.206];
 export const Marker1: Position = [0.714, 0.289];

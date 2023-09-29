@@ -1,12 +1,12 @@
-import { IterateGames3 } from "..";
-import { GameLoop3, InterCardinal, InterCardinals, Setup } from "../gameState";
+import { IterateGames3 } from "../..";
+import { GameLoop3, InterCardinal, InterCardinals, Setup } from "../../gameState";
 import { HeartOfJudgementState, heartOfJudgement } from "./HeartOfJudgement";
 import {
   TwofoldRevelationState,
   twofoldRevelation,
 } from "./Twofold Revelation";
 import { LetterOfTheLawPlayer, createPlayer } from "./gameState";
-import { pickOne } from "../helpers";
+import { pickOne } from "../../helpers";
 import {
   DismissalOverrulingState,
   dismissalOverruling,

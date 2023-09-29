@@ -1,5 +1,5 @@
-import { Player } from "../Player";
-import { ClockSpot, GameState, Role, getRandomPos } from "../gameState";
+import { Player } from "../../Player";
+import { ClockSpot, GameState, Role, getRandomPos } from "../../gameState";
 
 export type LetterOfTheLawPlayer = Player & {
   clockSpot: ClockSpot;
