@@ -7,17 +7,14 @@ import { Arena } from "../Arena";
 import { LetterOfTheLawPlayer } from "../gameState";
 import { rotation } from "../../gameState";
 import { HeartOfJudgementState } from ".";
-import {
-  DangerPuddle,
-  DangerPuddleDisplay,
-} from "../../Mechanics/DangerPuddles";
+import { DangerPuddles } from "../../Mechanics/DangerPuddles";
 
 export const HeartArena = (props: {
   player: LetterOfTheLawPlayer;
   isDead: boolean;
   moveTo: (p: Position) => void;
   gameState: HeartOfJudgementState;
-  dangerPuddles: DangerPuddle[];
+  dangerPuddles: DangerPuddles;
   animationEnd: () => void;
 }) => {
   const updateXarrow = useXarrow();
@@ -43,6 +40,7 @@ export const HeartArena = (props: {
         setMoved((x) => x + 1);
         props.moveTo(p);
       }}
+      dangerPuddles={props.dangerPuddles}
       bossColour={props.gameState.bossColour}
     >
       <Add
@@ -69,14 +67,7 @@ export const HeartArena = (props: {
 
       {props.gameState.cast && (
         <>
-          <Bombs
-            topBomb={props.gameState.topBomb}
-            bossColour={props.gameState.bossColour}
-            explode={
-              props.gameState.cast !== null && props.gameState.cast.value >= 100
-            }
-            animationEnd={props.animationEnd}
-          />
+          <Bombs topBomb={props.gameState.topBomb} />
           <svg
             height="100%"
             width="100%"
@@ -161,9 +152,6 @@ export const HeartArena = (props: {
               fill={props.gameState.bossColour === "Dark" ? "purple" : "yellow"}
             />
           </svg>
-          {props.dangerPuddles.map((dp, i) => (
-            <DangerPuddleDisplay key={i} {...dp} />
-          ))}
         </>
       )}
     </Arena>

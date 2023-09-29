@@ -10,6 +10,10 @@ import { Position } from "..";
 import { DarkAndLightPlayer, isTetherSafe } from "./gameState";
 import { Themis } from "../Themis";
 import { PlayerComponent } from "../Player";
+import {
+  DangerPuddles,
+  DangerPuddlesDisplay,
+} from "../Mechanics/DangerPuddles";
 
 // helper function to get an element's exact position
 function getPosition(e: HTMLElement): Position {
@@ -86,6 +90,7 @@ export const Arena = (
     otherPlayer: DarkAndLightPlayer;
     bossColour: "Dark" | "Light" | null;
     isDead: boolean;
+    dangerPuddles: DangerPuddles;
     moveTo: (p: Position) => void;
   }>
 ) => {
@@ -130,6 +135,7 @@ export const Arena = (
           />
         )}
         {props.children}
+        <DangerPuddlesDisplay puddles={props.dangerPuddles.puddles} />
       </>
     </div>
   );

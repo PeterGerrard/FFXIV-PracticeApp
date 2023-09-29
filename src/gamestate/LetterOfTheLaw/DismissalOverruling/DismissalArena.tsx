@@ -5,10 +5,7 @@ import { LetterOfTheLawPlayer } from "../gameState";
 import { Tower } from "../../Tower";
 import { DismissalOverrulingState, towerPos } from ".";
 import { LineAoE } from "../../Mechanics/LineAoE";
-import {
-  DangerPuddle,
-  DangerPuddleDisplay,
-} from "../../Mechanics/DangerPuddles";
+import { DangerPuddles } from "../../Mechanics/DangerPuddles";
 
 const addLoc = (inter: InterCardinal, offset?: number): Position => {
   const o = offset ? offset / Math.sqrt(2) : 0;
@@ -29,7 +26,7 @@ export const DismissalArena = (props: {
   isDead: boolean;
   moveTo: (p: Position) => void;
   gameState: DismissalOverrulingState;
-  dangerPuddles: DangerPuddle[];
+  dangerPuddles: DangerPuddles;
   animationEnd: () => void;
 }) => {
   const { animationEnd, gameState, isDead, moveTo, player, dangerPuddles } =
@@ -39,6 +36,7 @@ export const DismissalArena = (props: {
       player={player}
       isDead={isDead}
       moveTo={moveTo}
+      dangerPuddles={dangerPuddles}
       bossColour={gameState.bossColour}
     >
       {(gameState.stage === "Initial" || gameState.stage === "Tower") && (
@@ -77,9 +75,6 @@ export const DismissalArena = (props: {
           />
         </>
       )}
-      {dangerPuddles.map((dp, i) => (
-        <DangerPuddleDisplay key={i} {...dp} />
-      ))}
       {gameState.stage === "InOut" && !isDead && (
         <h1
           style={{

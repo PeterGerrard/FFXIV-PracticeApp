@@ -7,12 +7,14 @@ import { LetterOfTheLawPlayer } from "../gameState";
 import Grow from "@mui/material/Grow";
 import { Tower } from "../../Tower";
 import { TwofoldRevelationState, towerPos } from ".";
+import { DangerPuddles } from "../../Mechanics/DangerPuddles";
 
 export const TwofoldArena = (props: {
   player: LetterOfTheLawPlayer;
   isDead: boolean;
   moveTo: (p: Position) => void;
   gameState: TwofoldRevelationState;
+  dangerPuddles: DangerPuddles;
   animationEnd: () => void;
 }) => {
   const { animationEnd, gameState, isDead, moveTo, player } = props;
@@ -32,6 +34,7 @@ export const TwofoldArena = (props: {
         setMoved((x) => x + 1);
         moveTo(p);
       }}
+      dangerPuddles={props.dangerPuddles}
       bossColour={gameState.bossColour}
     >
       <Tower position={towerPos("North East")} />

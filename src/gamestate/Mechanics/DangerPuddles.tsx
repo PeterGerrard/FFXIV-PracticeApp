@@ -8,7 +8,12 @@ export type DangerPuddle =
   | ({ type: "donut" } & DonutAoEProps)
   | ({ type: "circle" } & CircleAoEProps);
 
-export const DangerPuddleDisplay = (props: DangerPuddle): JSX.Element => {
+export type DangerPuddles = {
+  puddles: DangerPuddle[];
+  survivable: number;
+};
+
+const DangerPuddleDisplay = (props: DangerPuddle): JSX.Element => {
   switch (props.type) {
     case "line":
       return <LineAoE {...props} />;
@@ -19,10 +24,7 @@ export const DangerPuddleDisplay = (props: DangerPuddle): JSX.Element => {
   }
 };
 
-export const isSafeFrom = (
-  props: DangerPuddle,
-  position: Position
-): boolean => {
+const isSafeFrom = (props: DangerPuddle, position: Position): boolean => {
   switch (props.type) {
     case "line":
       return isLineSafe(props, position);
@@ -31,4 +33,24 @@ export const isSafeFrom = (
     case "circle":
       return isCircleSafe(props, position);
   }
+};
+
+export const DangerPuddlesDisplay = (props: {
+  puddles: DangerPuddle[];
+}): JSX.Element => {
+  return (
+    <>
+      {props.puddles.map((dp, i) => (
+        <DangerPuddleDisplay key={i} {...dp} />
+      ))}
+    </>
+  );
+};
+
+export const survivePuddles = (
+  puddles: DangerPuddles,
+  position: Position
+): boolean => {
+  const hitBy = puddles.puddles.filter((p) => !isSafeFrom(p, position)).length;
+  return hitBy <= puddles.survivable;
 };

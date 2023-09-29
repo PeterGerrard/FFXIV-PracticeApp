@@ -1,6 +1,20 @@
 import { Position } from "../..";
-import { Loop, distanceTo } from "../../gameState";
-import { MarkerC, MarkerA, Marker1, Marker3 } from "../../p11sMarkers";
+import {
+  DangerPuddle,
+  DangerPuddles,
+  survivePuddles,
+} from "../../Mechanics/DangerPuddles";
+import { Loop } from "../../gameState";
+import {
+  MarkerC,
+  MarkerA,
+  Marker1,
+  Marker3,
+  Marker2,
+  Marker4,
+  MarkerB,
+  MarkerD,
+} from "../../p11sMarkers";
 import { Arena } from "../Arena";
 import { DivisiveOverrulingState } from "../DivisiveOverruling/divisiveOverrulingState";
 import {
@@ -8,8 +22,6 @@ import {
   DarkAndLightPlayer,
   DarkAndLightGameState,
 } from "../gameState";
-import { JuryOverrulingInitialExplosionOverlay } from "./JuryExplosionInitialOverlay";
-import { JuryOverrulingPostExplosionOverlay } from "./JuryExplosionPostOverlay";
 
 const getSafeSpot = (
   player: DarkAndLightPlayer,
@@ -62,6 +74,58 @@ export const initialJuryOverrullingState: JuryOverrulingGameState = {
   hasFinished: false,
 };
 
+const getDangerPuddles = (
+  gameState: JuryOverrulingGameState,
+  animationEnd?: () => void
+): DangerPuddles => {
+  if (gameState.bossColour && gameState.explosions === "Lines") {
+    return {
+      puddles: [0, 45, 90, 135, 180, 225, 270, 315].map<DangerPuddle>((d) => ({
+        type: "line",
+        angle: d,
+        onAnimationEnd: animationEnd && d == 0 ? animationEnd : () => {},
+        source: [0.5, 0.5],
+        width: 0.2,
+        colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
+      })),
+      survivable: 1,
+    };
+  }
+  if (gameState.bossColour && gameState.explosions === "AOE") {
+    return {
+      puddles: [
+        Marker1,
+        Marker2,
+        Marker3,
+        Marker4,
+        MarkerA,
+        MarkerB,
+        MarkerC,
+        MarkerD,
+      ].map<DangerPuddle>((m, i) =>
+        gameState.bossColour === "Dark"
+          ? {
+              type: "donut",
+              innerRadius: 0.05,
+              outerRadius: 0.2,
+              source: m,
+              colour: "purple",
+              onAnimationEnd: animationEnd && i == 0 ? animationEnd : () => {},
+            }
+          : {
+              type: "circle",
+              source: m,
+              radius: 0.125,
+              colour: "yellow",
+              onAnimationEnd: animationEnd && i == 0 ? animationEnd : () => {},
+            }
+      ),
+      survivable: 0,
+    };
+  }
+  return { puddles: [], survivable: 0 };
+};
+
 export const JuryOverrulingState: Loop<
   DarkAndLightPlayer,
   JuryOverrulingGameState,
@@ -80,23 +144,9 @@ export const JuryOverrulingState: Loop<
       otherPlayer={otherPlayers[0]}
       bossColour={gameState.bossColour}
       isDead={isDead}
+      dangerPuddles={getDangerPuddles(gameState, animationEnd)}
       moveTo={moveTo}
-    >
-      <>
-        {gameState.bossColour && gameState.explosions === "Lines" && (
-          <JuryOverrulingInitialExplosionOverlay
-            bossColour={gameState.bossColour}
-            animationEnd={animationEnd}
-          />
-        )}
-        {gameState.bossColour && gameState.explosions === "AOE" && (
-          <JuryOverrulingPostExplosionOverlay
-            bossColour={gameState.bossColour}
-            animationEnd={animationEnd}
-          />
-        )}
-      </>
-    </Arena>
+    />
   ),
   nextState: (gameState: JuryOverrulingGameState): JuryOverrulingGameState => {
     if (gameState.cast === null) {
@@ -129,15 +179,8 @@ export const JuryOverrulingState: Loop<
     };
   },
   isSafe: (gameState: JuryOverrulingGameState, player: DarkAndLightPlayer) => {
-    if (!gameState.bossColour) return true;
-    if (gameState.explosions === "AOE")
-      return (
-        distanceTo(player.position, getSafeSpot(player, gameState.bossColour)) <
-        0.1
-      );
-    if (gameState.explosions === "Lines")
-      return distanceTo(player.position, getDefaultPos(player)) < 0.1;
-    return true;
+    const dangerPuddles = getDangerPuddles(gameState);
+    return survivePuddles(dangerPuddles, player.position);
   },
 
   getSafeSpot: (

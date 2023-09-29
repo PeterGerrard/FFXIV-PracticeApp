@@ -1,4 +1,5 @@
 import { Position } from "../..";
+import { DangerPuddles, survivePuddles } from "../../Mechanics/DangerPuddles";
 import { FinalLoop } from "../../gameState";
 import { Marker3, Marker1, MarkerB, MarkerD } from "../../p11sMarkers";
 import { Arena } from "../Arena";
@@ -7,8 +8,6 @@ import {
   DarkAndLightPlayer,
   DarkAndLightGameState,
 } from "../gameState";
-import { DisvisiveOverrulingInitialExplosionOverlay } from "./DivisiveOverullingInitialExplosionOverlay";
-import { EndOverlay } from "./EndOverlay";
 
 const getSafeSpot1 = (
   player: DarkAndLightPlayer,
@@ -73,17 +72,6 @@ const getSafeSpot2 = (
   return [MarkerD[0], Marker3[1]];
 };
 
-const isSafe1 = (player: DarkAndLightPlayer) => {
-  return Math.abs(0.5 - player.position[0]) > 0.2;
-};
-
-const isSafe2 = (player: DarkAndLightPlayer, bossColour: "Dark" | "Light") => {
-  return (
-    (bossColour === "Dark" && Math.abs(0.5 - player.position[0]) < 0.2) ||
-    (bossColour === "Light" && Math.abs(0.5 - player.position[0]) > 0.3)
-  );
-};
-
 export type DivisiveOverrulingGameState = DarkAndLightGameState & {
   stage: "Before" | "Explosion1" | "Explosion2";
 };
@@ -93,6 +81,66 @@ export const initialDivisiveState: DivisiveOverrulingGameState = {
   cast: null,
   hasFinished: false,
   stage: "Before",
+};
+
+const getDangerPuddles = (
+  gameState: DivisiveOverrulingGameState
+): DangerPuddles => {
+  if (gameState.stage === "Explosion1") {
+    return {
+      puddles: [
+        {
+          type: "line",
+          angle: 0,
+          onAnimationEnd: () => {},
+          source: [0.5, 1],
+          width: 0.4,
+          colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
+        },
+      ],
+      survivable: 0,
+    };
+  }
+  if (gameState.stage === "Explosion2") {
+    if (gameState.bossColour === "Dark") {
+      return {
+        puddles: [
+          {
+            type: "line",
+            angle: 0,
+            onAnimationEnd: () => {},
+            source: [0.15, 1],
+            width: 0.3,
+            colour: "purple",
+          },
+          {
+            type: "line",
+            angle: 0,
+            onAnimationEnd: () => {},
+            source: [0.85, 1],
+            width: 0.3,
+            colour: "purple",
+          },
+        ],
+        survivable: 0,
+      };
+    } else {
+      return {
+        puddles: [
+          {
+            type: "line",
+            angle: 0,
+            onAnimationEnd: () => {},
+            source: [0.5, 1],
+            width: 0.6,
+            colour: "yellow",
+          },
+        ],
+        survivable: 0,
+      };
+    }
+  }
+  return { puddles: [], survivable: 0 };
 };
 
 export const DivisiveOverrulingState: FinalLoop<
@@ -110,19 +158,25 @@ export const DivisiveOverrulingState: FinalLoop<
       player={player}
       otherPlayer={otherPlayers[0]}
       bossColour={gameState.bossColour}
+      dangerPuddles={getDangerPuddles(gameState)}
       isDead={isDead}
       moveTo={moveTo}
     >
-      <>
-        {gameState.stage === "Explosion1" && (
-          <DisvisiveOverrulingInitialExplosionOverlay
-            bossColour={gameState.bossColour!}
-          />
-        )}
-        {gameState.stage === "Explosion2" && (
-          <EndOverlay bossColour={gameState.bossColour!} />
-        )}
-      </>
+      {gameState.hasFinished && (
+        <h1
+          style={{
+            position: "absolute",
+            left: `50%`,
+            top: `50%`,
+            transformOrigin: "0 0",
+            transform: `translate(-50%,0)`,
+            fontSize: "10rem",
+            color: "hotpink",
+          }}
+        >
+          Finished!
+        </h1>
+      )}
     </Arena>
   ),
   nextState: (
@@ -165,11 +219,7 @@ export const DivisiveOverrulingState: FinalLoop<
     gameState: DivisiveOverrulingGameState,
     player: DarkAndLightPlayer
   ) => {
-    if (!gameState.bossColour) return true;
-    if (gameState.stage === "Explosion1") return isSafe1(player);
-    if (gameState.stage === "Explosion2")
-      return isSafe2(player, gameState.bossColour);
-    return true;
+    return survivePuddles(getDangerPuddles(gameState), player.position);
   },
   getSafeSpot: (
     gameState: DivisiveOverrulingGameState,

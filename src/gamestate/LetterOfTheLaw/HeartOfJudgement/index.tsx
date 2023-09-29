@@ -12,7 +12,7 @@ import {
 } from "../Twofold Revelation";
 import { DismissalOverrulingState } from "../DismissalOverruling";
 import { HeartArena } from "./HeartArena";
-import { DangerPuddle, isSafeFrom } from "../../Mechanics/DangerPuddles";
+import { DangerPuddles, survivePuddles } from "../../Mechanics/DangerPuddles";
 
 const addLoc = (inter: InterCardinal, offset?: number): Position => {
   const o = offset ? offset / Math.sqrt(2) : 0;
@@ -30,7 +30,7 @@ const addLoc = (inter: InterCardinal, offset?: number): Position => {
 
 export const getDangerPuddles = (
   state: HeartOfJudgementState
-): DangerPuddle[] => {
+): DangerPuddles => {
   const innerBox =
     state.bossColour === "Dark"
       ? state.darkBoxLocation
@@ -40,34 +40,37 @@ export const getDangerPuddles = (
       ? state.lightBoxLocation
       : state.darkBoxLocation;
   if (state.cast && state.cast.value >= 100) {
-    return [
-      {
-        type: "line",
-        angle: 180 + rotation(innerBox),
-        onAnimationEnd: () => {},
-        source: addLoc(innerBox),
-        width: 0.475,
-        colour: state.bossColour === "Dark" ? "purple" : "yellow",
-      },
-      {
-        type: "line",
-        angle: 180 + rotation(outerBox),
-        onAnimationEnd: () => {},
-        source: addLoc(outerBox, -0.36875),
-        width: 0.2625,
-        colour: state.bossColour === "Dark" ? "purple" : "yellow",
-      },
-      {
-        type: "line",
-        angle: 180 + rotation(outerBox),
-        onAnimationEnd: () => {},
-        source: addLoc(outerBox, 0.36875),
-        width: 0.2625,
-        colour: state.bossColour === "Dark" ? "purple" : "yellow",
-      },
-    ];
+    return {
+      puddles: [
+        {
+          type: "line",
+          angle: 180 + rotation(innerBox),
+          onAnimationEnd: () => {},
+          source: addLoc(innerBox),
+          width: 0.475,
+          colour: state.bossColour === "Dark" ? "purple" : "yellow",
+        },
+        {
+          type: "line",
+          angle: 180 + rotation(outerBox),
+          onAnimationEnd: () => {},
+          source: addLoc(outerBox, -0.36875),
+          width: 0.2625,
+          colour: state.bossColour === "Dark" ? "purple" : "yellow",
+        },
+        {
+          type: "line",
+          angle: 180 + rotation(outerBox),
+          onAnimationEnd: () => {},
+          source: addLoc(outerBox, 0.36875),
+          width: 0.2625,
+          colour: state.bossColour === "Dark" ? "purple" : "yellow",
+        },
+      ],
+      survivable: 0,
+    };
   }
-  return [];
+  return { puddles: [], survivable: 0 };
 };
 
 export type HeartOfJudgementState = LetterOfTheLawState & {
@@ -145,8 +148,9 @@ export const heartOfJudgement: GameLoop3<
             [0.8, 0.5],
           ];
     const hitByBomb = bombs.some((b) => distanceTo(player.position, b) < 0.35);
-    const safeFromDangerPuddles = getDangerPuddles(gameState).every((dp) =>
-      isSafeFrom(dp, player.position)
+    const safeFromDangerPuddles = survivePuddles(
+      getDangerPuddles(gameState),
+      player.position
     );
     return !hitByBomb && safeFromDangerPuddles;
   },

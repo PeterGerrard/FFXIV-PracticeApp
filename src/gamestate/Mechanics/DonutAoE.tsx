@@ -1,5 +1,5 @@
 import { Position } from "..";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { distanceTo } from "../gameState";
 
 export type DonutAoEProps = {
@@ -12,6 +12,7 @@ export type DonutAoEProps = {
 
 export const DonutAoE = (props: DonutAoEProps) => {
   const [opacity, setOpacity] = useState(0);
+  const id = useId();
   useEffect(() => {
     setOpacity(0.4);
     setTimeout(props.onAnimationEnd, 1500);
@@ -27,7 +28,7 @@ export const DonutAoE = (props: DonutAoEProps) => {
       }}
       viewBox="0 0 1 1"
     >
-      <mask id="maskInner">
+      <mask id={id}>
         <rect x="0" y="0" width="100" height="100" fill="white" />
         <circle
           cx={props.source[0]}
@@ -42,7 +43,7 @@ export const DonutAoE = (props: DonutAoEProps) => {
         r={props.outerRadius}
         fill={props.colour ?? "orange"}
         opacity={opacity}
-        mask="url(#maskInner)"
+        mask={`url(#${id})`}
       />
     </svg>
   );

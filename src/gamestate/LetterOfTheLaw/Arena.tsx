@@ -7,6 +7,10 @@ import { LetterOfTheLawPlayer } from "./gameState";
 import { Themis } from "../Themis";
 import { getPosition } from "../htmlHelpers";
 import { PlayerComponent } from "../Player";
+import {
+  DangerPuddles,
+  DangerPuddlesDisplay,
+} from "../Mechanics/DangerPuddles";
 
 export const Arena = forwardRef(
   (
@@ -14,6 +18,7 @@ export const Arena = forwardRef(
       player: LetterOfTheLawPlayer;
       isDead: boolean;
       moveTo: (p: Position) => void;
+      dangerPuddles: DangerPuddles;
       bossColour: "Dark" | "Light" | null;
     }>,
     ref: Ref<HTMLImageElement>
@@ -43,6 +48,7 @@ export const Arena = forwardRef(
             isDead={props.isDead}
           />
           {props.children}
+          <DangerPuddlesDisplay puddles={props.dangerPuddles.puddles} />
         </>
       </div>
     );
