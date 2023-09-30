@@ -3,7 +3,7 @@ import {
   DangerPuddles,
   survivePuddles,
 } from "../../../Mechanics/DangerPuddles";
-import { FinalLoop } from "../../../gameState";
+import { GameLoop } from "../../../gameState";
 import { Marker3, Marker1, MarkerB, MarkerD } from "../../p11sMarkers";
 import { Arena } from "../Arena";
 import {
@@ -146,7 +146,7 @@ const getDangerPuddles = (
   return { puddles: [], survivable: 0 };
 };
 
-export const DivisiveOverrulingState: FinalLoop<
+export const DivisiveOverrulingState: GameLoop<
   DarkAndLightPlayer,
   DivisiveOverrulingGameState
 > = {

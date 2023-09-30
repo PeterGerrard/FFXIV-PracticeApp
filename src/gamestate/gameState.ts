@@ -44,22 +44,7 @@ export type GameState = {
   cast: Cast | null;
 };
 
-export type Loop<TPlayer, T, TNextLoop> = {
-  arena: (
-    player: TPlayer,
-    otherPlayers: TPlayer[],
-    isDead: boolean,
-    gameState: T,
-    moveTo: (p: Position) => void,
-    animationEnd: () => void
-  ) => React.ReactElement;
-  nextState: (gameState: T, player: TPlayer) => T;
-  isSafe: (gameState: T, player: TPlayer) => boolean;
-  getSafeSpot: (gameState: T, player: TPlayer) => Position;
-  nextLoop: TNextLoop;
-};
-
-export type FinalLoop<TPlayer, T> = {
+export type GameLoop<TPlayer, T> = {
   arena: (
     player: TPlayer,
     otherPlayers: TPlayer[],
@@ -72,28 +57,6 @@ export type FinalLoop<TPlayer, T> = {
   isSafe: (gameState: T, player: TPlayer) => boolean;
   getSafeSpot: (gameState: T, player: TPlayer) => Position;
 };
-
-export type GameLoop1<TPlayer, T> = FinalLoop<TPlayer, T>;
-export type GameLoop2<TPlayer, T1, T2> = Loop<
-  TPlayer,
-  T1,
-  GameLoop1<TPlayer, T2>
->;
-export type GameLoop3<TPlayer, T1, T2, T3> = Loop<
-  TPlayer,
-  T1,
-  GameLoop2<TPlayer, T2, T3>
->;
-export type GameLoop4<TPlayer, T1, T2, T3, T4> = Loop<
-  TPlayer,
-  T1,
-  GameLoop3<TPlayer, T2, T3, T4>
->;
-export type GameLoop5<TPlayer, T1, T2, T3, T4, T5> = Loop<
-  TPlayer,
-  T1,
-  GameLoop4<TPlayer, T2, T3, T4, T5>
->;
 
 export const distanceTo = (source: Position, target: Position) =>
   Math.sqrt(

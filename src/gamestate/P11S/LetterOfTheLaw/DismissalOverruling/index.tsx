@@ -1,6 +1,6 @@
 import {
   InterCardinal,
-  GameLoop1,
+  GameLoop,
   Position,
   getGroup,
   distanceTo,
@@ -9,7 +9,10 @@ import {
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
 import { pickOne } from "../../../helpers";
 import { DismissalArena } from "./DismissalArena";
-import { DangerPuddles, survivePuddles } from "../../../Mechanics/DangerPuddles";
+import {
+  DangerPuddles,
+  survivePuddles,
+} from "../../../Mechanics/DangerPuddles";
 
 const addLoc = (inter: InterCardinal, offset?: number): Position => {
   const o = offset ? offset / Math.sqrt(2) : 0;
@@ -166,7 +169,7 @@ export const getDangerPuddles = (
   return { puddles: [], survivable: 0 };
 };
 
-export const dismissalOverruling: GameLoop1<
+export const dismissalOverruling: GameLoop<
   LetterOfTheLawPlayer,
   DismissalOverrulingState
 > = {

@@ -1,5 +1,10 @@
 import { IterateGames3 } from "../..";
-import { GameLoop3, InterCardinal, InterCardinals, Setup } from "../../gameState";
+import {
+  GameLoop,
+  InterCardinal,
+  InterCardinals,
+  Setup,
+} from "../../gameState";
 import { HeartOfJudgementState, heartOfJudgement } from "./HeartOfJudgement";
 import {
   TwofoldRevelationState,
@@ -51,12 +56,7 @@ export const startLetterOfTheLaw = (setup: Setup): LetterOfTheLawGame => {
       [
         twofoldRevelation,
         (
-          g: GameLoop3<
-            LetterOfTheLawPlayer,
-            HeartOfJudgementState,
-            TwofoldRevelationState,
-            DismissalOverrulingState
-          >,
+          g: GameLoop<LetterOfTheLawPlayer, HeartOfJudgementState>,
           s: HeartOfJudgementState,
           p: LetterOfTheLawPlayer
         ): TwofoldRevelationState => ({

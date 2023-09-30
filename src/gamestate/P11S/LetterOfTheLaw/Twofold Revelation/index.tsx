@@ -3,13 +3,9 @@ import {
   distanceTo,
   Position,
   Cast,
-  GameLoop2,
+  GameLoop,
 } from "../../../gameState";
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
-import {
-  DismissalOverrulingState,
-  dismissalOverruling,
-} from "../DismissalOverruling";
 import { TwofoldArena } from "./TwofoldArena";
 
 export type TwofoldRevelationState = LetterOfTheLawState & {
@@ -50,10 +46,9 @@ export const towerPos = (inter: InterCardinal): Position => {
   }
 };
 
-export const twofoldRevelation: GameLoop2<
+export const twofoldRevelation: GameLoop<
   LetterOfTheLawPlayer,
-  TwofoldRevelationState,
-  DismissalOverrulingState
+  TwofoldRevelationState
 > = {
   arena: (player, _, isDead, gameState, moveTo, animationEnd) => (
     <TwofoldArena
@@ -136,5 +131,4 @@ export const twofoldRevelation: GameLoop2<
     }
     return s;
   },
-  nextLoop: dismissalOverruling,
 };

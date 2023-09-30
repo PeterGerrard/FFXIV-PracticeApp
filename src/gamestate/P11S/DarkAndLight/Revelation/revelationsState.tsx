@@ -5,9 +5,8 @@ import {
   DangerPuddles,
   survivePuddles,
 } from "../../../Mechanics/DangerPuddles";
-import { GameState, Loop } from "../../../gameState";
+import { GameState, GameLoop } from "../../../gameState";
 import { Arena } from "../Arena";
-import { JuryOverrulingState } from "../JuryOverruling/juryOverrulingState";
 import { DarkAndLightPlayer, getDefaultPos } from "../gameState";
 
 const getSafeRevelationSpot = (
@@ -81,10 +80,9 @@ const getDangerPuddles = (
   return { puddles: [], survivable: 0 };
 };
 
-export const RevelationState: Loop<
+export const RevelationState: GameLoop<
   DarkAndLightPlayer,
-  RevelationGameState,
-  typeof JuryOverrulingState
+  RevelationGameState
 > = {
   arena: (
     player: DarkAndLightPlayer,
@@ -143,5 +141,4 @@ export const RevelationState: Loop<
       ? getDefaultPos(player)
       : getSafeRevelationSpot(player, gameState.bossColour, gameState.topBomb);
   },
-  nextLoop: JuryOverrulingState,
 };

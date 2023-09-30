@@ -4,7 +4,7 @@ import {
   DangerPuddles,
   survivePuddles,
 } from "../../../Mechanics/DangerPuddles";
-import { Loop } from "../../../gameState";
+import { GameLoop } from "../../../gameState";
 import {
   MarkerC,
   MarkerA,
@@ -16,7 +16,6 @@ import {
   MarkerD,
 } from "../../p11sMarkers";
 import { Arena } from "../Arena";
-import { DivisiveOverrulingState } from "../DivisiveOverruling/divisiveOverrulingState";
 import {
   getDefaultPos,
   DarkAndLightPlayer,
@@ -126,10 +125,9 @@ const getDangerPuddles = (
   return { puddles: [], survivable: 0 };
 };
 
-export const JuryOverrulingState: Loop<
+export const JuryOverrulingState: GameLoop<
   DarkAndLightPlayer,
-  JuryOverrulingGameState,
-  typeof DivisiveOverrulingState
+  JuryOverrulingGameState
 > = {
   arena: (
     player: DarkAndLightPlayer,
@@ -192,6 +190,4 @@ export const JuryOverrulingState: Loop<
       return getSafeSpot(player, gameState.bossColour);
     return getDefaultPos(player);
   },
-
-  nextLoop: DivisiveOverrulingState,
 };

@@ -1,15 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import {
-  GameLoop1,
-  GameLoop2,
-  GameLoop3,
-  GameLoop4,
-  GameLoop5,
-  GameState,
-  Position,
-  Role,
-  Setup,
-} from "./gameState";
+import { GameLoop, GameState, Position, Role, Setup } from "./gameState";
 import { DeathOverlay } from "./Death/DeathOverlay";
 import { SetupContext } from "./Setup/Setup";
 
@@ -17,7 +7,7 @@ export type { Role, Position };
 
 type Game1<TPlayer, T> = {
   loop: 1;
-  game: GameLoop1<TPlayer, T>;
+  game: GameLoop<TPlayer, T>;
   gameState: T;
   player: TPlayer;
   otherPlayers: TPlayer[];
@@ -28,18 +18,18 @@ type Game1<TPlayer, T> = {
 
 type Game2<TPlayer, T1, T2> = {
   loop: 2;
-  game: GameLoop2<TPlayer, T1, T2>;
+  game: GameLoop<TPlayer, T1>;
   gameState: T1;
   player: TPlayer;
   otherPlayers: TPlayer[];
   isSafe: (player: TPlayer, otherPlayers: TPlayer[]) => boolean;
   isDead: boolean;
-  next: [[GameLoop1<TPlayer, T2>, T2]];
+  next: [[GameLoop<TPlayer, T2>, T2]];
 };
 
 type Game3<TPlayer, T1, T2, T3> = {
   loop: 3;
-  game: GameLoop3<TPlayer, T1, T2, T3>;
+  game: GameLoop<TPlayer, T1>;
   gameState: T1;
   player: TPlayer;
   otherPlayers: TPlayer[];
@@ -47,47 +37,47 @@ type Game3<TPlayer, T1, T2, T3> = {
   isDead: boolean;
   next: [
     [
-      GameLoop2<TPlayer, T2, T3>,
-      (g: GameLoop3<TPlayer, T1, T2, T3>, s: T1, p: TPlayer) => T2
+      GameLoop<TPlayer, T2>,
+      (g: GameLoop<TPlayer, T1>, s: T1, p: TPlayer) => T2
     ],
-    [GameLoop1<TPlayer, T3>, T3]
+    [GameLoop<TPlayer, T3>, T3]
   ];
 };
 
 type Game4<TPlayer, T1, T2, T3, T4> = {
   loop: 4;
-  game: GameLoop4<TPlayer, T1, T2, T3, T4>;
+  game: GameLoop<TPlayer, T1>;
   gameState: T1;
   player: TPlayer;
   otherPlayers: TPlayer[];
   isSafe: (player: TPlayer, otherPlayers: TPlayer[]) => boolean;
   isDead: boolean;
   next: [
-    [GameLoop3<TPlayer, T2, T3, T4>, T2],
+    [GameLoop<TPlayer, T2>, T2],
     [
-      GameLoop2<TPlayer, T3, T4>,
-      (g: GameLoop3<TPlayer, T2, T3, T4>, s: T2, p: TPlayer) => T3
+      GameLoop<TPlayer, T3>,
+      (g: GameLoop<TPlayer, T2>, s: T2, p: TPlayer) => T3
     ],
-    [GameLoop1<TPlayer, T4>, T4]
+    [GameLoop<TPlayer, T4>, T4]
   ];
 };
 
 type Game5<TPlayer, T1, T2, T3, T4, T5> = {
   loop: 5;
-  game: GameLoop5<TPlayer, T1, T2, T3, T4, T5>;
+  game: GameLoop<TPlayer, T1>;
   gameState: T1;
   player: TPlayer;
   otherPlayers: TPlayer[];
   isSafe: (player: TPlayer, otherPlayers: TPlayer[]) => boolean;
   isDead: boolean;
   next: [
-    [GameLoop4<TPlayer, T2, T3, T4, T5>, T2],
-    [GameLoop3<TPlayer, T3, T4, T5>, T3],
+    [GameLoop<TPlayer, T2>, T2],
+    [GameLoop<TPlayer, T3>, T3],
     [
-      GameLoop2<TPlayer, T4, T5>,
-      (g: GameLoop3<TPlayer, T3, T4, T5>, s: T3, p: TPlayer) => T4
+      GameLoop<TPlayer, T4>,
+      (g: GameLoop<TPlayer, T3>, s: T3, p: TPlayer) => T4
     ],
-    [GameLoop1<TPlayer, T5>, T5]
+    [GameLoop<TPlayer, T5>, T5]
   ];
 };
 
