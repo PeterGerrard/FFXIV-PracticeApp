@@ -3,13 +3,6 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
-import { DarkAndLight } from "./gamestate/P11S/DarkAndLight/DarkAndLight.tsx";
-import { LetterOfTheLaw } from "./gamestate/P11S/LetterOfTheLaw/LetterOfTheLaw.tsx";
-import { SelectMechanic } from "./SelectMechanic.tsx";
-import { LineTest } from "./gamestate/Mechanics/LineTest.tsx";
-import { CircleTest } from "./gamestate/Mechanics/CircleTest.tsx";
-import { DonutTest } from "./gamestate/Mechanics/DonutTest.tsx";
-import { P12SP1Testing } from "./gamestate/P12SP1/P12SP1.tsx";
 
 const router = createBrowserRouter([
   {
@@ -18,31 +11,66 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <SelectMechanic />,
+        lazy: async () => {
+          const { SelectMechanic: Component } = await import(
+            "./SelectMechanic.tsx"
+          );
+          return { Component };
+        },
       },
       {
         path: "darkandlight",
-        element: <DarkAndLight />,
+        lazy: async () => {
+          const { DarkAndLight: Component } = await import(
+            "./gamestate/P11S/DarkAndLight/DarkAndLight.tsx"
+          );
+          return { Component };
+        },
       },
       {
         path: "letterofthelaw",
-        element: <LetterOfTheLaw />,
+        lazy: async () => {
+          const { LetterOfTheLaw: Component } = await import(
+            "./gamestate/P11S/LetterOfTheLaw/LetterOfTheLaw.tsx"
+          );
+          return { Component };
+        },
       },
       {
         path: "linetest",
-        element: <LineTest />,
+        lazy: async () => {
+          const { LineTest: Component } = await import(
+            "./gamestate/Mechanics/LineTest.tsx"
+          );
+          return { Component };
+        },
       },
       {
         path: "circletest",
-        element: <CircleTest />,
+        lazy: async () => {
+          const { CircleTest: Component } = await import(
+            "./gamestate/Mechanics/CircleTest.tsx"
+          );
+          return { Component };
+        },
       },
       {
         path: "donuttest",
-        element: <DonutTest />,
+        lazy: async () => {
+          const { DonutTest: Component } = await import(
+            "./gamestate/Mechanics/DonutTest.tsx"
+          );
+          return { Component };
+        },
       },
       {
         path: "p12sp1",
-        element: <P12SP1Testing />,
+        lazy: async () => {
+          const { P12SP1Testing: Component } = await import(
+            "./gamestate/P12SP1/P12SP1.tsx"
+          );
+          return { Component };
+        },
       },
     ],
   },
