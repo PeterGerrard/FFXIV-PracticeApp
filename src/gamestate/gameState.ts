@@ -95,12 +95,6 @@ export type GameLoop5<TPlayer, T1, T2, T3, T4, T5> = Loop<
   GameLoop4<TPlayer, T2, T3, T4, T5>
 >;
 
-export type Action =
-  | { type: "RESET" }
-  | { type: "RESTART" }
-  | { type: "START" }
-  | { type: "SELECTROLE"; role: Role };
-
 export const distanceTo = (source: Position, target: Position) =>
   Math.sqrt(
     Math.pow(target[0] - source[0], 2) + Math.pow(target[1] - source[1], 2)

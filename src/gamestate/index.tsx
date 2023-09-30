@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from "react";
 import {
-  Action,
   GameLoop1,
   GameLoop2,
   GameLoop3,
@@ -14,7 +13,7 @@ import {
 import { DeathOverlay } from "./Death/DeathOverlay";
 import { SetupContext } from "./Setup/Setup";
 
-export type { Role, Position, Action };
+export type { Role, Position };
 
 type Game1<TPlayer, T> = {
   loop: 1;
