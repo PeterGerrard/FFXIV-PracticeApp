@@ -18,6 +18,11 @@ export const SelectMechanic = () => (
           <li>
             <NavLink to="/p12sp1">Testing</NavLink>
           </li>
+          <li>
+            <NavLink to="/p12s/p1/superchaintheory1">
+              Superchain Theory 1
+            </NavLink>
+          </li>
         </ul>
       </>
     )}

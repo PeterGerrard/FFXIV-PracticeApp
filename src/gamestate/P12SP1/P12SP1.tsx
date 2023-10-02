@@ -45,7 +45,8 @@ export const P12SP1Testing = () => {
       })}
       <DangerPuddlesDisplay
         puddles={
-          getSuperChainDangerPuddles(testChains, [0.1, 0.1], players).puddles
+          getSuperChainDangerPuddles(testChains, [0.1, 0.1], players, () => {})
+            .puddles
         }
       />
     </Arena>

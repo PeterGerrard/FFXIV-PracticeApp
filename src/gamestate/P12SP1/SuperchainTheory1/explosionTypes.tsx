@@ -66,7 +66,8 @@ export const SuperchainExplosionDisplay = (props: {
 const getDangerInfo = (
   explosion: SuperchainExplosion,
   position: Position,
-  players: Player[]
+  players: Player[],
+  animationEnd: () => void
 ): [DangerPuddle[], number] => {
   switch (explosion) {
     case "Circle":
@@ -75,7 +76,7 @@ const getDangerInfo = (
           {
             type: "circle",
             source: position,
-            onAnimationEnd: () => {},
+            onAnimationEnd: animationEnd,
             radius: 0.2,
           },
         ],
@@ -87,7 +88,7 @@ const getDangerInfo = (
           {
             type: "donut",
             source: position,
-            onAnimationEnd: () => {},
+            onAnimationEnd: animationEnd,
             innerRadius: 0.2,
             outerRadius: 0.6,
           },
@@ -99,7 +100,7 @@ const getDangerInfo = (
         players.map((a) => ({
           type: "cone",
           source: position,
-          onAnimationEnd: () => {},
+          onAnimationEnd: animationEnd,
           angle: getAngle(translateSub(a.position, position)),
           width: 30,
         })),
@@ -112,7 +113,7 @@ const getDangerInfo = (
           .map((a) => ({
             type: "cone",
             source: position,
-            onAnimationEnd: () => {},
+            onAnimationEnd: animationEnd,
             angle: getAngle(translateSub(a.position, position)),
             width: 60,
           })),
@@ -124,9 +125,12 @@ const getDangerInfo = (
 export const getSuperChainDangerPuddles = (
   explosions: SuperchainExplosion[],
   position: Position,
-  players: Player[]
+  players: Player[],
+  animationEnd: () => void
 ): DangerPuddles => {
-  const xs = explosions.map((e) => getDangerInfo(e, position, players));
+  const xs = explosions.map((e, i) =>
+    getDangerInfo(e, position, players, i === 0 ? animationEnd : () => {})
+  );
   return {
     puddles: xs.flatMap((x) => x[0]),
     survivable: xs.map((x) => x[1]).reduce((a, b) => a + b),

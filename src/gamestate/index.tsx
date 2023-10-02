@@ -91,10 +91,10 @@ export const stepGame1 = <TPlayer, T extends GameState>(
   const nextState = game.game.nextState(game.gameState, game.player);
   const otherPlayers = game.otherPlayers.map((o) => ({
     ...o,
-    position: game.game.getSafeSpot(nextState, o),
+    position: game.game.getSafeSpot(nextState, o, game.otherPlayers),
   }));
   const lived =
-    game.game.isSafe(nextState, game.player) &&
+    game.game.isSafe(nextState, game.player, otherPlayers) &&
     game.isSafe(game.player, otherPlayers);
   return {
     ...game,
@@ -125,10 +125,10 @@ export const stepGame2 = <TPlayer, T extends GameState, T1 extends GameState>(
   const nextState = game.game.nextState(game.gameState, game.player);
   const otherPlayers = game.otherPlayers.map((o) => ({
     ...o,
-    position: game.game.getSafeSpot(nextState, o),
+    position: game.game.getSafeSpot(nextState, o, game.otherPlayers),
   }));
   const lived =
-    game.game.isSafe(nextState, game.player) &&
+    game.game.isSafe(nextState, game.player, otherPlayers) &&
     game.isSafe(game.player, otherPlayers);
   return {
     ...game,
@@ -164,10 +164,10 @@ export const stepGame3 = <
   const nextState = game.game.nextState(game.gameState, game.player);
   const otherPlayers = game.otherPlayers.map((o) => ({
     ...o,
-    position: game.game.getSafeSpot(nextState, o),
+    position: game.game.getSafeSpot(nextState, o, game.otherPlayers),
   }));
   const lived =
-    game.game.isSafe(nextState, game.player) &&
+    game.game.isSafe(nextState, game.player, otherPlayers) &&
     game.isSafe(game.player, otherPlayers);
   return {
     ...game,
@@ -204,10 +204,10 @@ export const stepGame4 = <
   const nextState = game.game.nextState(game.gameState, game.player);
   const otherPlayers = game.otherPlayers.map((o) => ({
     ...o,
-    position: game.game.getSafeSpot(nextState, o),
+    position: game.game.getSafeSpot(nextState, o, game.otherPlayers),
   }));
   const lived =
-    game.game.isSafe(nextState, game.player) &&
+    game.game.isSafe(nextState, game.player, otherPlayers) &&
     game.isSafe(game.player, otherPlayers);
   return {
     ...game,
@@ -245,10 +245,10 @@ export const stepGame5 = <
   const nextState = game.game.nextState(game.gameState, game.player);
   const otherPlayers = game.otherPlayers.map((o) => ({
     ...o,
-    position: game.game.getSafeSpot(nextState, o),
+    position: game.game.getSafeSpot(nextState, o, game.otherPlayers),
   }));
   const lived =
-    game.game.isSafe(nextState, game.player) &&
+    game.game.isSafe(nextState, game.player, otherPlayers) &&
     game.isSafe(game.player, otherPlayers);
   return {
     ...game,
@@ -302,7 +302,12 @@ export type IterateGames2<TPlayer, T1, T2> =
   | IterateGames1<TPlayer, T2>;
 export type IterateGames1<TPlayer, T1> = Game1<TPlayer, T1>;
 
-export const useGameState = <
+export const useGameState1 = <TPlayer, T1 extends GameState>(
+  start: (setup: Setup) => IterateGames1<TPlayer, T1>
+) => {
+  return useGameState3<TPlayer, never, never, T1>(start);
+};
+export const useGameState3 = <
   TPlayer,
   T1 extends GameState,
   T2 extends GameState,
@@ -403,10 +408,22 @@ const getSafeSpot = <TPlayer, T1, T2, T3>(
 ) => {
   switch (gameState.loop) {
     case 1:
-      return gameState.game.getSafeSpot(gameState.gameState, gameState.player);
+      return gameState.game.getSafeSpot(
+        gameState.gameState,
+        gameState.player,
+        gameState.otherPlayers
+      );
     case 2:
-      return gameState.game.getSafeSpot(gameState.gameState, gameState.player);
+      return gameState.game.getSafeSpot(
+        gameState.gameState,
+        gameState.player,
+        gameState.otherPlayers
+      );
     case 3:
-      return gameState.game.getSafeSpot(gameState.gameState, gameState.player);
+      return gameState.game.getSafeSpot(
+        gameState.gameState,
+        gameState.player,
+        gameState.otherPlayers
+      );
   }
 };

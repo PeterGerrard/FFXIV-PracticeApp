@@ -67,7 +67,7 @@ export const startLetterOfTheLaw = (setup: Setup): LetterOfTheLawGame => {
           hasFinished: false,
           nonTankPosition:
             p.role === "Tank" && p.isTethered
-              ? g.getSafeSpot(s, { ...p, role: "DPS" })
+              ? g.getSafeSpot(s, { ...p, role: "DPS" }, [])
               : p.position,
         }),
       ],

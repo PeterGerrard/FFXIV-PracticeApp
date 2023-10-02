@@ -54,8 +54,12 @@ export type GameLoop<TPlayer, T> = {
     animationEnd: () => void
   ) => React.ReactElement;
   nextState: (gameState: T, player: TPlayer) => T;
-  isSafe: (gameState: T, player: TPlayer) => boolean;
-  getSafeSpot: (gameState: T, player: TPlayer) => Position;
+  isSafe: (gameState: T, player: TPlayer, otherPlayers: TPlayer[]) => boolean;
+  getSafeSpot: (
+    gameState: T,
+    player: TPlayer,
+    otherPlayers: TPlayer[]
+  ) => Position;
 };
 
 export const distanceTo = (source: Position, target: Position) =>

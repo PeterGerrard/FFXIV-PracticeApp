@@ -1,4 +1,4 @@
-import { useGameState } from "../..";
+import { useGameState3 } from "../..";
 import LinearProgress from "@mui/material/LinearProgress";
 import Button from "@mui/material/Button";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
@@ -6,7 +6,7 @@ import Stack from "@mui/material/Stack";
 import { startLetterOfTheLaw } from ".";
 
 export const LetterOfTheLaw = () => {
-  const [state, restart, arena] = useGameState(startLetterOfTheLaw);
+  const [state, restart, arena] = useGameState3(startLetterOfTheLaw);
 
   return (
     <Stack flexDirection="column">

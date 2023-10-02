@@ -1,4 +1,4 @@
-import { useGameState } from "../..";
+import { useGameState3 } from "../..";
 import { startDarkAndLight } from ".";
 import LinearProgress from "@mui/material/LinearProgress";
 import Button from "@mui/material/Button";
@@ -6,7 +6,7 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import Stack from "@mui/material/Stack";
 
 export const DarkAndLight = () => {
-  const [state, restart, arena] = useGameState(startDarkAndLight);
+  const [state, restart, arena] = useGameState3(startDarkAndLight);
 
   return (
     <Stack flexDirection="column">
