@@ -1,12 +1,14 @@
 import { Position } from "..";
 import { CircleAoE, CircleAoEProps, isCircleSafe } from "./CircleAoE";
+import { ConeAoE, ConeAoEProps, isConeSafe } from "./ConeAoE";
 import { DonutAoE, DonutAoEProps, isDonutSafe } from "./DonutAoE";
 import { LineAoE, LineAoEProps, isLineSafe } from "./LineAoE";
 
 export type DangerPuddle =
   | ({ type: "line" } & LineAoEProps)
   | ({ type: "donut" } & DonutAoEProps)
-  | ({ type: "circle" } & CircleAoEProps);
+  | ({ type: "circle" } & CircleAoEProps)
+  | ({ type: "cone" } & ConeAoEProps);
 
 export type DangerPuddles = {
   puddles: DangerPuddle[];
@@ -21,6 +23,8 @@ const DangerPuddleDisplay = (props: DangerPuddle): JSX.Element => {
       return <DonutAoE {...props} />;
     case "circle":
       return <CircleAoE {...props} />;
+    case "cone":
+      return <ConeAoE {...props} />;
   }
 };
 
@@ -32,6 +36,8 @@ const isSafeFrom = (props: DangerPuddle, position: Position): boolean => {
       return isDonutSafe(props, position);
     case "circle":
       return isCircleSafe(props, position);
+    case "cone":
+      return isConeSafe(props, position);
   }
 };
 
