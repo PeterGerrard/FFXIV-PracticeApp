@@ -17,11 +17,9 @@ export const ConeAoE = (props: ConeAoEProps) => {
   });
   const c = new Polygon([
     props.source,
-    props.source.translate(0, height),
-    props.source
-      .translate(0, height)
-      .rotate((Math.PI * props.width) / 180, props.source),
-  ]).rotate((Math.PI * props.angle) / 180, props.source);
+    props.source.translate(0, -height),
+    props.source.translate(0, -height).rotate(props.width, props.source),
+  ]).rotate(props.angle - props.width / 2, props.source);
   return (
     <svg
       height="100%"
@@ -46,11 +44,9 @@ export const ConeAoE = (props: ConeAoEProps) => {
 export const isConeSafe = (cone: ConeAoEProps, position: Point): boolean => {
   const c = new Polygon([
     cone.source,
-    cone.source.translate(0, 5),
-    cone.source
-      .translate(0, 5)
-      .rotate((Math.PI * cone.width) / 180, cone.source),
-  ]).rotate((Math.PI * cone.angle) / 180, cone.source);
+    cone.source.translate(0, -5),
+    cone.source.translate(0, -5).rotate(cone.width, cone.source),
+  ]).rotate(cone.angle - cone.width / 2, cone.source);
 
   return c.intersect(position).length === 0;
 };

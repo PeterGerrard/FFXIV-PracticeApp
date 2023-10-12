@@ -38,59 +38,63 @@ export const superchainTheory1: GameLoop<
   ),
   getSafeSpot: (gameState, player) => {
     if (gameState.stage === "Initial" || gameState.stage === "Explosion1") {
-      // TODO: melee, tank, healer, ranged on group side
       let offset: Point;
-      if (gameState.initialExplosions[0] === "Protean") {
+      if (gameState.initialExplosions[1] === "Protean") {
         switch (player.designation) {
-          case "H1":
-            offset = new Point(-0.05, -0.02);
-            break;
-          case "H2":
-            offset = new Point(0.05, -0.02);
+          case "M1":
+            offset = new Point(-0.02, -0.05);
             break;
           case "MT":
+            offset = new Point(-0.05, -0.02);
+            break;
+          case "H1":
             offset = new Point(-0.05, 0.02);
             break;
-          case "OT":
-            offset = new Point(0.05, 0.02);
-            break;
-          case "M1":
+          case "R1":
             offset = new Point(-0.02, 0.05);
             break;
           case "M2":
-            offset = new Point(0.02, 0.05);
+            offset = new Point(0.02, -0.05);
             break;
-          case "R1":
-            offset = new Point(-0.02, -0.05);
+          case "OT":
+            offset = new Point(0.05, -0.02);
+            break;
+          case "H2":
+            offset = new Point(0.05, 0.02);
             break;
           case "R2":
-            offset = new Point(0.02, -0.05);
+            offset = new Point(0.02, 0.05);
             break;
         }
       } else {
         switch (player.designation) {
           case "H1":
           case "R1":
-            offset = new Point(-0.05, -0.05);
+            offset = new Point(-0.05, 0.05);
             break;
           case "H2":
           case "R2":
-            offset = new Point(0.05, -0.05);
+            offset = new Point(0.05, 0.05);
             break;
           case "MT":
           case "M1":
-            offset = new Point(-0.05, 0.05);
+            offset = new Point(-0.05, -0.05);
             break;
           case "OT":
           case "M2":
-            offset = new Point(0.05, 0.05);
+            offset = new Point(0.05, -0.05);
             break;
         }
       }
       const scaleValue = gameState.initialExplosions[0] === "Donut" ? 1 : 4;
-      return gameState.initialCorner.translate(
-        vector(point(), offset.scale(scaleValue, scaleValue))
-      );
+      const rotAngle = vector(
+        gameState.initialCorner,
+        gameState.initialCorner.translate(0, -1)
+      ).angleTo(vector(gameState.initialCorner, point(0.5, 0.5)));
+
+      return gameState.initialCorner
+        .translate(vector(point(), offset.scale(scaleValue, scaleValue)))
+        .rotate(rotAngle, gameState.initialCorner);
     }
 
     return new Point(0.5, 0.5);

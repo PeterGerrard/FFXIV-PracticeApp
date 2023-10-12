@@ -11,20 +11,13 @@ export const SelectMechanic = () => (
         <NavLink to="/letterofthelaw">Letter of the Law</NavLink>
       </li>
     </ul>
-    {import.meta.env.MODE === "development" && (
-      <>
-        <h2>P12S Phase 1</h2>
-        <ul>
-          <li>
-            <NavLink to="/p12sp1">Testing</NavLink>
-          </li>
-          <li>
-            <NavLink to="/p12s/p1/superchaintheory1">
-              Superchain Theory 1
-            </NavLink>
-          </li>
-        </ul>
-      </>
-    )}
+    <h2>P12S Phase 1</h2>
+    <ul>
+      <li>
+        <NavLink to="/p12s/p1/superchaintheory1">
+          Superchain Theory 1 (beta, only 1st chain)
+        </NavLink>
+      </li>
+    </ul>
   </>
 );

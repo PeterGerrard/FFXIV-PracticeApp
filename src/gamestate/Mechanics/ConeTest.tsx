@@ -6,8 +6,8 @@ import { Point } from "@flatten-js/core";
 export const ConeTest = () => {
   const [x, setX] = useState(0.5);
   const [y, setY] = useState(0.5);
-  const [angle, setAngle] = useState(45);
-  const [width, setWidth] = useState(30);
+  const [angle, setAngle] = useState(Math.PI / 4);
+  const [width, setWidth] = useState(Math.PI / 6);
   const cone: ConeAoEProps = {
     source: new Point(x, y),
     angle: angle,
@@ -42,16 +42,16 @@ export const ConeTest = () => {
         value={angle}
         onChange={(_, v) => setAngle(v as number)}
         min={0}
-        max={360}
-        step={10}
+        max={Math.PI * 2}
+        step={0.05}
       />
       <Slider
         aria-label="Width"
         value={width}
         onChange={(_, v) => setWidth(v as number)}
         min={0}
-        max={180}
-        step={10}
+        max={Math.PI}
+        step={0.05}
       />
       <div
         style={{

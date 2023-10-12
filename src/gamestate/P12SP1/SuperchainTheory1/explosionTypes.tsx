@@ -97,10 +97,10 @@ const getDangerInfo = (
         type: "cone",
         source: position,
         onAnimationEnd: animationEnd,
-        angle: vector(position, point(position.x, position.y + 1)).angleTo(
+        angle: vector(position, point(position.x, position.y - 1)).angleTo(
           vector(position, a.position)
         ),
-        width: 30,
+        width: Math.PI / 6,
         survivable: 1,
         roleRequirement: null,
       }));
@@ -111,10 +111,10 @@ const getDangerInfo = (
           type: "cone",
           source: position,
           onAnimationEnd: animationEnd,
-          angle: vector(position, point(position.x, position.y + 1)).angleTo(
+          angle: vector(position, point(position.x, position.y - 1)).angleTo(
             vector(position, a.position)
           ),
-          width: 60,
+          width: Math.PI / 3,
           survivable: 1,
           roleRequirement: null,
         }));
@@ -127,8 +127,8 @@ export const getSuperChainDangerPuddles = (
   players: Player[],
   animationEnd: () => void
 ): DangerPuddle[] => {
-  const xs = explosions.map((e, i) =>
+  const xs = explosions.flatMap((e, i) =>
     getDangerInfo(e, position, players, i === 0 ? animationEnd : () => {})
   );
-  return xs.flatMap((x) => x[0]);
+  return xs;
 };
