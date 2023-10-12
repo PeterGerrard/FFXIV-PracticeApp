@@ -14,9 +14,13 @@ export const DonutAoE = (props: DonutAoEProps) => {
   const [opacity, setOpacity] = useState(0);
   const id = useId();
   useEffect(() => {
+    let mounted = true;
     setOpacity(0.4);
-    setTimeout(props.onAnimationEnd, 1500);
-  });
+    setTimeout(() => mounted && props.onAnimationEnd(), 1500);
+    return () => {
+      mounted = false;
+    };
+  }, []);
   return (
     <svg
       height="100%"
@@ -49,10 +53,7 @@ export const DonutAoE = (props: DonutAoEProps) => {
   );
 };
 
-export const isDonutSafe = (
-  donut: DonutAoEProps,
-  position: Point
-): boolean => {
+export const isDonutSafe = (donut: DonutAoEProps, position: Point): boolean => {
   const distanceToCentre = distanceTo(donut.source, position);
   return (
     distanceToCentre < donut.innerRadius || distanceToCentre > donut.outerRadius

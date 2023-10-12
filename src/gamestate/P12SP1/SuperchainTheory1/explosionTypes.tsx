@@ -6,7 +6,8 @@ import { DangerPuddle } from "../../Mechanics/DangerPuddles";
 import { Player } from "../../Player";
 import { Point, point, vector } from "@flatten-js/core";
 
-export type SuperchainExplosion = "Circle" | "Donut" | "Protean" | "Pair";
+export type SuperchainExplosion = SuperchainExplosionInOut | "Protean" | "Pair";
+export type SuperchainExplosionInOut = "Circle" | "Donut";
 
 const getSrc = (e: SuperchainExplosion): string => {
   switch (e) {
@@ -87,16 +88,16 @@ const getDangerInfo = (
           source: position,
           onAnimationEnd: animationEnd,
           innerRadius: 0.2,
-          outerRadius: 0.6,
+          outerRadius: 5,
           survivable: 0,
           roleRequirement: null,
         },
       ];
     case "Protean":
-      return players.map((a) => ({
+      return players.map((a, i) => ({
         type: "cone",
         source: position,
-        onAnimationEnd: animationEnd,
+        onAnimationEnd: i == 0 ? animationEnd : () => {},
         angle: vector(position, point(position.x, position.y - 1)).angleTo(
           vector(position, a.position)
         ),
@@ -107,10 +108,10 @@ const getDangerInfo = (
     case "Pair":
       return players
         .filter((x) => x.role !== "DPS")
-        .map((a) => ({
+        .map((a, i) => ({
           type: "cone",
           source: position,
-          onAnimationEnd: animationEnd,
+          onAnimationEnd: i == 0 ? animationEnd : () => {},
           angle: vector(position, point(position.x, position.y - 1)).angleTo(
             vector(position, a.position)
           ),

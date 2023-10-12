@@ -12,6 +12,7 @@ import { Arena } from "../P12SP1Arena";
 import {
   SuperchainExplosion,
   SuperchainExplosionDisplay,
+  SuperchainExplosionInOut,
   getSuperChainDangerPuddles,
 } from "./explosionTypes";
 
@@ -113,6 +114,18 @@ export const superchainTheory1: GameLoop<
       return {
         ...s,
         stage: "Explosion1",
+      };
+    }
+    if (s.stage === "Explosion1") {
+      return {
+        ...s,
+        stage: "Inter1",
+      };
+    }
+    if (s.stage === "Inter1") {
+      return {
+        ...s,
+        stage: "Lasers",
         hasFinished: true,
       };
     }
@@ -129,12 +142,34 @@ type SuperchainTheoryGameState = GameState &
     | {
         stage: "Initial";
         initialCorner: Point;
+        secondCorners: [
+          [Point, SuperchainExplosionInOut],
+          [Point, SuperchainExplosionInOut]
+        ];
         initialExplosions: [SuperchainExplosion, SuperchainExplosion];
       }
     | {
         stage: "Explosion1";
         initialCorner: Point;
+        secondCorners: [
+          [Point, SuperchainExplosionInOut],
+          [Point, SuperchainExplosionInOut]
+        ];
         initialExplosions: [SuperchainExplosion, SuperchainExplosion];
+      }
+    | {
+        stage: "Inter1";
+        secondCorners: [
+          [Point, SuperchainExplosionInOut],
+          [Point, SuperchainExplosionInOut]
+        ];
+      }
+    | {
+        stage: "Lasers";
+        secondCorners: [
+          [Point, SuperchainExplosionInOut],
+          [Point, SuperchainExplosionInOut]
+        ];
       }
   );
 
@@ -143,13 +178,24 @@ const getDangerPuddles = (
   animationEnd: () => void,
   players: SuperchainTheory1Player[]
 ): DangerPuddle[] => {
-  if (gameState.stage === "Explosion1")
+  if (gameState.stage === "Explosion1") {
     return getSuperChainDangerPuddles(
       gameState.initialExplosions,
       gameState.initialCorner,
       players,
       animationEnd
     );
+  }
+  if (gameState.stage === "Lasers") {
+    return gameState.secondCorners.flatMap((x, i) =>
+      getSuperChainDangerPuddles(
+        [x[1]],
+        x[0],
+        players,
+        i == 0 ? animationEnd : () => {}
+      )
+    );
+  }
 
   return [];
 };
@@ -180,6 +226,22 @@ const SuperchainTheory1Arena = (props: {
             explosion={props.gameState.initialExplosions[1]}
             position={props.gameState.initialCorner.translate(0, -0.1)}
             target={props.gameState.initialCorner}
+          />
+        </>
+      )}
+
+      {(props.gameState.stage === "Explosion1" ||
+        props.gameState.stage === "Inter1") && (
+        <>
+          <SuperchainExplosionDisplay
+            explosion={props.gameState.secondCorners[0][1]}
+            position={props.gameState.secondCorners[0][0].translate(0.2, 0.2)}
+            target={props.gameState.secondCorners[0][0]}
+          />
+          <SuperchainExplosionDisplay
+            explosion={props.gameState.secondCorners[1][1]}
+            position={props.gameState.secondCorners[1][0].translate(0.2, 0.2)}
+            target={props.gameState.secondCorners[1][0]}
           />
         </>
       )}
@@ -216,21 +278,33 @@ export const SuperchainTheory1 = () => {
       ["Tank", "OT"],
     ];
     const i = rs.findIndex((r) => r[0] === setup.role);
+    const initialCorner = pickOne([
+      new Point(0.26, 0.26),
+      new Point(0.74, 0.26),
+      new Point(0.26, 0.74),
+      new Point(0.74, 0.74),
+    ]);
+    const j = pickOne([0, 1]);
     return {
       game: superchainTheory1,
       gameState: {
         cast: null,
         hasFinished: false,
         stage: "Initial",
-        initialCorner: pickOne([
-          new Point(0.26, 0.26),
-          new Point(0.74, 0.26),
-          new Point(0.26, 0.74),
-          new Point(0.74, 0.74),
-        ]),
+        initialCorner: initialCorner,
         initialExplosions: [
           pickOne(["Donut", "Circle"]),
           pickOne(["Protean", "Pair"]),
+        ],
+        secondCorners: [
+          [
+            point(1 - initialCorner.x, initialCorner.y),
+            ["Donut", "Circle"][j] as SuperchainExplosionInOut,
+          ],
+          [
+            point(initialCorner.x, 1 - initialCorner.y),
+            ["Donut", "Circle"][1 - j] as SuperchainExplosionInOut,
+          ],
         ],
       },
       isDead: false,
