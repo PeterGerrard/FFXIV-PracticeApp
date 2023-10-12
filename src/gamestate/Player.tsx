@@ -17,7 +17,11 @@ export type DesignatedPlayer = Player & {
 
 export const PlayerComponent = forwardRef(
   (
-    props: { player: Player | DesignatedPlayer; isDead: boolean },
+    props: {
+      player: Player | DesignatedPlayer;
+      isDead: boolean;
+      mainPlayer?: boolean;
+    },
     ref: Ref<HTMLImageElement>
   ) => {
     const imgStyle: CSSProperties = {
@@ -27,6 +31,7 @@ export const PlayerComponent = forwardRef(
       height: "80px",
       width: "80px",
       transform: "translate(-50%, -50%)",
+      opacity: props.mainPlayer ? 1 : 0.5,
     };
 
     if (props.isDead) {

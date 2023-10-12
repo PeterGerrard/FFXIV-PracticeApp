@@ -46,6 +46,7 @@ export const Arena = forwardRef(
             ref={ref}
             player={props.player}
             isDead={props.isDead}
+            mainPlayer
           />
           {props.children}
           <DangerPuddlesDisplay puddles={props.dangerPuddles.puddles} />

@@ -5,7 +5,7 @@ import {
   DangerPuddlesDisplay,
   survivePuddles,
 } from "../../Mechanics/DangerPuddles";
-import { Player, PlayerComponent } from "../../Player";
+import { DesignatedPlayer, PlayerComponent } from "../../Player";
 import { GameLoop, GameState, Role, getRandomPos } from "../../gameState";
 import { pickOne } from "../../helpers";
 import { Arena } from "../P12SP1Arena";
@@ -41,7 +41,7 @@ export const superchainTheory1: GameLoop<
       // TODO: melee, tank, healer, ranged on group side
       let offset: Point;
       if (gameState.initialExplosions[0] === "Protean") {
-        switch (player.name) {
+        switch (player.designation) {
           case "H1":
             offset = new Point(-0.05, -0.02);
             break;
@@ -68,7 +68,7 @@ export const superchainTheory1: GameLoop<
             break;
         }
       } else {
-        switch (player.name) {
+        switch (player.designation) {
           case "H1":
           case "R1":
             offset = new Point(-0.05, -0.05);
@@ -116,9 +116,8 @@ export const superchainTheory1: GameLoop<
   },
 };
 
-type SuperchainTheory1Player = Player & {
+type SuperchainTheory1Player = DesignatedPlayer & {
   show: boolean;
-  name: "H1" | "H2" | "MT" | "OT" | "M1" | "M2" | "R1" | "R2";
 };
 
 type SuperchainTheoryGameState = GameState &
@@ -207,7 +206,7 @@ export const SuperchainTheory1 = () => {
     SuperchainTheory1Player,
     SuperchainTheoryGameState
   >((setup) => {
-    const rs: [Role, SuperchainTheory1Player["name"]][] = [
+    const rs: [Role, SuperchainTheory1Player["designation"]][] = [
       ["DPS", "M1"],
       ["DPS", "M2"],
       ["DPS", "R1"],
@@ -243,7 +242,7 @@ export const SuperchainTheory1 = () => {
         position: getRandomPos(),
         role: setup.role,
         show: true,
-        name: "H2",
+        designation: "H2",
       },
       otherPlayers: rs
         .filter((_, j) => j !== i)
@@ -251,7 +250,7 @@ export const SuperchainTheory1 = () => {
           position: getRandomPos(),
           role: r[0],
           show: true,
-          name: r[1],
+          designation: r[1],
         })),
     };
   });

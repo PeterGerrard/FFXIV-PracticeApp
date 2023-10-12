@@ -73,15 +73,6 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: "p12sp1",
-        lazy: async () => {
-          const { P12SP1Testing: Component } = await import(
-            "./gamestate/P12SP1/P12SP1.tsx"
-          );
-          return { Component };
-        },
-      },
-      {
         path: "p12s/p1/superchaintheory1",
         lazy: async () => {
           const { SuperchainTheory1: Component } = await import(
