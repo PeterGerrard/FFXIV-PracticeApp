@@ -1,9 +1,5 @@
 import { Bombs } from "../../Bombs";
-import {
-  DangerPuddle,
-  DangerPuddles,
-  survivePuddles,
-} from "../../../Mechanics/DangerPuddles";
+import { DangerPuddle, survivePuddles } from "../../../Mechanics/DangerPuddles";
 import { GameState, GameLoop } from "../../../gameState";
 import { Arena } from "../Arena";
 import { DarkAndLightPlayer, getDefaultPos } from "../gameState";
@@ -54,24 +50,23 @@ export type RevelationGameState = GameState & {
 const getDangerPuddles = (
   gameState: RevelationGameState,
   animationEnd?: () => void
-): DangerPuddles => {
+): DangerPuddle[] => {
   if (gameState.cast && gameState.cast.value >= 100) {
     const bombLocations: Point[] =
       gameState.bossColour === gameState.topBomb
         ? [new Point(0.5, 0.2), new Point(0.5, 0.8)]
         : [new Point(0.2, 0.5), new Point(0.8, 0.5)];
-    return {
-      puddles: bombLocations.map<DangerPuddle>((b, i) => ({
-        type: "circle",
-        source: b,
-        colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
-        radius: 0.4,
-        onAnimationEnd: animationEnd && i == 0 ? animationEnd : () => {},
-      })),
+    return bombLocations.map<DangerPuddle>((b, i) => ({
+      type: "circle",
+      source: b,
+      colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
+      radius: 0.4,
+      onAnimationEnd: animationEnd && i == 0 ? animationEnd : () => {},
       survivable: 0,
-    };
+      roleRequirement: null,
+    }));
   }
-  return { puddles: [], survivable: 0 };
+  return [];
 };
 
 export const RevelationState: GameLoop<
@@ -123,7 +118,7 @@ export const RevelationState: GameLoop<
   },
   isSafe: (gameState: RevelationGameState, player: DarkAndLightPlayer) => {
     const dangerPuddles = getDangerPuddles(gameState);
-    return survivePuddles(dangerPuddles, player.position);
+    return survivePuddles(dangerPuddles, player);
   },
   getSafeSpot: (
     gameState: RevelationGameState,

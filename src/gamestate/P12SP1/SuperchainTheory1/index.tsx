@@ -1,7 +1,7 @@
 import { Point, point, vector } from "@flatten-js/core";
 import { useGameState1 } from "../..";
 import {
-  DangerPuddles,
+  DangerPuddle,
   DangerPuddlesDisplay,
   survivePuddles,
 } from "../../Mechanics/DangerPuddles";
@@ -100,7 +100,7 @@ export const superchainTheory1: GameLoop<
       player,
       ...otherPlayers,
     ]);
-    if (!survivePuddles(dangerPuddles, player.position)) return false;
+    if (!survivePuddles(dangerPuddles, player)) return false;
 
     return true;
   },
@@ -138,7 +138,7 @@ const getDangerPuddles = (
   gameState: SuperchainTheoryGameState,
   animationEnd: () => void,
   players: SuperchainTheory1Player[]
-): DangerPuddles => {
+): DangerPuddle[] => {
   if (gameState.stage === "Explosion1")
     return getSuperChainDangerPuddles(
       gameState.initialExplosions,
@@ -147,7 +147,7 @@ const getDangerPuddles = (
       animationEnd
     );
 
-  return { puddles: [], survivable: 0 };
+  return [];
 };
 
 const SuperchainTheory1Arena = (props: {
@@ -163,10 +163,7 @@ const SuperchainTheory1Arena = (props: {
       player={props.player}
       isDead={props.isDead}
       moveTo={props.moveTo}
-      dangerPuddles={{
-        puddles: [],
-        survivable: 0,
-      }}
+      dangerPuddles={[]}
     >
       {props.gameState.stage === "Initial" && (
         <>
@@ -184,12 +181,10 @@ const SuperchainTheory1Arena = (props: {
       )}
 
       <DangerPuddlesDisplay
-        puddles={
-          getDangerPuddles(props.gameState, props.animationEnd, [
-            props.player,
-            ...props.otherPlayers,
-          ]).puddles
-        }
+        puddles={getDangerPuddles(props.gameState, props.animationEnd, [
+          props.player,
+          ...props.otherPlayers,
+        ])}
       />
 
       {props.otherPlayers

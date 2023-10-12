@@ -9,7 +9,7 @@ import Xarrow from "react-xarrows";
 import { DarkAndLightPlayer, isTetherSafe } from "./gameState";
 import { PlayerComponent } from "../../Player";
 import {
-  DangerPuddles,
+  DangerPuddle,
 } from "../../Mechanics/DangerPuddles";
 import { Point } from "@flatten-js/core";
 
@@ -67,7 +67,7 @@ export const Arena = (
     otherPlayer: DarkAndLightPlayer;
     bossColour: "Dark" | "Light" | null;
     isDead: boolean;
-    dangerPuddles: DangerPuddles;
+    dangerPuddles: DangerPuddle[];
     moveTo: (p: Point) => void;
   }>
 ) => {

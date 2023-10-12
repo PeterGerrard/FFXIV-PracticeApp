@@ -2,7 +2,7 @@ import circlePng from "./assets/circle.png";
 import donutPng from "./assets/donut.png";
 import proteanPng from "./assets/protean.png";
 import pairPng from "./assets/pair.png";
-import { DangerPuddle, DangerPuddles } from "../../Mechanics/DangerPuddles";
+import { DangerPuddle } from "../../Mechanics/DangerPuddles";
 import { Player } from "../../Player";
 import { Point, point, vector } from "@flatten-js/core";
 
@@ -67,61 +67,57 @@ const getDangerInfo = (
   position: Point,
   players: Player[],
   animationEnd: () => void
-): [DangerPuddle[], number] => {
+): DangerPuddle[] => {
   switch (explosion) {
     case "Circle":
       return [
-        [
-          {
-            type: "circle",
-            source: position,
-            onAnimationEnd: animationEnd,
-            radius: 0.2,
-          },
-        ],
-        0,
+        {
+          type: "circle",
+          source: position,
+          onAnimationEnd: animationEnd,
+          radius: 0.2,
+          survivable: 0,
+          roleRequirement: null,
+        },
       ];
     case "Donut":
       return [
-        [
-          {
-            type: "donut",
-            source: position,
-            onAnimationEnd: animationEnd,
-            innerRadius: 0.2,
-            outerRadius: 0.6,
-          },
-        ],
-        0,
+        {
+          type: "donut",
+          source: position,
+          onAnimationEnd: animationEnd,
+          innerRadius: 0.2,
+          outerRadius: 0.6,
+          survivable: 0,
+          roleRequirement: null,
+        },
       ];
     case "Protean":
-      return [
-        players.map((a) => ({
+      return players.map((a) => ({
+        type: "cone",
+        source: position,
+        onAnimationEnd: animationEnd,
+        angle: vector(position, point(position.x, position.y + 1)).angleTo(
+          vector(position, a.position)
+        ),
+        width: 30,
+        survivable: 1,
+        roleRequirement: null,
+      }));
+    case "Pair":
+      return players
+        .filter((x) => x.role !== "DPS")
+        .map((a) => ({
           type: "cone",
           source: position,
           onAnimationEnd: animationEnd,
           angle: vector(position, point(position.x, position.y + 1)).angleTo(
             vector(position, a.position)
           ),
-          width: 30,
-        })),
-        1,
-      ];
-    case "Pair":
-      return [
-        players
-          .filter((x) => x.role !== "DPS")
-          .map((a) => ({
-            type: "cone",
-            source: position,
-            onAnimationEnd: animationEnd,
-            angle: vector(position, point(position.x, position.y + 1)).angleTo(
-              vector(position, a.position)
-            ),
-            width: 60,
-          })),
-        1,
-      ];
+          width: 60,
+          survivable: 1,
+          roleRequirement: null,
+        }));
   }
 };
 
@@ -130,12 +126,9 @@ export const getSuperChainDangerPuddles = (
   position: Point,
   players: Player[],
   animationEnd: () => void
-): DangerPuddles => {
+): DangerPuddle[] => {
   const xs = explosions.map((e, i) =>
     getDangerInfo(e, position, players, i === 0 ? animationEnd : () => {})
   );
-  return {
-    puddles: xs.flatMap((x) => x[0]),
-    survivable: xs.map((x) => x[1]).reduce((a, b) => a + b),
-  };
+  return xs.flatMap((x) => x[0]);
 };

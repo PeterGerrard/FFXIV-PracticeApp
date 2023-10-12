@@ -4,7 +4,7 @@ import { Arena } from "../../P11SArena";
 import { LetterOfTheLawPlayer } from "../gameState";
 import { DismissalOverrulingState, towerPos } from ".";
 import { LineAoE } from "../../../Mechanics/LineAoE";
-import { DangerPuddles } from "../../../Mechanics/DangerPuddles";
+import { DangerPuddle } from "../../../Mechanics/DangerPuddles";
 import { Tower } from "../../Tower";
 import { Point } from "@flatten-js/core";
 
@@ -27,7 +27,7 @@ export const DismissalArena = (props: {
   isDead: boolean;
   moveTo: (p: Point) => void;
   gameState: DismissalOverrulingState;
-  dangerPuddles: DangerPuddles;
+  dangerPuddles: DangerPuddle[];
   animationEnd: () => void;
 }) => {
   const { animationEnd, gameState, isDead, moveTo, player, dangerPuddles } =

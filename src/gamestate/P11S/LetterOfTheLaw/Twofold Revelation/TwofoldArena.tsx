@@ -5,7 +5,7 @@ import { Arena } from "../../P11SArena";
 import { LetterOfTheLawPlayer } from "../gameState";
 import Grow from "@mui/material/Grow";
 import { TwofoldRevelationState, towerPos } from ".";
-import { DangerPuddles } from "../../../Mechanics/DangerPuddles";
+import { DangerPuddle } from "../../../Mechanics/DangerPuddles";
 import { Tower } from "../../Tower";
 import { Point } from "@flatten-js/core";
 
@@ -14,7 +14,7 @@ export const TwofoldArena = (props: {
   isDead: boolean;
   moveTo: (p: Point) => void;
   gameState: TwofoldRevelationState;
-  dangerPuddles: DangerPuddles;
+  dangerPuddles: DangerPuddle[];
   animationEnd: () => void;
 }) => {
   const { animationEnd, gameState, isDead, moveTo, player } = props;

@@ -3,17 +3,18 @@ import { CircleAoE, CircleAoEProps, isCircleSafe } from "./CircleAoE";
 import { ConeAoE, ConeAoEProps, isConeSafe } from "./ConeAoE";
 import { DonutAoE, DonutAoEProps, isDonutSafe } from "./DonutAoE";
 import { LineAoE, LineAoEProps, isLineSafe } from "./LineAoE";
+import { Role } from "..";
+import { Player } from "../Player";
 
-export type DangerPuddle =
+export type DangerPuddle = {
+  survivable: number;
+  roleRequirement: Role | null;
+} & (
   | ({ type: "line" } & LineAoEProps)
   | ({ type: "donut" } & DonutAoEProps)
   | ({ type: "circle" } & CircleAoEProps)
-  | ({ type: "cone" } & ConeAoEProps);
-
-export type DangerPuddles = {
-  puddles: DangerPuddle[];
-  survivable: number;
-};
+  | ({ type: "cone" } & ConeAoEProps)
+);
 
 const DangerPuddleDisplay = (props: DangerPuddle): JSX.Element => {
   switch (props.type) {
@@ -54,9 +55,13 @@ export const DangerPuddlesDisplay = (props: {
 };
 
 export const survivePuddles = (
-  puddles: DangerPuddles,
-  position: Point
+  puddles: DangerPuddle[],
+  player: Player
 ): boolean => {
-  const hitBy = puddles.puddles.filter((p) => !isSafeFrom(p, position)).length;
-  return hitBy <= puddles.survivable;
+  const hitBy = puddles.filter(
+    (p) =>
+      !isSafeFrom(p, player.position) &&
+      (p.roleRequirement === null || p.roleRequirement !== player.role)
+  );
+  return hitBy.every((p) => p.survivable >= hitBy.length);
 };

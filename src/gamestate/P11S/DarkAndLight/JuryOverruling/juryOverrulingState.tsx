@@ -1,9 +1,5 @@
 import { Point } from "@flatten-js/core";
-import {
-  DangerPuddle,
-  DangerPuddles,
-  survivePuddles,
-} from "../../../Mechanics/DangerPuddles";
+import { DangerPuddle, survivePuddles } from "../../../Mechanics/DangerPuddles";
 import { GameLoop } from "../../../gameState";
 import {
   MarkerC,
@@ -76,53 +72,53 @@ export const initialJuryOverrullingState: JuryOverrulingGameState = {
 const getDangerPuddles = (
   gameState: JuryOverrulingGameState,
   animationEnd?: () => void
-): DangerPuddles => {
+): DangerPuddle[] => {
   if (gameState.bossColour && gameState.explosions === "Lines") {
-    return {
-      puddles: [0, 45, 90, 135, 180, 225, 270, 315].map<DangerPuddle>((d) => ({
-        type: "line",
-        angle: d,
-        onAnimationEnd: animationEnd && d == 0 ? animationEnd : () => {},
-        source: new Point(0.5, 0.5),
-        width: 0.2,
-        colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
-      })),
+    return [0, 45, 90, 135, 180, 225, 270, 315].map<DangerPuddle>((d) => ({
+      type: "line",
+      angle: d,
+      onAnimationEnd: animationEnd && d == 0 ? animationEnd : () => {},
+      source: new Point(0.5, 0.5),
+      width: 0.2,
+      colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
       survivable: 1,
-    };
+      roleRequirement: null,
+    }));
   }
   if (gameState.bossColour && gameState.explosions === "AOE") {
-    return {
-      puddles: [
-        Marker1,
-        Marker2,
-        Marker3,
-        Marker4,
-        MarkerA,
-        MarkerB,
-        MarkerC,
-        MarkerD,
-      ].map<DangerPuddle>((m, i) =>
-        gameState.bossColour === "Dark"
-          ? {
-              type: "donut",
-              innerRadius: 0.05,
-              outerRadius: 0.2,
-              source: m,
-              colour: "purple",
-              onAnimationEnd: animationEnd && i == 0 ? animationEnd : () => {},
-            }
-          : {
-              type: "circle",
-              source: m,
-              radius: 0.125,
-              colour: "yellow",
-              onAnimationEnd: animationEnd && i == 0 ? animationEnd : () => {},
-            }
-      ),
-      survivable: 0,
-    };
+    return [
+      Marker1,
+      Marker2,
+      Marker3,
+      Marker4,
+      MarkerA,
+      MarkerB,
+      MarkerC,
+      MarkerD,
+    ].map<DangerPuddle>((m, i) =>
+      gameState.bossColour === "Dark"
+        ? {
+            type: "donut",
+            innerRadius: 0.05,
+            outerRadius: 0.2,
+            source: m,
+            colour: "purple",
+            onAnimationEnd: animationEnd && i == 0 ? animationEnd : () => {},
+            survivable: 0,
+            roleRequirement: null,
+          }
+        : {
+            type: "circle",
+            source: m,
+            radius: 0.125,
+            colour: "yellow",
+            onAnimationEnd: animationEnd && i == 0 ? animationEnd : () => {},
+            survivable: 0,
+            roleRequirement: null,
+          }
+    );
   }
-  return { puddles: [], survivable: 0 };
+  return [];
 };
 
 export const JuryOverrulingState: GameLoop<
@@ -178,7 +174,7 @@ export const JuryOverrulingState: GameLoop<
   },
   isSafe: (gameState: JuryOverrulingGameState, player: DarkAndLightPlayer) => {
     const dangerPuddles = getDangerPuddles(gameState);
-    return survivePuddles(dangerPuddles, player.position);
+    return survivePuddles(dangerPuddles, player);
   },
 
   getSafeSpot: (

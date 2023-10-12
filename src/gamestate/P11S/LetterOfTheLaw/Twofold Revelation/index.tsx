@@ -51,7 +51,7 @@ export const twofoldRevelation: GameLoop<
       gameState={gameState}
       isDead={isDead}
       moveTo={moveTo}
-      dangerPuddles={{ puddles: [], survivable: 0 }}
+      dangerPuddles={[]}
       player={player}
     />
   ),

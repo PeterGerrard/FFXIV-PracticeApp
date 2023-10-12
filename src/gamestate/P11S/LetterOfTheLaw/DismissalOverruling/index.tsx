@@ -8,10 +8,7 @@ import {
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
 import { pickOne } from "../../../helpers";
 import { DismissalArena } from "./DismissalArena";
-import {
-  DangerPuddles,
-  survivePuddles,
-} from "../../../Mechanics/DangerPuddles";
+import { DangerPuddle, survivePuddles } from "../../../Mechanics/DangerPuddles";
 import { Point } from "@flatten-js/core";
 
 const addLoc = (inter: InterCardinal, offset?: number): Point => {
@@ -112,61 +109,60 @@ export const towerPos = (inter: InterCardinal): Point => {
 export const getDangerPuddles = (
   state: DismissalOverrulingState,
   animationEnd?: () => void
-): DangerPuddles => {
+): DangerPuddle[] => {
   if (state.stage === "CrossLine") {
-    return {
-      puddles: [
-        {
-          type: "line",
-          angle: 180 + rotation(state.darkLocation),
-          onAnimationEnd: animationEnd ? animationEnd : () => {},
-          source: addLoc(state.darkLocation),
-          width: 0.475,
-          colour: "purple",
-        },
-        {
-          type: "line",
-          angle: 180 + rotation(state.lightLocation),
-          onAnimationEnd: () => {},
-          source: addLoc(state.lightLocation),
-          width: 0.475,
-          colour: "yellow",
-        },
-      ],
-      survivable: 0,
-    };
+    return [
+      {
+        type: "line",
+        angle: 180 + rotation(state.darkLocation),
+        onAnimationEnd: animationEnd ? animationEnd : () => {},
+        source: addLoc(state.darkLocation),
+        width: 0.475,
+        colour: "purple",
+        survivable: 0,
+        roleRequirement: null,
+      },
+      {
+        type: "line",
+        angle: 180 + rotation(state.lightLocation),
+        onAnimationEnd: () => {},
+        source: addLoc(state.lightLocation),
+        width: 0.475,
+        colour: "yellow",
+        survivable: 0,
+        roleRequirement: null,
+      },
+    ];
   }
   if (state.stage === "InOut") {
     if (state.bossColour === "Dark") {
-      return {
-        puddles: [
-          {
-            type: "donut",
-            innerRadius: 0.2,
-            outerRadius: 0.5,
-            onAnimationEnd: animationEnd ? animationEnd : () => {},
-            source: new Point(0.5, 0.5),
-            colour: "purple",
-          },
-        ],
-        survivable: 0,
-      };
+      return [
+        {
+          type: "donut",
+          innerRadius: 0.2,
+          outerRadius: 0.5,
+          onAnimationEnd: animationEnd ? animationEnd : () => {},
+          source: new Point(0.5, 0.5),
+          colour: "purple",
+          survivable: 0,
+          roleRequirement: null,
+        },
+      ];
     } else {
-      return {
-        puddles: [
-          {
-            type: "circle",
-            radius: 0.3,
-            onAnimationEnd: animationEnd ? animationEnd : () => {},
-            source: new Point(0.5, 0.5),
-            colour: "yellow",
-          },
-        ],
-        survivable: 0,
-      };
+      return [
+        {
+          type: "circle",
+          radius: 0.3,
+          onAnimationEnd: animationEnd ? animationEnd : () => {},
+          source: new Point(0.5, 0.5),
+          colour: "yellow",
+          survivable: 0,
+          roleRequirement: null,
+        },
+      ];
     }
   }
-  return { puddles: [], survivable: 0 };
+  return [];
 };
 
 export const dismissalOverruling: GameLoop<
@@ -262,7 +258,7 @@ export const dismissalOverruling: GameLoop<
     player: LetterOfTheLawPlayer
   ) => {
     const dangerPuddles = getDangerPuddles(gameState);
-    const safeFromDanger = survivePuddles(dangerPuddles, player.position);
+    const safeFromDanger = survivePuddles(dangerPuddles, player);
     if (!safeFromDanger) {
       return false;
     }

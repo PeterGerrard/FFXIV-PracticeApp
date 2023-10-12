@@ -5,7 +5,7 @@ import { Arena } from "../../P11SArena";
 import { LetterOfTheLawPlayer } from "../gameState";
 import { rotation } from "../../../gameState";
 import { HeartOfJudgementState } from ".";
-import { DangerPuddles } from "../../../Mechanics/DangerPuddles";
+import { DangerPuddle } from "../../../Mechanics/DangerPuddles";
 import { Bombs } from "../../Bombs";
 import { Point } from "@flatten-js/core";
 
@@ -14,7 +14,7 @@ export const HeartArena = (props: {
   isDead: boolean;
   moveTo: (p: Point) => void;
   gameState: HeartOfJudgementState;
-  dangerPuddles: DangerPuddles;
+  dangerPuddles: DangerPuddle[];
   animationEnd: () => void;
 }) => {
   const updateXarrow = useXarrow();

@@ -5,10 +5,7 @@ import arenaPng from "./assets/arena.png";
 import { Themis } from "./Themis";
 import { getPosition } from "../htmlHelpers";
 import { Player, PlayerComponent } from "../Player";
-import {
-  DangerPuddles,
-  DangerPuddlesDisplay,
-} from "../Mechanics/DangerPuddles";
+import { DangerPuddle, DangerPuddlesDisplay } from "../Mechanics/DangerPuddles";
 import { Point } from "@flatten-js/core";
 
 export const Arena = forwardRef(
@@ -17,7 +14,7 @@ export const Arena = forwardRef(
       player: Player;
       isDead: boolean;
       moveTo: (p: Point) => void;
-      dangerPuddles: DangerPuddles;
+      dangerPuddles: DangerPuddle[];
       bossColour: "Dark" | "Light" | null;
     }>,
     ref: Ref<HTMLImageElement>
@@ -50,7 +47,7 @@ export const Arena = forwardRef(
             mainPlayer
           />
           {props.children}
-          <DangerPuddlesDisplay puddles={props.dangerPuddles.puddles} />
+          <DangerPuddlesDisplay puddles={props.dangerPuddles} />
         </>
       </div>
     );
