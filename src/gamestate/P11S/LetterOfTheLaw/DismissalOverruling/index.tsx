@@ -1,7 +1,6 @@
 import {
   InterCardinal,
   GameLoop,
-  Position,
   getGroup,
   distanceTo,
   rotation,
@@ -13,18 +12,19 @@ import {
   DangerPuddles,
   survivePuddles,
 } from "../../../Mechanics/DangerPuddles";
+import { Point } from "@flatten-js/core";
 
-const addLoc = (inter: InterCardinal, offset?: number): Position => {
+const addLoc = (inter: InterCardinal, offset?: number): Point => {
   const o = offset ? offset / Math.sqrt(2) : 0;
   switch (inter) {
     case "North East":
-      return [0.9 + o, 0.1 + o];
+      return new Point(0.9 + o, 0.1 + o);
     case "South East":
-      return [0.9 + o, 0.9 - o];
+      return new Point(0.9 + o, 0.9 - o);
     case "South West":
-      return [0.1 + o, 0.9 + o];
+      return new Point(0.1 + o, 0.9 + o);
     case "North West":
-      return [0.1 + o, 0.1 - o];
+      return new Point(0.1 + o, 0.1 - o);
   }
 };
 
@@ -96,16 +96,16 @@ export type DismissalOverrulingState = LetterOfTheLawState &
       }
   );
 
-export const towerPos = (inter: InterCardinal): Position => {
+export const towerPos = (inter: InterCardinal): Point => {
   switch (inter) {
     case "North East":
-      return [0.69, 0.31];
+      return new Point(0.69, 0.31);
     case "South East":
-      return [0.69, 0.69];
+      return new Point(0.69, 0.69);
     case "South West":
-      return [0.31, 0.69];
+      return new Point(0.31, 0.69);
     case "North West":
-      return [0.32, 0.31];
+      return new Point(0.32, 0.31);
   }
 };
 
@@ -145,7 +145,7 @@ export const getDangerPuddles = (
             innerRadius: 0.2,
             outerRadius: 0.5,
             onAnimationEnd: animationEnd ? animationEnd : () => {},
-            source: [0.5, 0.5],
+            source: new Point(0.5, 0.5),
             colour: "purple",
           },
         ],
@@ -158,7 +158,7 @@ export const getDangerPuddles = (
             type: "circle",
             radius: 0.3,
             onAnimationEnd: animationEnd ? animationEnd : () => {},
-            source: [0.5, 0.5],
+            source: new Point(0.5, 0.5),
             colour: "yellow",
           },
         ],
@@ -194,22 +194,22 @@ export const dismissalOverruling: GameLoop<
     }
     if (gameState.stage === "CrossLine") {
       if (getGroup(player.clockSpot) === "Group1") {
-        return [0.1, 0.5];
+        return new Point(0.1, 0.5);
       } else {
-        return [0.9, 0.5];
+        return new Point(0.9, 0.5);
       }
     }
     if (gameState.stage === "CrossLine2") {
       if (getGroup(player.clockSpot) === "Group1") {
         return gameState.darkLocation === "North West" ||
           gameState.darkLocation === "South East"
-          ? [0.25, 0.75]
-          : [0.25, 0.25];
+          ? new Point(0.25, 0.75)
+          : new Point(0.25, 0.25);
       } else {
         return gameState.darkLocation === "North West" ||
           gameState.darkLocation === "South East"
-          ? [0.75, 0.75]
-          : [0.75, 0.25];
+          ? new Point(0.75, 0.75)
+          : new Point(0.75, 0.25);
       }
     }
     if (gameState.stage === "InOut") {
@@ -217,13 +217,13 @@ export const dismissalOverruling: GameLoop<
         if (getGroup(player.clockSpot) === "Group1") {
           return gameState.darkLocation === "North West" ||
             gameState.darkLocation === "South East"
-            ? [0.25, 0.75]
-            : [0.25, 0.25];
+            ? new Point(0.25, 0.75)
+            : new Point(0.25, 0.25);
         } else {
           return gameState.darkLocation === "North West" ||
             gameState.darkLocation === "South East"
-            ? [0.75, 0.75]
-            : [0.75, 0.25];
+            ? new Point(0.75, 0.75)
+            : new Point(0.75, 0.25);
         }
       } else {
         switch (player.clockSpot) {
@@ -231,31 +231,31 @@ export const dismissalOverruling: GameLoop<
           case "East":
             return gameState.darkLocation === "North West" ||
               gameState.darkLocation === "South East"
-              ? [0.6, 0.5]
-              : [0.5, 0.4];
+              ? new Point(0.6, 0.5)
+              : new Point(0.5, 0.4);
           case "South East":
           case "South":
             return gameState.darkLocation === "North West" ||
               gameState.darkLocation === "South East"
-              ? [0.5, 0.6]
-              : [0.5, 0.6];
+              ? new Point(0.5, 0.6)
+              : new Point(0.5, 0.6);
           case "South West":
           case "West":
             return gameState.darkLocation === "North West" ||
               gameState.darkLocation === "South East"
-              ? [0.4, 0.5]
-              : [0.5, 0.6];
+              ? new Point(0.4, 0.5)
+              : new Point(0.5, 0.6);
           case "North West":
           case "North":
             return gameState.darkLocation === "North West" ||
               gameState.darkLocation === "South East"
-              ? [0.5, 0.4]
-              : [0.4, 0.5];
+              ? new Point(0.5, 0.4)
+              : new Point(0.4, 0.5);
         }
       }
     }
 
-    return [0, 0];
+    return new Point(0, 0);
   },
   isSafe: (
     gameState: DismissalOverrulingState,
@@ -279,26 +279,26 @@ export const dismissalOverruling: GameLoop<
     }
     if (gameState.stage === "CrossLine") {
       if (getGroup(player.clockSpot) === "Group1") {
-        return player.position[0] < 0.5;
+        return player.position.x < 0.5;
       } else {
-        return player.position[0] > 0.5;
+        return player.position.x > 0.5;
       }
     }
     if (gameState.stage === "CrossLine2") {
       const hitByInner =
         gameState.lightLocation === "North West" ||
         gameState.lightLocation === "South East"
-          ? player.position[0] + player.position[1] < 0.668 ||
-            player.position[0] + player.position[1] > 1.332
-          : player.position[1] - player.position[0] < -0.332 ||
-            player.position[1] - player.position[0] > 0.332;
+          ? player.position.x + player.position.y < 0.668 ||
+            player.position.x + player.position.y > 1.332
+          : player.position.y - player.position.x < -0.332 ||
+            player.position.y - player.position.x > 0.332;
       const hitByOuter =
         gameState.darkLocation === "North West" ||
         gameState.darkLocation === "South East"
-          ? player.position[0] + player.position[1] > 0.668 &&
-            player.position[0] + player.position[1] < 1.332
-          : player.position[1] - player.position[0] > -0.332 &&
-            player.position[1] - player.position[0] < 0.332;
+          ? player.position.x + player.position.y > 0.668 &&
+            player.position.x + player.position.y < 1.332
+          : player.position.y - player.position.x > -0.332 &&
+            player.position.y - player.position.x < 0.332;
       return !hitByInner && !hitByOuter;
     }
     return true;

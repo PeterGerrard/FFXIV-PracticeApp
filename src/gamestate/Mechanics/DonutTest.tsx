@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { DonutAoE, DonutAoEProps, isDonutSafe } from "./DonutAoE";
 import Slider from "@mui/material/Slider";
+import { Point } from "@flatten-js/core";
 
 export const DonutTest = () => {
   const [x, setX] = useState(0.5);
@@ -8,7 +9,7 @@ export const DonutTest = () => {
   const [inner, setInner] = useState(0.1);
   const [outer, setOuter] = useState(0.2);
   const Donut: DonutAoEProps = {
-    source: [x, y],
+    source: new Point(x, y),
     innerRadius: inner,
     outerRadius: outer,
     onAnimationEnd: () => {},
@@ -73,7 +74,7 @@ export const DonutTest = () => {
                 cx={x}
                 cy={y}
                 r={0.01}
-                fill={isDonutSafe(Donut, [x, y]) ? "green" : "red"}
+                fill={isDonutSafe(Donut, new Point(x, y)) ? "green" : "red"}
               />
             </svg>
           ))

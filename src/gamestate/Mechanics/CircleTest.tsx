@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { CircleAoE, CircleAoEProps, isCircleSafe } from "./CircleAoE";
 import Slider from "@mui/material/Slider";
+import { Point } from "@flatten-js/core";
 
 export const CircleTest = () => {
   const [x, setX] = useState(0.5);
   const [y, setY] = useState(0.5);
   const [inner, setInner] = useState(0.1);
   const Circle: CircleAoEProps = {
-    source: [x, y],
+    source: new Point(x, y),
     radius: inner,
     onAnimationEnd: () => {},
   };
@@ -63,7 +64,7 @@ export const CircleTest = () => {
                 cx={x}
                 cy={y}
                 r={0.01}
-                fill={isCircleSafe(Circle, [x, y]) ? "green" : "red"}
+                fill={isCircleSafe(Circle, new Point(x, y)) ? "green" : "red"}
               />
             </svg>
           ))

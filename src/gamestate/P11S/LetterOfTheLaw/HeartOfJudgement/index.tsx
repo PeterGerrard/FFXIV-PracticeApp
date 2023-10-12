@@ -1,4 +1,3 @@
-import { Position } from "../../..";
 import {
   InterCardinal,
   distanceTo,
@@ -11,18 +10,19 @@ import {
   DangerPuddles,
   survivePuddles,
 } from "../../../Mechanics/DangerPuddles";
+import { Point } from "@flatten-js/core";
 
-const addLoc = (inter: InterCardinal, offset?: number): Position => {
+const addLoc = (inter: InterCardinal, offset?: number): Point => {
   const o = offset ? offset / Math.sqrt(2) : 0;
   switch (inter) {
     case "North East":
-      return [0.9 + o, 0.1 + o];
+      return new Point(0.9 + o, 0.1 + o);
     case "South East":
-      return [0.9 + o, 0.9 - o];
+      return new Point(0.9 + o, 0.9 - o);
     case "South West":
-      return [0.1 + o, 0.9 + o];
+      return new Point(0.1 + o, 0.9 + o);
     case "North West":
-      return [0.1 + o, 0.1 - o];
+      return new Point(0.1 + o, 0.1 - o);
   }
 };
 
@@ -105,27 +105,27 @@ export const heartOfJudgement: GameLoop<
         : gameState.lightBoxLocation;
     if (gameState.topBomb === gameState.bossColour) {
       if (player.isTethered && player.role === "Tank") {
-        return [
+        return new Point(
           0.83,
-          innerBox === "North West" || innerBox === "South East" ? 0.4 : 0.6,
-        ];
+          innerBox === "North West" || innerBox === "South East" ? 0.4 : 0.6
+        );
       } else {
-        return [
+        return new Point(
           0.17,
-          innerBox === "North West" || innerBox === "South East" ? 0.6 : 0.4,
-        ];
+          innerBox === "North West" || innerBox === "South East" ? 0.6 : 0.4
+        );
       }
     } else {
       if (player.isTethered && player.role === "Tank") {
-        return [
+        return new Point(
           innerBox === "North West" || innerBox === "South East" ? 0.6 : 0.4,
-          0.17,
-        ];
+          0.17
+        );
       } else {
-        return [
+        return new Point(
           innerBox === "North West" || innerBox === "South East" ? 0.4 : 0.6,
-          0.83,
-        ];
+          0.83
+        );
       }
     }
   },
@@ -133,16 +133,10 @@ export const heartOfJudgement: GameLoop<
     if (!gameState.cast || gameState.cast.value < 100) {
       return true;
     }
-    const bombs: Position[] =
+    const bombs: Point[] =
       gameState.bossColour == gameState.topBomb
-        ? [
-            [0.5, 0.2],
-            [0.5, 0.8],
-          ]
-        : [
-            [0.2, 0.5],
-            [0.8, 0.5],
-          ];
+        ? [new Point(0.5, 0.2), new Point(0.5, 0.8)]
+        : [new Point(0.2, 0.5), new Point(0.8, 0.5)];
     const hitByBomb = bombs.some((b) => distanceTo(player.position, b) < 0.35);
     const safeFromDangerPuddles = survivePuddles(
       getDangerPuddles(gameState),

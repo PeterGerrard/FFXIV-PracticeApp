@@ -1,6 +1,5 @@
 import { useRef, useState, useEffect } from "react";
 import Xarrow, { useXarrow } from "react-xarrows";
-import { Position } from "../../..";
 import { Add } from "../Add";
 import { Arena } from "../../P11SArena";
 import { LetterOfTheLawPlayer } from "../gameState";
@@ -8,11 +7,12 @@ import { rotation } from "../../../gameState";
 import { HeartOfJudgementState } from ".";
 import { DangerPuddles } from "../../../Mechanics/DangerPuddles";
 import { Bombs } from "../../Bombs";
+import { Point } from "@flatten-js/core";
 
 export const HeartArena = (props: {
   player: LetterOfTheLawPlayer;
   isDead: boolean;
-  moveTo: (p: Position) => void;
+  moveTo: (p: Point) => void;
   gameState: HeartOfJudgementState;
   dangerPuddles: DangerPuddles;
   animationEnd: () => void;

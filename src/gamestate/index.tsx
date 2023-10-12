@@ -1,9 +1,10 @@
 import { useContext, useEffect, useState } from "react";
-import { GameLoop, GameState, Position, Role, Setup } from "./gameState";
+import { GameLoop, GameState, Role, Setup } from "./gameState";
 import { DeathOverlay } from "./Death/DeathOverlay";
 import { SetupContext } from "./Setup/Setup";
+import { Point } from "@flatten-js/core";
 
-export type { Role, Position };
+export type { Role };
 
 type Game1<TPlayer, T> = {
   loop: 1;
@@ -283,7 +284,7 @@ const move = <
   T3 extends GameState
 >(
   game: IterateGames3<TPlayer, T1, T2, T3>,
-  pos: Position
+  pos: Point
 ): IterateGames3<TPlayer, T1, T2, T3> => {
   return { ...game, player: { ...game.player, position: pos } };
 };
@@ -332,7 +333,7 @@ export const useGameState3 = <
         gameState &&
         arena(
           gameState,
-          (p: Position) => {
+          (p: Point) => {
             if (
               gameState &&
               !gameState.isDead &&
@@ -369,7 +370,7 @@ export const useGameState3 = <
 
 const arena = <TPlayer, T1, T2, T3>(
   gameState: IterateGames3<TPlayer, T1, T2, T3>,
-  moveTo: (p: Position) => void,
+  moveTo: (p: Point) => void,
   animationEnd: () => void
 ) => {
   switch (gameState.loop) {

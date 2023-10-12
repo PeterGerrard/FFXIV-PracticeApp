@@ -1,8 +1,8 @@
+import { Point } from "@flatten-js/core";
 import { PropsWithChildren } from "react";
-import { Position } from "../gameState";
 
 export const DeathOverlay = (
-  props: PropsWithChildren<{ safeLocation: Position }>
+  props: PropsWithChildren<{ safeLocation: Point }>
 ) => (
   <>
     {props.children}
@@ -11,8 +11,8 @@ export const DeathOverlay = (
       width="100"
       style={{
         position: "absolute",
-        left: `${props.safeLocation[0] * 100}%`,
-        top: `${props.safeLocation[1] * 100}%`,
+        left: `${props.safeLocation.x * 100}%`,
+        top: `${props.safeLocation.y * 100}%`,
         transform: "translate(-50%, -50%)",
       }}
     >

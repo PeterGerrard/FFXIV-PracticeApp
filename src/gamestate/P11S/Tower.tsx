@@ -1,13 +1,13 @@
-import { Position } from "..";
+import { Point } from "@flatten-js/core";
 
-export const Tower = (props: { position: Position }) => (
+export const Tower = (props: { position: Point }) => (
   <svg
     style={{
       width: "20%",
       height: "20%",
       position: "absolute",
-      left: `${props.position[0] * 100}%`,
-      top: `${props.position[1] * 100}%`,
+      left: `${props.position.x * 100}%`,
+      top: `${props.position.y * 100}%`,
       transform: "translate(-50%, -50%)",
     }}
     viewBox="0 0 100 100"

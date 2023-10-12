@@ -1,4 +1,4 @@
-import { Position } from "..";
+import { Point } from "@flatten-js/core";
 import { CircleAoE, CircleAoEProps, isCircleSafe } from "./CircleAoE";
 import { ConeAoE, ConeAoEProps, isConeSafe } from "./ConeAoE";
 import { DonutAoE, DonutAoEProps, isDonutSafe } from "./DonutAoE";
@@ -28,7 +28,7 @@ const DangerPuddleDisplay = (props: DangerPuddle): JSX.Element => {
   }
 };
 
-const isSafeFrom = (props: DangerPuddle, position: Position): boolean => {
+const isSafeFrom = (props: DangerPuddle, position: Point): boolean => {
   switch (props.type) {
     case "line":
       return isLineSafe(props, position);
@@ -55,7 +55,7 @@ export const DangerPuddlesDisplay = (props: {
 
 export const survivePuddles = (
   puddles: DangerPuddles,
-  position: Position
+  position: Point
 ): boolean => {
   const hitBy = puddles.puddles.filter((p) => !isSafeFrom(p, position)).length;
   return hitBy <= puddles.survivable;

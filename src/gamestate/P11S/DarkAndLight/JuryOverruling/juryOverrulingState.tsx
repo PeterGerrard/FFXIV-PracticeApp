@@ -1,4 +1,4 @@
-import { Position } from "../../..";
+import { Point } from "@flatten-js/core";
 import {
   DangerPuddle,
   DangerPuddles,
@@ -25,7 +25,7 @@ import {
 const getSafeSpot = (
   player: DarkAndLightPlayer,
   bossColour: "Dark" | "Light"
-): Position => {
+): Point => {
   const short = player.tetherLength === "Short";
   if (bossColour === "Dark") {
     if (
@@ -43,8 +43,8 @@ const getSafeSpot = (
     }
     return Marker3;
   } else {
-    const leftSafe: Position = [0.2, 0.5];
-    const rightSafe: Position = [0.8, 0.5];
+    const leftSafe = new Point(0.2, 0.5);
+    const rightSafe = new Point(0.8, 0.5);
     if (
       short &&
       (player.role === "Healer" || player.tetheredRole === "Healer")
@@ -83,7 +83,7 @@ const getDangerPuddles = (
         type: "line",
         angle: d,
         onAnimationEnd: animationEnd && d == 0 ? animationEnd : () => {},
-        source: [0.5, 0.5],
+        source: new Point(0.5, 0.5),
         width: 0.2,
         colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
       })),
@@ -134,7 +134,7 @@ export const JuryOverrulingState: GameLoop<
     otherPlayers: DarkAndLightPlayer[],
     isDead: boolean,
     gameState: JuryOverrulingGameState,
-    moveTo: (p: Position) => void,
+    moveTo: (p: Point) => void,
     animationEnd: () => void
   ) => (
     <Arena
@@ -184,7 +184,7 @@ export const JuryOverrulingState: GameLoop<
   getSafeSpot: (
     gameState: JuryOverrulingGameState,
     player: DarkAndLightPlayer
-  ): Position => {
+  ): Point => {
     if (!gameState.bossColour) return getDefaultPos(player);
     if (gameState.explosions === "AOE")
       return getSafeSpot(player, gameState.bossColour);

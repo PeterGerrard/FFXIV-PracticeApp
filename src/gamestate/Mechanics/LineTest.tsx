@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { LineAoE, LineAoEProps, isLineSafe } from "./LineAoE";
 import Slider from "@mui/material/Slider";
+import { Point } from "@flatten-js/core";
 
 export const LineTest = () => {
   const [x, setX] = useState(0.5);
   const [y, setY] = useState(0.5);
   const [angle, setAngle] = useState(45);
   const line: LineAoEProps = {
-    source: [x, y],
+    source: new Point(x, y),
     angle: angle,
     length: 0.5,
     onAnimationEnd: () => {},
@@ -65,7 +66,7 @@ export const LineTest = () => {
                 cx={x}
                 cy={y}
                 r={0.01}
-                fill={isLineSafe(line, [x, y]) ? "green" : "red"}
+                fill={isLineSafe(line, new Point(x, y)) ? "green" : "red"}
               />
             </svg>
           ))

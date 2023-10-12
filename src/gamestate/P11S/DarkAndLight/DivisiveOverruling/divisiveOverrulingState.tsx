@@ -1,4 +1,4 @@
-import { Position } from "../../..";
+import { Point } from "@flatten-js/core";
 import {
   DangerPuddles,
   survivePuddles,
@@ -15,32 +15,36 @@ import {
 const getSafeSpot1 = (
   player: DarkAndLightPlayer,
   bossColour: "Dark" | "Light"
-): Position => {
+): Point => {
   const short = player.tetherLength === "Short";
-  const leftSafe: Position = [0.2, 0.5];
-  const rightSafe: Position = [0.8, 0.5];
+  const leftSafe = new Point(0.2, 0.5);
+  const rightSafe = new Point(0.8, 0.5);
   if (short && (player.role === "Healer" || player.tetheredRole === "Healer")) {
-    return bossColour === "Light" ? rightSafe : [rightSafe[0], Marker3[1]];
+    return bossColour === "Light"
+      ? rightSafe
+      : new Point(rightSafe.x, Marker3.y);
   }
   if (!short && (player.role === "Tank" || player.tetheredRole === "Healer")) {
-    return bossColour === "Light" ? rightSafe : [rightSafe[0], Marker1[1]];
+    return bossColour === "Light"
+      ? rightSafe
+      : new Point(rightSafe.x, Marker1.y);
   }
 
   if (short) {
-    return bossColour === "Light" ? leftSafe : [leftSafe[0], Marker1[1]];
+    return bossColour === "Light" ? leftSafe : new Point(leftSafe.x, Marker1.y);
   }
 
-  return bossColour === "Light" ? leftSafe : [leftSafe[0], Marker3[1]];
+  return bossColour === "Light" ? leftSafe : new Point(leftSafe.x, Marker3.y);
 };
 
 const getSafeSpot2 = (
   player: DarkAndLightPlayer,
   bossColour: "Dark" | "Light"
-): Position => {
+): Point => {
   const short = player.tetherLength === "Short";
   if (bossColour === "Light") {
-    const leftSafe: Position = [0.2, 0.5];
-    const rightSafe: Position = [0.8, 0.5];
+    const leftSafe = new Point(0.2, 0.5);
+    const rightSafe = new Point(0.8, 0.5);
     if (
       short &&
       (player.role === "Healer" || player.tetheredRole === "Healer")
@@ -62,17 +66,17 @@ const getSafeSpot2 = (
   }
 
   if (short && (player.role === "Healer" || player.tetheredRole === "Healer")) {
-    return [MarkerB[0], Marker3[1]];
+    return new Point(MarkerB.x, Marker3.y);
   }
   if (!short && (player.role === "Tank" || player.tetheredRole === "Healer")) {
-    return [MarkerB[0], Marker1[1]];
+    return new Point(MarkerB.x, Marker1.y);
   }
 
   if (short) {
-    return [MarkerD[0], Marker1[1]];
+    return new Point(MarkerD.x, Marker1.y);
   }
 
-  return [MarkerD[0], Marker3[1]];
+  return new Point(MarkerD.x, Marker3.y);
 };
 
 export type DivisiveOverrulingGameState = DarkAndLightGameState & {
@@ -96,7 +100,7 @@ const getDangerPuddles = (
           type: "line",
           angle: 0,
           onAnimationEnd: () => {},
-          source: [0.5, 1],
+          source: new Point(0.5, 1),
           width: 0.4,
           colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
         },
@@ -112,7 +116,7 @@ const getDangerPuddles = (
             type: "line",
             angle: 0,
             onAnimationEnd: () => {},
-            source: [0.15, 1],
+            source: new Point(0.15, 1),
             width: 0.3,
             colour: "purple",
           },
@@ -120,7 +124,7 @@ const getDangerPuddles = (
             type: "line",
             angle: 0,
             onAnimationEnd: () => {},
-            source: [0.85, 1],
+            source: new Point(0.85, 1),
             width: 0.3,
             colour: "purple",
           },
@@ -134,7 +138,7 @@ const getDangerPuddles = (
             type: "line",
             angle: 0,
             onAnimationEnd: () => {},
-            source: [0.5, 1],
+            source: new Point(0.5, 1),
             width: 0.6,
             colour: "yellow",
           },
@@ -155,7 +159,7 @@ export const DivisiveOverrulingState: GameLoop<
     otherPlayers: DarkAndLightPlayer[],
     isDead: boolean,
     gameState: DivisiveOverrulingGameState,
-    moveTo: (p: Position) => void
+    moveTo: (p: Point) => void
   ) => (
     <Arena
       player={player}
@@ -227,7 +231,7 @@ export const DivisiveOverrulingState: GameLoop<
   getSafeSpot: (
     gameState: DivisiveOverrulingGameState,
     player: DarkAndLightPlayer
-  ): Position => {
+  ): Point => {
     if (!gameState.bossColour) return getDefaultPos(player);
     if (gameState.stage === "Explosion1")
       return getSafeSpot1(player, gameState.bossColour);

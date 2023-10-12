@@ -1,9 +1,9 @@
-import { Position } from "..";
 import { useEffect, useId, useState } from "react";
 import { distanceTo } from "../gameState";
+import { Point } from "@flatten-js/core";
 
 export type DonutAoEProps = {
-  source: Position;
+  source: Point;
   innerRadius: number;
   outerRadius: number;
   colour?: string;
@@ -31,15 +31,15 @@ export const DonutAoE = (props: DonutAoEProps) => {
       <mask id={id}>
         <rect x="0" y="0" width="100" height="100" fill="white" />
         <circle
-          cx={props.source[0]}
-          cy={props.source[1]}
+          cx={props.source.x}
+          cy={props.source.y}
           r={props.innerRadius}
           fill="black"
         />
       </mask>
       <circle
-        cx={props.source[0]}
-        cy={props.source[1]}
+        cx={props.source.x}
+        cy={props.source.y}
         r={props.outerRadius}
         fill={props.colour ?? "orange"}
         opacity={opacity}
@@ -51,7 +51,7 @@ export const DonutAoE = (props: DonutAoEProps) => {
 
 export const isDonutSafe = (
   donut: DonutAoEProps,
-  position: Position
+  position: Point
 ): boolean => {
   const distanceToCentre = distanceTo(donut.source, position);
   return (

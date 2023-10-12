@@ -2,7 +2,6 @@
 
 import { PropsWithChildren, Ref, forwardRef } from "react";
 import arenaPng from "./assets/arena.png";
-import { Position } from "..";
 import { Athena } from "./Athena";
 import { getPosition } from "../htmlHelpers";
 import { Player, PlayerComponent } from "../Player";
@@ -10,13 +9,14 @@ import {
   DangerPuddles,
   DangerPuddlesDisplay,
 } from "../Mechanics/DangerPuddles";
+import { Point } from "@flatten-js/core";
 
 export const Arena = forwardRef(
   (
     props: PropsWithChildren<{
       player: Player;
       isDead: boolean;
-      moveTo: (p: Position) => void;
+      moveTo: (p: Point) => void;
       dangerPuddles: DangerPuddles;
     }>,
     ref: Ref<HTMLImageElement>
@@ -30,11 +30,13 @@ export const Arena = forwardRef(
           overflow: "hidden",
         }}
         onClick={(e) => {
-          const [xOff, yOff] = getPosition(e.currentTarget);
-          return props.moveTo([
-            (e.clientX - xOff) / e.currentTarget.offsetWidth,
-            (e.clientY - yOff) / e.currentTarget.offsetHeight,
-          ]);
+          const p = getPosition(e.currentTarget);
+          return props.moveTo(
+            new Point(
+              (e.clientX - p.x) / e.currentTarget.offsetWidth,
+              (e.clientY - p.y) / e.currentTarget.offsetHeight
+            )
+          );
         }}
       >
         <img src={arenaPng} height="100%"></img>

@@ -1,17 +1,18 @@
-import { InterCardinal, Position } from "../../gameState";
+import { Point } from "@flatten-js/core";
+import { InterCardinal } from "../../gameState";
 import bossPng from "../assets/boss.png";
 import { Ref, forwardRef } from "react";
 
-const addPosition = (inter: InterCardinal): Position => {
+const addPosition = (inter: InterCardinal): Point => {
   switch (inter) {
     case "North East":
-      return [0.875, 0.125];
+      return new Point(0.875, 0.125);
     case "South East":
-      return [0.875, 0.875];
+      return new Point(0.875, 0.875);
     case "South West":
-      return [0.125, 0.875];
+      return new Point(0.125, 0.875);
     case "North West":
-      return [0.125, 0.125];
+      return new Point(0.125, 0.125);
   }
 };
 
@@ -30,8 +31,8 @@ export const Add = forwardRef(
           width="15%"
           style={{
             position: "absolute",
-            left: `${pos[0] * 100}%`,
-            top: `${pos[1] * 100}%`,
+            left: `${pos.x * 100}%`,
+            top: `${pos.y * 100}%`,
             transform: "translate(-50%, -50%)",
           }}
         ></img>
@@ -40,8 +41,8 @@ export const Add = forwardRef(
           width="15%"
           style={{
             position: "absolute",
-            left: `${pos[0] * 100}%`,
-            top: `${pos[1] * 100}%`,
+            left: `${pos.x * 100}%`,
+            top: `${pos.y * 100}%`,
             transform: "translate(-50%, -50%)",
           }}
         >

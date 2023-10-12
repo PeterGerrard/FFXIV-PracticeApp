@@ -1,11 +1,6 @@
+import { Point } from "@flatten-js/core";
 import { Player } from "../../Player";
-import {
-  GameState,
-  Position,
-  Role,
-  distanceTo,
-  getRandomPos,
-} from "../../gameState";
+import { GameState, Role, distanceTo, getRandomPos } from "../../gameState";
 import {
   Marker1,
   Marker2,
@@ -64,7 +59,7 @@ export const createPartner = (
   };
 };
 
-export const getDefaultPos = (player: DarkAndLightPlayer): Position => {
+export const getDefaultPos = (player: DarkAndLightPlayer): Point => {
   if (player.role === "Healer" && player.tetherLength === "Short") {
     return MarkerB;
   }

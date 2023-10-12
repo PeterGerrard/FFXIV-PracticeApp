@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ConeAoE, ConeAoEProps, isConeSafe } from "./ConeAoE";
 import Slider from "@mui/material/Slider";
+import { Point } from "@flatten-js/core";
 
 export const ConeTest = () => {
   const [x, setX] = useState(0.5);
@@ -8,7 +9,7 @@ export const ConeTest = () => {
   const [angle, setAngle] = useState(45);
   const [width, setWidth] = useState(30);
   const cone: ConeAoEProps = {
-    source: [x, y],
+    source: new Point(x, y),
     angle: angle,
     onAnimationEnd: () => {},
     width: width,
@@ -73,7 +74,7 @@ export const ConeTest = () => {
                 cx={x}
                 cy={y}
                 r={0.01}
-                fill={isConeSafe(cone, [x, y]) ? "green" : "red"}
+                fill={isConeSafe(cone, new Point(x, y)) ? "green" : "red"}
               />
             </svg>
           ))

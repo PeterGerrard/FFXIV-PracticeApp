@@ -1,4 +1,4 @@
-import { InterCardinal, Position, rotation } from "../../../gameState";
+import { InterCardinal, rotation } from "../../../gameState";
 import { Add } from "../Add";
 import { Arena } from "../../P11SArena";
 import { LetterOfTheLawPlayer } from "../gameState";
@@ -6,25 +6,26 @@ import { DismissalOverrulingState, towerPos } from ".";
 import { LineAoE } from "../../../Mechanics/LineAoE";
 import { DangerPuddles } from "../../../Mechanics/DangerPuddles";
 import { Tower } from "../../Tower";
+import { Point } from "@flatten-js/core";
 
-const addLoc = (inter: InterCardinal, offset?: number): Position => {
+const addLoc = (inter: InterCardinal, offset?: number): Point => {
   const o = offset ? offset / Math.sqrt(2) : 0;
   switch (inter) {
     case "North East":
-      return [0.9 - o, 0.1 - o];
+      return new Point(0.9 - o, 0.1 - o);
     case "South East":
-      return [0.9 - o, 0.9 + o];
+      return new Point(0.9 - o, 0.9 + o);
     case "South West":
-      return [0.1 + o, 0.9 - o];
+      return new Point(0.1 + o, 0.9 - o);
     case "North West":
-      return [0.1 + o, 0.1 - o];
+      return new Point(0.1 + o, 0.1 - o);
   }
 };
 
 export const DismissalArena = (props: {
   player: LetterOfTheLawPlayer;
   isDead: boolean;
-  moveTo: (p: Position) => void;
+  moveTo: (p: Point) => void;
   gameState: DismissalOverrulingState;
   dangerPuddles: DangerPuddles;
   animationEnd: () => void;

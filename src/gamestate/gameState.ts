@@ -1,7 +1,7 @@
+import { Point } from "@flatten-js/core";
 import React from "react";
 
 export type Role = "Tank" | "Healer" | "DPS";
-export type Position = [number, number];
 export type ClockSpot = Cardinal | InterCardinal;
 export type Cardinal = "North" | "East" | "South" | "West";
 export type InterCardinal =
@@ -50,7 +50,7 @@ export type GameLoop<TPlayer, T> = {
     otherPlayers: TPlayer[],
     isDead: boolean,
     gameState: T,
-    moveTo: (p: Position) => void,
+    moveTo: (p: Point) => void,
     animationEnd: () => void
   ) => React.ReactElement;
   nextState: (gameState: T, player: TPlayer) => T;
@@ -59,17 +59,15 @@ export type GameLoop<TPlayer, T> = {
     gameState: T,
     player: TPlayer,
     otherPlayers: TPlayer[]
-  ) => Position;
+  ) => Point;
 };
 
-export const distanceTo = (source: Position, target: Position) =>
-  Math.sqrt(
-    Math.pow(target[0] - source[0], 2) + Math.pow(target[1] - source[1], 2)
-  );
+export const distanceTo = (source: Point, target: Point) =>
+  source.distanceTo(target)[0];
 
-export const getRandomPos = (): Position => {
-  const p: Position = [Math.random(), Math.random()];
-  if (distanceTo(p, [0.5, 0.5]) < 0.35) {
+export const getRandomPos = (): Point => {
+  const p: Point = new Point(Math.random(), Math.random());
+  if (distanceTo(p, new Point(0.5, 0.5)) < 0.35) {
     return p;
   }
   return getRandomPos();

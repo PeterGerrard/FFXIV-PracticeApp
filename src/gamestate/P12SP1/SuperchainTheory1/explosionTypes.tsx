@@ -1,11 +1,10 @@
-import { Position } from "../..";
 import circlePng from "./assets/circle.png";
 import donutPng from "./assets/donut.png";
 import proteanPng from "./assets/protean.png";
 import pairPng from "./assets/pair.png";
 import { DangerPuddle, DangerPuddles } from "../../Mechanics/DangerPuddles";
 import { Player } from "../../Player";
-import { getAngle, translateSub } from "../../helpers";
+import { Point, point, vector } from "@flatten-js/core";
 
 export type SuperchainExplosion = "Circle" | "Donut" | "Protean" | "Pair";
 
@@ -24,8 +23,8 @@ const getSrc = (e: SuperchainExplosion): string => {
 
 export const SuperchainExplosionDisplay = (props: {
   explosion: SuperchainExplosion;
-  position: Position;
-  target: Position;
+  position: Point;
+  target: Point;
 }): JSX.Element => {
   return (
     <>
@@ -40,10 +39,10 @@ export const SuperchainExplosionDisplay = (props: {
         viewBox="0 0 1 1"
       >
         <line
-          x1={props.position[0]}
-          y1={props.position[1]}
-          x2={props.target[0]}
-          y2={props.target[1]}
+          x1={props.position.x}
+          y1={props.position.y}
+          x2={props.target.x}
+          y2={props.target.y}
           stroke="green"
           strokeWidth={0.01}
         />
@@ -54,8 +53,8 @@ export const SuperchainExplosionDisplay = (props: {
         width="7.5%"
         style={{
           position: "absolute",
-          left: `${props.position[0] * 100}%`,
-          top: `${props.position[1] * 100}%`,
+          left: `${props.position.x * 100}%`,
+          top: `${props.position.y * 100}%`,
           transform: "translate(-50%, -50%)",
         }}
       />
@@ -65,7 +64,7 @@ export const SuperchainExplosionDisplay = (props: {
 
 const getDangerInfo = (
   explosion: SuperchainExplosion,
-  position: Position,
+  position: Point,
   players: Player[],
   animationEnd: () => void
 ): [DangerPuddle[], number] => {
@@ -101,7 +100,9 @@ const getDangerInfo = (
           type: "cone",
           source: position,
           onAnimationEnd: animationEnd,
-          angle: getAngle(translateSub(a.position, position)),
+          angle: vector(position, point(position.x, position.y + 1)).angleTo(
+            vector(position, a.position)
+          ),
           width: 30,
         })),
         1,
@@ -114,7 +115,9 @@ const getDangerInfo = (
             type: "cone",
             source: position,
             onAnimationEnd: animationEnd,
-            angle: getAngle(translateSub(a.position, position)),
+            angle: vector(position, point(position.x, position.y + 1)).angleTo(
+              vector(position, a.position)
+            ),
             width: 60,
           })),
         1,
@@ -124,7 +127,7 @@ const getDangerInfo = (
 
 export const getSuperChainDangerPuddles = (
   explosions: SuperchainExplosion[],
-  position: Position,
+  position: Point,
   players: Player[],
   animationEnd: () => void
 ): DangerPuddles => {

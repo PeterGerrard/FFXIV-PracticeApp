@@ -1,3 +1,4 @@
+import { Point, point, vector } from "@flatten-js/core";
 import { useGameState1 } from "../..";
 import {
   DangerPuddles,
@@ -5,14 +6,8 @@ import {
   survivePuddles,
 } from "../../Mechanics/DangerPuddles";
 import { Player, PlayerComponent } from "../../Player";
-import {
-  GameLoop,
-  GameState,
-  Position,
-  Role,
-  getRandomPos,
-} from "../../gameState";
-import { pickOne, scale, translate } from "../../helpers";
+import { GameLoop, GameState, Role, getRandomPos } from "../../gameState";
+import { pickOne } from "../../helpers";
 import { Arena } from "../P12SP1Arena";
 import {
   SuperchainExplosion,
@@ -29,7 +24,7 @@ export const superchainTheory1: GameLoop<
     otherPlayers: SuperchainTheory1Player[],
     isDead: boolean,
     gameState: SuperchainTheoryGameState,
-    moveTo: (p: Position) => void,
+    moveTo: (p: Point) => void,
     animationEnd: () => void
   ) => (
     <SuperchainTheory1Arena
@@ -44,59 +39,61 @@ export const superchainTheory1: GameLoop<
   getSafeSpot: (gameState, player) => {
     if (gameState.stage === "Initial" || gameState.stage === "Explosion1") {
       // TODO: melee, tank, healer, ranged on group side
-      let offset: Position;
-      if (gameState.initialExplosions[1] === "Protean") {
+      let offset: Point;
+      if (gameState.initialExplosions[0] === "Protean") {
         switch (player.name) {
           case "H1":
-            offset = [-0.05, -0.02];
+            offset = new Point(-0.05, -0.02);
             break;
           case "H2":
-            offset = [0.05, -0.02];
+            offset = new Point(0.05, -0.02);
             break;
           case "MT":
-            offset = [-0.05, 0.02];
+            offset = new Point(-0.05, 0.02);
             break;
           case "OT":
-            offset = [0.05, 0.02];
+            offset = new Point(0.05, 0.02);
             break;
           case "M1":
-            offset = [-0.02, 0.05];
+            offset = new Point(-0.02, 0.05);
             break;
           case "M2":
-            offset = [0.02, 0.05];
+            offset = new Point(0.02, 0.05);
             break;
           case "R1":
-            offset = [-0.02, -0.05];
+            offset = new Point(-0.02, -0.05);
             break;
           case "R2":
-            offset = [0.02, -0.05];
+            offset = new Point(0.02, -0.05);
             break;
         }
       } else {
         switch (player.name) {
           case "H1":
           case "R1":
-            offset = [-0.05, -0.05];
+            offset = new Point(-0.05, -0.05);
             break;
           case "H2":
           case "R2":
-            offset = [0.05, -0.05];
+            offset = new Point(0.05, -0.05);
             break;
           case "MT":
           case "M1":
-            offset = [-0.05, 0.05];
+            offset = new Point(-0.05, 0.05);
             break;
           case "OT":
           case "M2":
-            offset = [0.05, 0.05];
+            offset = new Point(0.05, 0.05);
             break;
         }
       }
       const scaleValue = gameState.initialExplosions[0] === "Donut" ? 1 : 4;
-      return translate(gameState.initialCorner, scale(offset, scaleValue));
+      return gameState.initialCorner.translate(
+        vector(point(), offset.scale(scaleValue, scaleValue))
+      );
     }
 
-    return [0.5, 0.5];
+    return new Point(0.5, 0.5);
   },
   isSafe: (gameState, player, otherPlayers) => {
     const dangerPuddles = getDangerPuddles(gameState, () => {}, [
@@ -128,12 +125,12 @@ type SuperchainTheoryGameState = GameState &
   (
     | {
         stage: "Initial";
-        initialCorner: Position;
+        initialCorner: Point;
         initialExplosions: [SuperchainExplosion, SuperchainExplosion];
       }
     | {
         stage: "Explosion1";
-        initialCorner: Position;
+        initialCorner: Point;
         initialExplosions: [SuperchainExplosion, SuperchainExplosion];
       }
   );
@@ -159,7 +156,7 @@ const SuperchainTheory1Arena = (props: {
   otherPlayers: SuperchainTheory1Player[];
   isDead: boolean;
   gameState: SuperchainTheoryGameState;
-  moveTo: (p: Position) => void;
+  moveTo: (p: Point) => void;
   animationEnd: () => void;
 }) => {
   return (
@@ -176,12 +173,12 @@ const SuperchainTheory1Arena = (props: {
         <>
           <SuperchainExplosionDisplay
             explosion={props.gameState.initialExplosions[0]}
-            position={translate(props.gameState.initialCorner, [-0.1, 0])}
+            position={props.gameState.initialCorner.translate(-0.1, 0)}
             target={props.gameState.initialCorner}
           />
           <SuperchainExplosionDisplay
             explosion={props.gameState.initialExplosions[1]}
-            position={translate(props.gameState.initialCorner, [0, -0.1])}
+            position={props.gameState.initialCorner.translate(0, -0.1)}
             target={props.gameState.initialCorner}
           />
         </>
@@ -228,10 +225,10 @@ export const SuperchainTheory1 = () => {
         hasFinished: false,
         stage: "Initial",
         initialCorner: pickOne([
-          [0.26, 0.26],
-          [0.74, 0.26],
-          [0.26, 0.74],
-          [0.74, 0.74],
+          new Point(0.26, 0.26),
+          new Point(0.74, 0.26),
+          new Point(0.26, 0.74),
+          new Point(0.74, 0.74),
         ]),
         initialExplosions: [
           pickOne(["Donut", "Circle"]),

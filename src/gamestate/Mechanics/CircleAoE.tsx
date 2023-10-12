@@ -1,9 +1,8 @@
-import { Position } from "..";
 import { useEffect, useState } from "react";
-import { distanceTo } from "../gameState";
+import { Circle, Point } from "@flatten-js/core";
 
 export type CircleAoEProps = {
-  source: Position;
+  source: Point;
   radius: number;
   colour?: string;
   onAnimationEnd: () => void;
@@ -11,6 +10,8 @@ export type CircleAoEProps = {
 
 export const CircleAoE = (props: CircleAoEProps) => {
   const [opacity, setOpacity] = useState(0);
+  var c = new Circle(new Point(props.source.x, props.source.y), props.radius);
+  console.log();
   useEffect(() => {
     setOpacity(0.4);
     setTimeout(props.onAnimationEnd, 1500);
@@ -25,22 +26,21 @@ export const CircleAoE = (props: CircleAoEProps) => {
         top: 0,
       }}
       viewBox="0 0 1 1"
-    >
-      <circle
-        cx={props.source[0]}
-        cy={props.source[1]}
-        r={props.radius}
-        fill={props.colour ?? "orange"}
-        opacity={opacity}
-      />
-    </svg>
+      dangerouslySetInnerHTML={{
+        __html: c.svg({
+          fill: props.colour ?? "orange",
+          fillOpacity: opacity,
+          strokeWidth: 0,
+        }),
+      }}
+    />
   );
 };
 
 export const isCircleSafe = (
   circle: CircleAoEProps,
-  position: Position
+  position: Point
 ): boolean => {
-  const distanceToCentre = distanceTo(circle.source, position);
-  return distanceToCentre > circle.radius;
+  var points = new Circle(circle.source, circle.radius).intersect(position);
+  return points.length == 0;
 };

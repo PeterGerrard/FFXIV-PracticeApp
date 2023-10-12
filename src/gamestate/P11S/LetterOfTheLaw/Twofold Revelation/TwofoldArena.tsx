@@ -1,6 +1,5 @@
 import { useRef, useState, useEffect } from "react";
 import Xarrow, { useXarrow } from "react-xarrows";
-import { Position } from "../../../gameState";
 import { Add } from "../Add";
 import { Arena } from "../../P11SArena";
 import { LetterOfTheLawPlayer } from "../gameState";
@@ -8,11 +7,12 @@ import Grow from "@mui/material/Grow";
 import { TwofoldRevelationState, towerPos } from ".";
 import { DangerPuddles } from "../../../Mechanics/DangerPuddles";
 import { Tower } from "../../Tower";
+import { Point } from "@flatten-js/core";
 
 export const TwofoldArena = (props: {
   player: LetterOfTheLawPlayer;
   isDead: boolean;
-  moveTo: (p: Position) => void;
+  moveTo: (p: Point) => void;
   gameState: TwofoldRevelationState;
   dangerPuddles: DangerPuddles;
   animationEnd: () => void;
@@ -80,8 +80,8 @@ export const TwofoldArena = (props: {
               width="55%"
               style={{
                 position: "absolute",
-                left: `${gameState.tankPosition[0] * 100}%`,
-                top: `${gameState.tankPosition[1] * 100}%`,
+                left: `${gameState.tankPosition.x * 100}%`,
+                top: `${gameState.tankPosition.y * 100}%`,
                 transform: "translate(-50%, -50%)",
               }}
             >
@@ -94,8 +94,8 @@ export const TwofoldArena = (props: {
               width="25%"
               style={{
                 position: "absolute",
-                left: `${gameState.nonTankPosition[0] * 100}%`,
-                top: `${gameState.nonTankPosition[1] * 100}%`,
+                left: `${gameState.nonTankPosition.x * 100}%`,
+                top: `${gameState.nonTankPosition.y * 100}%`,
                 transform: "translate(-50%, -50%)",
               }}
             >
@@ -117,8 +117,8 @@ export const TwofoldArena = (props: {
               width="100%"
               style={{
                 position: "absolute",
-                left: `${gameState.tankPosition[0] * 100}%`,
-                top: `${gameState.tankPosition[1] * 100}%`,
+                left: `${gameState.tankPosition.x * 100}%`,
+                top: `${gameState.tankPosition.y * 100}%`,
                 transform: "translate(-50%, -50%)",
               }}
             >
@@ -139,8 +139,8 @@ export const TwofoldArena = (props: {
               width="45%"
               style={{
                 position: "absolute",
-                left: `${gameState.nonTankPosition[0] * 100}%`,
-                top: `${gameState.nonTankPosition[1] * 100}%`,
+                left: `${gameState.nonTankPosition.x * 100}%`,
+                top: `${gameState.nonTankPosition.y * 100}%`,
                 transform: "translate(-50%, -50%)",
               }}
             >

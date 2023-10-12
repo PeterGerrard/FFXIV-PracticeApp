@@ -1,8 +1,8 @@
-import { Position } from "..";
+import { Point } from "@flatten-js/core";
 import { useEffect, useState } from "react";
 
 export type LineAoEProps = {
-  source: Position;
+  source: Point;
   angle: number;
   width: number;
   length?: number;
@@ -30,14 +30,14 @@ export const LineAoE = (props: LineAoEProps) => {
       <rect
         height={height}
         width={`${props.width}`}
-        x={props.source[0] - props.width / 2}
-        y={props.source[1]}
+        x={props.source.x - props.width / 2}
+        y={props.source.y}
         fill={props.colour ?? "orange"}
         style={{
           transitionDuration: "1500ms",
           transition: "height 1500ms",
           opacity: 0.4,
-          transformOrigin: `${props.source[0]}px ${props.source[1]}px`,
+          transformOrigin: `${props.source.x}px ${props.source.y}px`,
           transform: `rotate(${props.angle - 180}deg)`,
         }}
       />
@@ -45,23 +45,23 @@ export const LineAoE = (props: LineAoEProps) => {
   );
 };
 
-export const isLineSafe = (line: LineAoEProps, position: Position): boolean => {
+export const isLineSafe = (line: LineAoEProps, position: Point): boolean => {
   const w = line.width;
-  const [i, j] = line.source;
-  const [x, y] = position;
+  const [i, j] = [line.source.x, line.source.y];
+  const [x, y] = [position.x, position.y];
   const a = (Math.PI * (180 - line.angle)) / 180;
-  const adjustedPosition: Position = [
+  const adjustedPosition: Point = new Point(
     w / 2 -
       i * Math.cos(a) +
       x * Math.cos(a) +
       j * Math.sin(a) -
       y * Math.sin(a),
-    -j * Math.cos(a) + y * Math.cos(a) - i * Math.sin(a) + x * Math.sin(a),
-  ];
+    -j * Math.cos(a) + y * Math.cos(a) - i * Math.sin(a) + x * Math.sin(a)
+  );
   return (
-    adjustedPosition[0] < 0 ||
-    adjustedPosition[0] > w ||
-    adjustedPosition[1] < 0 ||
-    (line.length ? adjustedPosition[1] > line.length : false)
+    adjustedPosition.x < 0 ||
+    adjustedPosition.x > w ||
+    adjustedPosition.y < 0 ||
+    (line.length ? adjustedPosition.y > line.length : false)
   );
 };

@@ -1,7 +1,7 @@
-import { Position } from ".";
+import { Point } from "@flatten-js/core";
 
 // helper function to get an element's exact position
-export function getPosition(e: HTMLElement): Position {
+export function getPosition(e: HTMLElement): Point {
   let el: HTMLElement | null = e;
   var xPosition = 0;
   var yPosition = 0;
@@ -18,5 +18,5 @@ export function getPosition(e: HTMLElement): Position {
     }
     el = el.offsetParent as HTMLElement | null;
   }
-  return [xPosition, yPosition];
+  return new Point(xPosition, yPosition);
 }

@@ -1,4 +1,3 @@
-import { Position } from "../../..";
 import { Bombs } from "../../Bombs";
 import {
   DangerPuddle,
@@ -8,15 +7,16 @@ import {
 import { GameState, GameLoop } from "../../../gameState";
 import { Arena } from "../Arena";
 import { DarkAndLightPlayer, getDefaultPos } from "../gameState";
+import { Point } from "@flatten-js/core";
 
 const getSafeRevelationSpot = (
   player: DarkAndLightPlayer,
   bossColour: "Dark" | "Light",
   topBomb: "Dark" | "Light"
-): Position => {
+): Point => {
   if (bossColour === topBomb) {
-    const leftSafe: Position = [0.2, 0.5];
-    const rightSafe: Position = [0.8, 0.5];
+    const leftSafe = new Point(0.2, 0.5);
+    const rightSafe = new Point(0.8, 0.5);
     if (
       player.tetherLength === "Short" &&
       (player.role === "Healer" || player.tetheredRole === "Healer")
@@ -31,8 +31,8 @@ const getSafeRevelationSpot = (
     }
     return leftSafe;
   }
-  const topSafe: Position = [0.5, 0.2];
-  const bottomSafe: Position = [0.5, 0.8];
+  const topSafe = new Point(0.5, 0.2);
+  const bottomSafe = new Point(0.5, 0.8);
   if (player.role === "Healer") {
     return bottomSafe;
   }
@@ -56,16 +56,10 @@ const getDangerPuddles = (
   animationEnd?: () => void
 ): DangerPuddles => {
   if (gameState.cast && gameState.cast.value >= 100) {
-    const bombLocations: Position[] =
+    const bombLocations: Point[] =
       gameState.bossColour === gameState.topBomb
-        ? [
-            [0.5, 0.2],
-            [0.5, 0.8],
-          ]
-        : [
-            [0.2, 0.5],
-            [0.8, 0.5],
-          ];
+        ? [new Point(0.5, 0.2), new Point(0.5, 0.8)]
+        : [new Point(0.2, 0.5), new Point(0.8, 0.5)];
     return {
       puddles: bombLocations.map<DangerPuddle>((b, i) => ({
         type: "circle",
@@ -89,7 +83,7 @@ export const RevelationState: GameLoop<
     otherPlayers: DarkAndLightPlayer[],
     isDead: boolean,
     gameState: RevelationGameState,
-    moveTo: (p: Position) => void,
+    moveTo: (p: Point) => void,
     animationEnd: () => void
   ) => (
     <Arena
@@ -134,7 +128,7 @@ export const RevelationState: GameLoop<
   getSafeSpot: (
     gameState: RevelationGameState,
     player: DarkAndLightPlayer
-  ): Position => {
+  ): Point => {
     return gameState.bossColour === null ||
       gameState.cast === null ||
       gameState.cast.value < 100

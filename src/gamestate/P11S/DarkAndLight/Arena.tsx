@@ -6,12 +6,12 @@ import { ReactComponent as ForwardArrowSvg } from "./assets/forward-arrow.svg";
 import { ReactComponent as BackwardArrowSvg } from "./assets/backward-arrow.svg";
 
 import Xarrow from "react-xarrows";
-import { Position } from "../..";
 import { DarkAndLightPlayer, isTetherSafe } from "./gameState";
 import { PlayerComponent } from "../../Player";
 import {
   DangerPuddles,
 } from "../../Mechanics/DangerPuddles";
+import { Point } from "@flatten-js/core";
 
 const Tether = (props: {
   playerRef: React.MutableRefObject<unknown>;
@@ -68,7 +68,7 @@ export const Arena = (
     bossColour: "Dark" | "Light" | null;
     isDead: boolean;
     dangerPuddles: DangerPuddles;
-    moveTo: (p: Position) => void;
+    moveTo: (p: Point) => void;
   }>
 ) => {
   const playerRef = useRef<HTMLImageElement>(null);

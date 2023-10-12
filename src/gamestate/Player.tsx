@@ -3,11 +3,12 @@ import healerPng from "./assets/healer.png";
 import dpsPng from "./assets/dps.png";
 import tankPng from "./assets/tank.png";
 import skullPng from "./assets/Skull_and_Crossbones.png";
-import { Position, Role } from "./gameState";
+import { Role } from "./gameState";
+import { Point } from "@flatten-js/core";
 
 export type Player = {
   role: Role;
-  position: Position;
+  position: Point;
 };
 
 export const PlayerComponent = forwardRef(
@@ -26,8 +27,8 @@ export const PlayerComponent = forwardRef(
         }
         style={{
           position: "absolute",
-          left: `${props.player.position[0] * 100}%`,
-          top: `${props.player.position[1] * 100}%`,
+          left: `${props.player.position.x * 100}%`,
+          top: `${props.player.position.y * 100}%`,
           height: "80px",
           width: "80px",
           transform: "translate(-50%, -50%)",

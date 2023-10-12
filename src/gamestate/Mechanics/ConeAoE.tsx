@@ -1,9 +1,8 @@
-import { Position } from "..";
 import { useEffect, useState } from "react";
-import { getAngle } from "../helpers";
+import { Point, Polygon } from "@flatten-js/core";
 
 export type ConeAoEProps = {
-  source: Position;
+  source: Point;
   angle: number;
   width: number;
   colour?: string;
@@ -11,13 +10,18 @@ export type ConeAoEProps = {
 };
 
 export const ConeAoE = (props: ConeAoEProps) => {
-  const [height, setHeight] = useState(0);
+  const [height, setHeight] = useState(0.01);
   useEffect(() => {
     setHeight(5);
     setTimeout(props.onAnimationEnd, 1500);
   });
-  const a = (Math.PI * (180 - props.angle)) / 180;
-  const d2 = (Math.PI * props.width) / 360;
+  const c = new Polygon([
+    props.source,
+    props.source.translate(0, height),
+    props.source
+      .translate(0, height)
+      .rotate((Math.PI * props.width) / 180, props.source),
+  ]).rotate((Math.PI * props.angle) / 180, props.source);
   return (
     <svg
       height="100%"
@@ -28,50 +32,25 @@ export const ConeAoE = (props: ConeAoEProps) => {
         top: 0,
       }}
       viewBox="0 0 1 1"
-    >
-      <polygon
-        points={`${props.source[0]} ${props.source[1]} ${
-          props.source[0] +
-          height * Math.sin(a) * Math.cos(d2) -
-          height * Math.sin(d2) * Math.cos(a)
-        } ${
-          props.source[1] +
-          height * Math.sin(a) * Math.sin(d2) +
-          height * Math.cos(d2) * Math.cos(a)
-        } ${
-          props.source[0] +
-          height * Math.sin(a) * Math.cos(-d2) -
-          height * Math.sin(-d2) * Math.cos(a)
-        } ${
-          props.source[1] +
-          height * Math.sin(a) * Math.sin(-d2) +
-          height * Math.cos(-d2) * Math.cos(a)
-        }`}
-        fill={props.colour ?? "orange"}
-        opacity={0.4}
-      />
-    </svg>
+      dangerouslySetInnerHTML={{
+        __html: c.svg({
+          strokeWidth: 0,
+          fillOpacity: 0.4,
+          fill: props.colour ?? "orange",
+        }),
+      }}
+    />
   );
 };
 
-export const isConeSafe = (cone: ConeAoEProps, position: Position): boolean => {
-  const a = position[0] - cone.source[0];
-  const b = position[1] - cone.source[1];
-  const theta = getAngle([a, b]);
-  const lower = cone.angle - cone.width / 2;
-  const upper = cone.angle + cone.width / 2;
+export const isConeSafe = (cone: ConeAoEProps, position: Point): boolean => {
+  const c = new Polygon([
+    cone.source,
+    cone.source.translate(0, 5),
+    cone.source
+      .translate(0, 5)
+      .rotate((Math.PI * cone.width) / 180, cone.source),
+  ]).rotate((Math.PI * cone.angle) / 180, cone.source);
 
-  if (lower < 0) {
-    if (theta > lower + 360) {
-      return false;
-    }
-  }
-
-  if (upper >= 360) {
-    if (theta < upper - 360) {
-      return false;
-    }
-  }
-
-  return theta < lower || theta > upper;
+  return c.intersect(position).length === 0;
 };
