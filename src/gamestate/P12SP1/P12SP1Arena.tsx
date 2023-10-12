@@ -4,7 +4,7 @@ import { PropsWithChildren, Ref, forwardRef } from "react";
 import arenaPng from "./assets/arena.png";
 import { Athena } from "./Athena";
 import { getPosition } from "../htmlHelpers";
-import { Player, PlayerComponent } from "../Player";
+import { DesignatedPlayer, PlayerComponent } from "../Player";
 import {
   DangerPuddles,
   DangerPuddlesDisplay,
@@ -14,7 +14,7 @@ import { Point } from "@flatten-js/core";
 export const Arena = forwardRef(
   (
     props: PropsWithChildren<{
-      player: Player;
+      player: DesignatedPlayer;
       isDead: boolean;
       moveTo: (p: Point) => void;
       dangerPuddles: DangerPuddles;

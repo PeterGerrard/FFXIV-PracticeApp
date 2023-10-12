@@ -25,6 +25,7 @@ export const P12SP1Testing = () => {
       player={{
         role: "Tank",
         position: new Point(0.5, 0.5),
+        designation: "MT",
       }}
       isDead={false}
       moveTo={() => {}}
