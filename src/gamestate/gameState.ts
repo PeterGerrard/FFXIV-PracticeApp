@@ -3,6 +3,16 @@ import React from "react";
 
 export type Role = "Tank" | "Healer" | "DPS";
 export type Designation = "MT" | "OT" | "H1" | "H2" | "M1" | "M2" | "R1" | "R2";
+export const Designations: Designation[] = [
+  "MT",
+  "OT",
+  "H1",
+  "H2",
+  "M1",
+  "M2",
+  "R1",
+  "R2",
+];
 export type ClockSpot = Cardinal | InterCardinal;
 export type Cardinal = "North" | "East" | "South" | "West";
 export type InterCardinal =

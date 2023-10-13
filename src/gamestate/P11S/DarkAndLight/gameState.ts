@@ -39,6 +39,7 @@ export const createPlayer = (role: Role): DarkAndLightPlayer => {
     tetherLength: Math.random() <= 0.5 ? "Long" : "Short",
     tetheredRole:
       role === "DPS" ? (Math.random() <= 0.5 ? "Tank" : "Healer") : "DPS",
+    debuffs: [],
   };
 };
 
@@ -56,6 +57,7 @@ export const createPartner = (
         : "Dark",
     tetherLength: player.tetherLength,
     tetheredRole: player.role,
+    debuffs: [],
   };
 };
 

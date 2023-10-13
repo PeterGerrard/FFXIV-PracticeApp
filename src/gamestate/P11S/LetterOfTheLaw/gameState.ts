@@ -19,5 +19,6 @@ export const createPlayer = (
     position: getRandomPos(),
     clockSpot,
     isTethered: Math.random() < (role === "Tank" ? 0.5 : 1 / 6),
+    debuffs: [],
   };
 };

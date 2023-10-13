@@ -1,11 +1,7 @@
 import { Point, point, vector } from "@flatten-js/core";
 import { useGameState1 } from "../..";
-import {
-  DangerPuddle,
-  DangerPuddlesDisplay,
-  survivePuddles,
-} from "../../Mechanics/DangerPuddles";
-import { DesignatedPlayer, PlayerComponent } from "../../Player";
+import { DangerPuddle, survivePuddles } from "../../Mechanics/DangerPuddles";
+import { DesignatedPlayer } from "../../Player";
 import { GameLoop, GameState, Role, getRandomPos } from "../../gameState";
 import { pickOne } from "../../helpers";
 import { Arena } from "../P12SP1Arena";
@@ -15,6 +11,12 @@ import {
   SuperchainExplosionInOut,
   getSuperChainDangerPuddles,
 } from "./explosionTypes";
+import {
+  AoeDebuff,
+  LightDebuff,
+  RedLaserDebuff,
+  RedTowerDebuff,
+} from "../debuffs";
 
 export const superchainTheory1: GameLoop<
   SuperchainTheory1Player,
@@ -133,9 +135,7 @@ export const superchainTheory1: GameLoop<
   },
 };
 
-type SuperchainTheory1Player = DesignatedPlayer & {
-  show: boolean;
-};
+type SuperchainTheory1Player = DesignatedPlayer;
 
 type SuperchainTheoryGameState = GameState &
   (
@@ -212,8 +212,12 @@ const SuperchainTheory1Arena = (props: {
     <Arena
       player={props.player}
       isDead={props.isDead}
+      otherPlayers={props.otherPlayers}
       moveTo={props.moveTo}
-      dangerPuddles={[]}
+      dangerPuddles={getDangerPuddles(props.gameState, props.animationEnd, [
+        props.player,
+        ...props.otherPlayers,
+      ])}
     >
       {props.gameState.stage === "Initial" && (
         <>
@@ -245,19 +249,6 @@ const SuperchainTheory1Arena = (props: {
           />
         </>
       )}
-
-      <DangerPuddlesDisplay
-        puddles={getDangerPuddles(props.gameState, props.animationEnd, [
-          props.player,
-          ...props.otherPlayers,
-        ])}
-      />
-
-      {props.otherPlayers
-        .filter((p) => p.show)
-        .map((p, i) => (
-          <PlayerComponent key={i} player={p} isDead={false} />
-        ))}
     </Arena>
   );
 };
@@ -316,6 +307,7 @@ export const SuperchainTheory1 = () => {
         role: setup.role,
         show: true,
         designation: "H2",
+        debuffs: [RedLaserDebuff],
       },
       otherPlayers: rs
         .filter((_, j) => j !== i)
@@ -324,6 +316,7 @@ export const SuperchainTheory1 = () => {
           role: r[0],
           show: true,
           designation: r[1],
+          debuffs: [LightDebuff, r[0] === "DPS" ? AoeDebuff : RedTowerDebuff],
         })),
     };
   });
