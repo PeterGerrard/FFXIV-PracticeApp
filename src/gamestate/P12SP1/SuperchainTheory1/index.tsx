@@ -44,7 +44,10 @@ export const superchainTheory1: GameLoop<
     />
   ),
   getSafeSpot: (gameState, player) => {
-    if (gameState.stage === "Initial" || gameState.stage === "Explosion1") {
+    if (gameState.stage === "Inter1") {
+      return player.position;
+    }
+    if (gameState.stage === "Explosion1") {
       let offset: Point;
       if (gameState.initialExplosions[1] === "Protean") {
         switch (player.designation) {
@@ -247,7 +250,7 @@ const getDangerPuddles = (
         angle:
           redLaserTarget.position.distanceTo(point(0.5, 0.5))[0] < 0.00001
             ? 0
-            : vector(point(0.5, 0.5), point(0.5, 0)).angleTo(
+            : vector(point(0.5, 0.5), point(0.5, 1)).angleTo(
                 vector(point(0.5, 0.5), redLaserTarget.position)
               ),
         onAnimationEnd: animationEnd,
@@ -261,7 +264,7 @@ const getDangerPuddles = (
         angle:
           lightLaserTarget.position.distanceTo(point(0.5, 0.5))[0] < 0.00001
             ? 0
-            : vector(point(0.5, 0.5), point(0.5, 0)).angleTo(
+            : vector(point(0.5, 0.5), point(0.5, 1)).angleTo(
                 vector(point(0.5, 0.5), lightLaserTarget.position)
               ),
         onAnimationEnd: animationEnd,
