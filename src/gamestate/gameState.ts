@@ -51,27 +51,6 @@ export const getRole = (designation: Designation): Role => {
   }
 };
 
-export const getClockSpot = (designation: Designation): ClockSpot => {
-  switch (designation) {
-    case "MT":
-      return "North";
-    case "OT":
-      return "South";
-    case "H1":
-      return "West";
-    case "H2":
-      return "East";
-    case "M1":
-      return "North West";
-    case "M2":
-      return "North East";
-    case "R1":
-      return "South East";
-    case "R2":
-      return "South West";
-  }
-};
-
 export const getGroup = (designation: Designation): Group => {
   return ["R2", "H2", "M2", "OT"].includes(designation) ? "Group2" : "Group1";
 };

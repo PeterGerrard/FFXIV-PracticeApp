@@ -5,7 +5,6 @@ import {
   InterCardinal,
   InterCardinals,
   Setup,
-  getClockSpot,
   getRandomPos,
   getRole,
 } from "../../gameState";
@@ -37,7 +36,6 @@ export const startLetterOfTheLaw = (setup: Setup): LetterOfTheLawGame => {
     return {
       role: role,
       position: getRandomPos(),
-      clockSpot: getClockSpot(d),
       isTethered: d === tetheredTank || d === tetheredNonTank,
       debuffs: [],
       controlled: d === setup.designation,

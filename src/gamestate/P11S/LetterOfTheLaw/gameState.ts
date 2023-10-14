@@ -1,8 +1,7 @@
 import { Player } from "../../Player";
-import { ClockSpot, GameState } from "../../gameState";
+import { GameState } from "../../gameState";
 
 export type LetterOfTheLawPlayer = Player & {
-  clockSpot: ClockSpot;
   isTethered: boolean;
 };
 
