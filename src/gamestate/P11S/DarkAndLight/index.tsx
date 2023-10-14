@@ -74,8 +74,8 @@ export const startDarkAndLight = (setup: Setup): DarkAndLightState => {
       players: players,
     },
     next: [
-      [JuryOverrulingState, (_, s) => initialJuryOverrullingState(s.players)],
-      [DivisiveOverrulingState, (_, s) => initialDivisiveState(s.players)],
+      [JuryOverrulingState, (s) => initialJuryOverrullingState(s.players)],
+      [DivisiveOverrulingState, (s) => initialDivisiveState(s.players)],
     ],
     loop: 3,
   };

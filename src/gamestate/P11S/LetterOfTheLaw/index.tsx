@@ -1,7 +1,6 @@
 import { IterateGames3 } from "../..";
 import {
   Designations,
-  GameLoop,
   InterCardinal,
   InterCardinals,
   Setup,
@@ -70,10 +69,7 @@ export const startLetterOfTheLaw = (setup: Setup): LetterOfTheLawGame => {
     next: [
       [
         twofoldRevelation,
-        (
-          _g: GameLoop<LetterOfTheLawPlayer, HeartOfJudgementState>,
-          s: HeartOfJudgementState
-        ): TwofoldRevelationState => ({
+        (s: HeartOfJudgementState): TwofoldRevelationState => ({
           bossColour: null,
           cast: null,
           darkAddLocation: adds1[i],
@@ -84,10 +80,7 @@ export const startLetterOfTheLaw = (setup: Setup): LetterOfTheLawGame => {
       ],
       [
         dismissalOverruling,
-        (
-          _g: GameLoop<LetterOfTheLawPlayer, TwofoldRevelationState>,
-          s: TwofoldRevelationState
-        ): DismissalOverrulingState => ({
+        (s: TwofoldRevelationState): DismissalOverrulingState => ({
           stage: "Initial",
           cast: null,
           hasFinished: false,

@@ -18,7 +18,7 @@ type Game2<TPlayer, T1, T2> = {
   loop: 2;
   game: GameLoop<TPlayer, T1>;
   gameState: T1;
-  next: [[GameLoop<TPlayer, T2>, (g: GameLoop<TPlayer, T1>, s: T1) => T2]];
+  next: [[GameLoop<TPlayer, T2>, (s: T1) => T2]];
 };
 
 type Game3<TPlayer, T1, T2, T3> = {
@@ -26,8 +26,8 @@ type Game3<TPlayer, T1, T2, T3> = {
   game: GameLoop<TPlayer, T1>;
   gameState: T1;
   next: [
-    [GameLoop<TPlayer, T2>, (g: GameLoop<TPlayer, T1>, s: T1) => T2],
-    [GameLoop<TPlayer, T3>, (g: GameLoop<TPlayer, T2>, s: T2) => T3]
+    [GameLoop<TPlayer, T2>, (s: T1) => T2],
+    [GameLoop<TPlayer, T3>, (s: T2) => T3]
   ];
 };
 
@@ -37,8 +37,8 @@ type Game4<TPlayer, T1, T2, T3, T4> = {
   gameState: T1;
   next: [
     [GameLoop<TPlayer, T2>, T2],
-    [GameLoop<TPlayer, T3>, (g: GameLoop<TPlayer, T2>, s: T2) => T3],
-    [GameLoop<TPlayer, T4>, (g: GameLoop<TPlayer, T3>, s: T3) => T4]
+    [GameLoop<TPlayer, T3>, (s: T2) => T3],
+    [GameLoop<TPlayer, T4>, (s: T3) => T4]
   ];
 };
 
@@ -49,8 +49,8 @@ type Game5<TPlayer, T1, T2, T3, T4, T5> = {
   next: [
     [GameLoop<TPlayer, T2>, T2],
     [GameLoop<TPlayer, T3>, T3],
-    [GameLoop<TPlayer, T4>, (g: GameLoop<TPlayer, T3>, s: T3) => T4],
-    [GameLoop<TPlayer, T5>, (g: GameLoop<TPlayer, T4>, s: T4) => T5]
+    [GameLoop<TPlayer, T4>, (s: T3) => T4],
+    [GameLoop<TPlayer, T5>, (s: T4) => T5]
   ];
 };
 
@@ -87,7 +87,7 @@ export const stepGame2 = <
     const [x, ...ys] = game.next;
     const result: Game1<TPlayer, T1> = {
       game: x[0],
-      gameState: x[1](game.game, game.gameState),
+      gameState: x[1](game.gameState),
       next: ys,
       loop: 1,
     };
@@ -121,7 +121,7 @@ export const stepGame3 = <
     const [x, ...ys] = game.next;
     const result: Game2<TPlayer, T1, T2> = {
       game: x[0],
-      gameState: x[1](game.game, game.gameState),
+      gameState: x[1](game.gameState),
       next: ys,
       loop: 2,
     };
@@ -365,7 +365,12 @@ export const useGameState3 = <
   ] as const;
 };
 
-const arena = <TPlayer extends Player, T1 extends GameState<TPlayer>, T2 extends GameState<TPlayer>, T3 extends GameState<TPlayer>>(
+const arena = <
+  TPlayer extends Player,
+  T1 extends GameState<TPlayer>,
+  T2 extends GameState<TPlayer>,
+  T3 extends GameState<TPlayer>
+>(
   gameState: IterateGames3<TPlayer, T1, T2, T3>,
   moveTo: (p: Point) => void,
   animationEnd: () => void
@@ -374,20 +379,26 @@ const arena = <TPlayer extends Player, T1 extends GameState<TPlayer>, T2 extends
     case 1:
       return gameState.game.arena(
         gameState.gameState,
-        gameState.gameState.players.some(x => !x.alive) ? () => {} : moveTo,
-        gameState.gameState.players.some(x => !x.alive) ? () => {} : animationEnd
+        gameState.gameState.players.some((x) => !x.alive) ? () => {} : moveTo,
+        gameState.gameState.players.some((x) => !x.alive)
+          ? () => {}
+          : animationEnd
       );
     case 2:
       return gameState.game.arena(
         gameState.gameState,
-        gameState.gameState.players.some(x => !x.alive) ? () => {} : moveTo,
-        gameState.gameState.players.some(x => !x.alive) ? () => {} : animationEnd
+        gameState.gameState.players.some((x) => !x.alive) ? () => {} : moveTo,
+        gameState.gameState.players.some((x) => !x.alive)
+          ? () => {}
+          : animationEnd
       );
     case 3:
       return gameState.game.arena(
         gameState.gameState,
-        gameState.gameState.players.some(x => !x.alive) ? () => {} : moveTo,
-        gameState.gameState.players.some(x => !x.alive) ? () => {} : animationEnd
+        gameState.gameState.players.some((x) => !x.alive) ? () => {} : moveTo,
+        gameState.gameState.players.some((x) => !x.alive)
+          ? () => {}
+          : animationEnd
       );
   }
 };
