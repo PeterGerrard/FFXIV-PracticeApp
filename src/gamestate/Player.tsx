@@ -5,6 +5,7 @@ import { Point } from "@flatten-js/core";
 import { DesignationDisplay } from "./Designation";
 
 export type Debuff = {
+  name: string;
   src: string;
 };
 

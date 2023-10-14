@@ -9,7 +9,7 @@ import {
   getRandomPos,
   getRole,
 } from "../../gameState";
-import { pickOne } from "../../helpers";
+import { extractN, pickOne, shuffle, split } from "../../helpers";
 import { Arena } from "../P12SP1Arena";
 import {
   SuperchainExplosion,
@@ -17,6 +17,15 @@ import {
   SuperchainExplosionInOut,
   getSuperChainDangerPuddles,
 } from "./explosionTypes";
+import {
+  AoeDebuff,
+  LightDebuff,
+  LightLaserDebuff,
+  LightTowerDebuff,
+  RedDebuff,
+  RedLaserDebuff,
+  RedTowerDebuff,
+} from "../debuffs";
 
 export const superchainTheory1: GameLoop<
   SuperchainTheory1Player,
@@ -95,6 +104,17 @@ export const superchainTheory1: GameLoop<
         .rotate(rotAngle, gameState.initialCorner);
     }
 
+    if (gameState.stage === "Lasers") {
+      const left = player.debuffs.some(
+        (d) =>
+          d.name === "Red Laser" ||
+          d.name === "Light Tower" ||
+          d.name === "Light"
+      );
+      const p = gameState.secondCorners.filter(([_, e]) => e === "Donut")[0][0];
+      return p.rotate(left ? 0.2 : -0.2, point(0.5, 0.5));
+    }
+
     return new Point(0.5, 0.5);
   },
   applyDamage: (gameState) => {
@@ -120,15 +140,42 @@ export const superchainTheory1: GameLoop<
       };
     }
     if (s.stage === "Explosion1") {
+      const [aoes, others] = shuffle(
+        split(Designations, (d) => getRole(d) === "DPS")
+      );
+      const [lightAoes, redAoes] = extractN(aoes, 2);
+      const [lightTower, redTower, lightLaser, _] = shuffle(others);
+
       return {
         ...s,
         stage: "Inter1",
+        cast: {
+          name: "Engravement of Souls",
+          value: 100,
+        },
+        players: s.players.map((p) => ({
+          ...p,
+          debuffs: lightAoes.includes(p.designation)
+            ? [LightDebuff, AoeDebuff]
+            : redAoes.includes(p.designation)
+            ? [RedDebuff, AoeDebuff]
+            : [
+                p.designation === lightTower
+                  ? LightTowerDebuff
+                  : p.designation === redTower
+                  ? RedTowerDebuff
+                  : p.designation === lightLaser
+                  ? LightLaserDebuff
+                  : RedLaserDebuff,
+              ],
+        })),
       };
     }
     if (s.stage === "Inter1") {
       return {
         ...s,
         stage: "Lasers",
+        cast: null,
         hasFinished: true,
       };
     }
@@ -188,14 +235,56 @@ const getDangerPuddles = (
     );
   }
   if (gameState.stage === "Lasers") {
-    return gameState.secondCorners.flatMap((x, i) =>
-      getSuperChainDangerPuddles(
-        [x[1]],
-        x[0],
-        players,
-        i == 0 ? animationEnd : () => {}
+    const redLaserTarget = gameState.players.filter((p) =>
+      p.debuffs.some((d) => d.name === RedLaserDebuff.name)
+    )[0];
+    const lightLaserTarget = gameState.players.filter((p) =>
+      p.debuffs.some((d) => d.name === LightLaserDebuff.name)
+    )[0];
+    const lasers: DangerPuddle[] = [
+      {
+        type: "line",
+        angle:
+          redLaserTarget.position.distanceTo(point(0.5, 0.5))[0] < 0.00001
+            ? 0
+            : (180 *
+                vector(point(0.5, 0.5), point(0.5, 0)).angleTo(
+                  vector(point(0.5, 0.5), redLaserTarget.position)
+                )) /
+              Math.PI,
+        onAnimationEnd: animationEnd,
+        roleRequirement: null,
+        source: point(0.5, 0.5),
+        survivable: 1,
+        width: 0.1,
+      },
+      {
+        type: "line",
+        angle:
+          lightLaserTarget.position.distanceTo(point(0.5, 0.5))[0] < 0.00001
+            ? 0
+            : (180 *
+                vector(point(0.5, 0.5), point(0.5, 0)).angleTo(
+                  vector(point(0.5, 0.5), lightLaserTarget.position)
+                )) /
+              Math.PI,
+        onAnimationEnd: animationEnd,
+        roleRequirement: null,
+        source: point(0.5, 0.5),
+        survivable: 1,
+        width: 0.1,
+      },
+    ];
+    return gameState.secondCorners
+      .flatMap((x, i) =>
+        getSuperChainDangerPuddles(
+          [x[1]],
+          x[0],
+          players,
+          i == 0 ? animationEnd : () => {}
+        )
       )
-    );
+      .concat(lasers);
   }
 
   return [];
@@ -295,8 +384,6 @@ export const SuperchainTheory1 = () => {
           ],
         ],
       },
-      isDead: false,
-      isSafe: () => true,
       loop: 1,
       next: [],
     };

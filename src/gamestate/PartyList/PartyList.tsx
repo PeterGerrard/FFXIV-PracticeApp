@@ -12,6 +12,7 @@ export const PartyList = (props: { players: Player[] }) => {
       }}
     >
       <DesignationDisplay
+        key={p.designation}
         player={p}
         style={{
           height: "5rem",

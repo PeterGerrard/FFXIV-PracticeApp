@@ -2,6 +2,14 @@ export const pickOne = <T extends unknown>(items: T[]) => {
   return items[(items.length * Math.random()) | 0];
 };
 
+export const extractN = <T extends unknown>(
+  items: T[],
+  amount: number
+): [T[], T[]] => {
+  const s = shuffle(items);
+  return [s.slice(0, amount), s.slice(amount)];
+};
+
 export const split = <T extends unknown>(
   items: T[],
   predicate: (a: T) => boolean

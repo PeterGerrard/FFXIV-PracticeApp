@@ -62,7 +62,7 @@ export const stepGame1 = <TPlayer extends Player, T extends GameState<TPlayer>>(
   }
 
   const nextState = game.game.nextState(game.gameState);
-  const movedPlayers = game.gameState.players.map((p) => ({
+  const movedPlayers = nextState.players.map((p) => ({
     ...p,
     position: p.controlled ? p.position : game.game.getSafeSpot(nextState, p),
   }));
@@ -95,7 +95,7 @@ export const stepGame2 = <
   }
 
   const nextState = game.game.nextState(game.gameState);
-  const movedPlayers = game.gameState.players.map((p) => ({
+  const movedPlayers = nextState.players.map((p) => ({
     ...p,
     position: p.controlled ? p.position : game.game.getSafeSpot(nextState, p),
   }));
@@ -129,7 +129,7 @@ export const stepGame3 = <
   }
 
   const nextState = game.game.nextState(game.gameState);
-  const movedPlayers = game.gameState.players.map((p) => ({
+  const movedPlayers = nextState.players.map((p) => ({
     ...p,
     position: p.controlled ? p.position : game.game.getSafeSpot(nextState, p),
   }));
@@ -164,7 +164,7 @@ export const stepGame4 = <
   }
 
   const nextState = game.game.nextState(game.gameState);
-  const movedPlayers = game.gameState.players.map((p) => ({
+  const movedPlayers = nextState.players.map((p) => ({
     ...p,
     position: p.controlled ? p.position : game.game.getSafeSpot(nextState, p),
   }));
@@ -200,7 +200,7 @@ export const stepGame5 = <
   }
 
   const nextState = game.game.nextState(game.gameState);
-  const movedPlayers = game.gameState.players.map((p) => ({
+  const movedPlayers = nextState.players.map((p) => ({
     ...p,
     position: p.controlled ? p.position : game.game.getSafeSpot(nextState, p),
   }));
