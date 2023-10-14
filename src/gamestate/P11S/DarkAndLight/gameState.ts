@@ -1,6 +1,12 @@
 import { Point } from "@flatten-js/core";
 import { Player } from "../../Player";
-import { GameState, Role, distanceTo, getRandomPos } from "../../gameState";
+import {
+  Designation,
+  GameState,
+  distanceTo,
+  getRandomPos,
+  getRole,
+} from "../../gameState";
 import {
   Marker1,
   Marker2,
@@ -15,10 +21,10 @@ import {
 export type DarkAndLightPlayer = Player & {
   debuff: "Light" | "Dark";
   tetherLength: "Short" | "Long";
-  tetheredRole: Role;
+  tetheredDesignation: Designation;
 };
 
-export type DarkAndLightGameState = GameState & {
+export type DarkAndLightGameState = GameState<DarkAndLightPlayer> & {
   bossColour: "Dark" | "Light" | null;
 };
 
@@ -31,33 +37,24 @@ export const isTetherSafe = (
   return p1.debuff === p2.debuff ? d > 0.34 : d < 0.17;
 };
 
-export const createPlayer = (role: Role): DarkAndLightPlayer => {
+export const createPlayer = (
+  designation: Designation,
+  debuff: "Dark" | "Light",
+  targetDesignation: Designation,
+  targetDebuff: "Dark" | "Light",
+  controlled: boolean
+): DarkAndLightPlayer => {
+  const role = getRole(designation);
   return {
     role: role,
     position: getRandomPos(),
-    debuff: Math.random() <= 0.5 ? "Light" : "Dark",
-    tetherLength: Math.random() <= 0.5 ? "Long" : "Short",
-    tetheredRole:
-      role === "DPS" ? (Math.random() <= 0.5 ? "Tank" : "Healer") : "DPS",
+    debuff: debuff,
+    tetherLength: debuff == targetDebuff ? "Long" : "Short",
+    tetheredDesignation: targetDesignation,
     debuffs: [],
-  };
-};
-
-export const createPartner = (
-  player: DarkAndLightPlayer
-): DarkAndLightPlayer => {
-  return {
-    role: player.tetheredRole,
-    position: getRandomPos(),
-    debuff:
-      player.tetherLength === "Long"
-        ? player.debuff
-        : player.debuff === "Dark"
-        ? "Light"
-        : "Dark",
-    tetherLength: player.tetherLength,
-    tetheredRole: player.role,
-    debuffs: [],
+    controlled: controlled,
+    designation: designation,
+    alive: true,
   };
 };
 
@@ -74,16 +71,28 @@ export const getDefaultPos = (player: DarkAndLightPlayer): Point => {
   if (player.role === "Tank" && player.tetherLength === "Long") {
     return MarkerA;
   }
-  if (player.tetheredRole === "Tank" && player.tetherLength === "Short") {
+  if (
+    getRole(player.tetheredDesignation) === "Tank" &&
+    player.tetherLength === "Short"
+  ) {
     return Marker4;
   }
-  if (player.tetheredRole === "Tank" && player.tetherLength === "Long") {
+  if (
+    getRole(player.tetheredDesignation) === "Tank" &&
+    player.tetherLength === "Long"
+  ) {
     return Marker3;
   }
-  if (player.tetheredRole === "Healer" && player.tetherLength === "Short") {
+  if (
+    getRole(player.tetheredDesignation) === "Healer" &&
+    player.tetherLength === "Short"
+  ) {
     return Marker2;
   }
-  if (player.tetheredRole === "Healer" && player.tetherLength === "Long") {
+  if (
+    getRole(player.tetheredDesignation) === "Healer" &&
+    player.tetherLength === "Long"
+  ) {
     return Marker1;
   }
   throw "Something went wrong";

@@ -1,8 +1,14 @@
 import { Point, point, vector } from "@flatten-js/core";
 import { useGameState1 } from "../..";
 import { DangerPuddle, survivePuddles } from "../../Mechanics/DangerPuddles";
-import { DesignatedPlayer } from "../../Player";
-import { GameLoop, GameState, Role, getRandomPos } from "../../gameState";
+import { Player } from "../../Player";
+import {
+  Designations,
+  GameLoop,
+  GameState,
+  getRandomPos,
+  getRole,
+} from "../../gameState";
 import { pickOne } from "../../helpers";
 import { Arena } from "../P12SP1Arena";
 import {
@@ -11,29 +17,18 @@ import {
   SuperchainExplosionInOut,
   getSuperChainDangerPuddles,
 } from "./explosionTypes";
-import {
-  AoeDebuff,
-  LightDebuff,
-  RedLaserDebuff,
-  RedTowerDebuff,
-} from "../debuffs";
 
 export const superchainTheory1: GameLoop<
   SuperchainTheory1Player,
   SuperchainTheoryGameState
 > = {
   arena: (
-    player: SuperchainTheory1Player,
-    otherPlayers: SuperchainTheory1Player[],
-    isDead: boolean,
     gameState: SuperchainTheoryGameState,
     moveTo: (p: Point) => void,
     animationEnd: () => void
   ) => (
     <SuperchainTheory1Arena
-      player={player}
-      otherPlayers={otherPlayers}
-      isDead={isDead}
+      players={gameState.players}
       gameState={gameState}
       moveTo={moveTo}
       animationEnd={animationEnd}
@@ -102,14 +97,20 @@ export const superchainTheory1: GameLoop<
 
     return new Point(0.5, 0.5);
   },
-  isSafe: (gameState, player, otherPlayers) => {
-    const dangerPuddles = getDangerPuddles(gameState, () => {}, [
-      player,
-      ...otherPlayers,
-    ]);
-    if (!survivePuddles(dangerPuddles, player)) return false;
+  applyDamage: (gameState) => {
+    const dangerPuddles = getDangerPuddles(
+      gameState,
+      () => {},
+      gameState.players
+    );
 
-    return true;
+    return {
+      ...gameState,
+      players: gameState.players.map((p) => ({
+        ...p,
+        alive: survivePuddles(dangerPuddles, p),
+      })),
+    };
   },
   nextState: (s) => {
     if (s.stage === "Initial") {
@@ -135,9 +136,9 @@ export const superchainTheory1: GameLoop<
   },
 };
 
-type SuperchainTheory1Player = DesignatedPlayer;
+type SuperchainTheory1Player = Player;
 
-type SuperchainTheoryGameState = GameState &
+type SuperchainTheoryGameState = GameState<SuperchainTheory1Player> &
   (
     | {
         stage: "Initial";
@@ -201,23 +202,20 @@ const getDangerPuddles = (
 };
 
 const SuperchainTheory1Arena = (props: {
-  player: SuperchainTheory1Player;
-  otherPlayers: SuperchainTheory1Player[];
-  isDead: boolean;
+  players: SuperchainTheory1Player[];
   gameState: SuperchainTheoryGameState;
   moveTo: (p: Point) => void;
   animationEnd: () => void;
 }) => {
   return (
     <Arena
-      player={props.player}
-      isDead={props.isDead}
-      otherPlayers={props.otherPlayers}
+      players={props.players}
       moveTo={props.moveTo}
-      dangerPuddles={getDangerPuddles(props.gameState, props.animationEnd, [
-        props.player,
-        ...props.otherPlayers,
-      ])}
+      dangerPuddles={getDangerPuddles(
+        props.gameState,
+        props.animationEnd,
+        props.players
+      )}
     >
       {props.gameState.stage === "Initial" && (
         <>
@@ -258,17 +256,6 @@ export const SuperchainTheory1 = () => {
     SuperchainTheory1Player,
     SuperchainTheoryGameState
   >((setup) => {
-    const rs: [Role, SuperchainTheory1Player["designation"]][] = [
-      ["DPS", "M1"],
-      ["DPS", "M2"],
-      ["DPS", "R1"],
-      ["DPS", "R2"],
-      ["Healer", "H2"],
-      ["Healer", "H1"],
-      ["Tank", "MT"],
-      ["Tank", "OT"],
-    ];
-    const i = rs.findIndex((r) => r[0] === setup.role);
     const initialCorner = pickOne([
       new Point(0.26, 0.26),
       new Point(0.74, 0.26),
@@ -276,11 +263,21 @@ export const SuperchainTheory1 = () => {
       new Point(0.74, 0.74),
     ]);
     const j = pickOne([0, 1]);
+    const ps: SuperchainTheory1Player[] = Designations.map((d) => ({
+      position: getRandomPos(),
+      role: getRole(d),
+      show: true,
+      designation: d,
+      debuffs: [],
+      controlled: d === setup.designation,
+      alive: true,
+    }));
     return {
       game: superchainTheory1,
       gameState: {
         cast: null,
         hasFinished: false,
+        players: ps,
         stage: "Initial",
         initialCorner: initialCorner,
         initialExplosions: [
@@ -302,22 +299,6 @@ export const SuperchainTheory1 = () => {
       isSafe: () => true,
       loop: 1,
       next: [],
-      player: {
-        position: getRandomPos(),
-        role: setup.role,
-        show: true,
-        designation: "H2",
-        debuffs: [RedLaserDebuff],
-      },
-      otherPlayers: rs
-        .filter((_, j) => j !== i)
-        .map((r) => ({
-          position: getRandomPos(),
-          role: r[0],
-          show: true,
-          designation: r[1],
-          debuffs: [LightDebuff, r[0] === "DPS" ? AoeDebuff : RedTowerDebuff],
-        })),
     };
   });
 

@@ -1,8 +1,8 @@
 import { Bombs } from "../../Bombs";
 import { DangerPuddle, survivePuddles } from "../../../Mechanics/DangerPuddles";
-import { GameState, GameLoop } from "../../../gameState";
+import { GameState, GameLoop, getRole } from "../../../gameState";
 import { Arena } from "../Arena";
-import { DarkAndLightPlayer, getDefaultPos } from "../gameState";
+import { DarkAndLightPlayer, getDefaultPos, isTetherSafe } from "../gameState";
 import { Point } from "@flatten-js/core";
 
 const getSafeRevelationSpot = (
@@ -15,14 +15,18 @@ const getSafeRevelationSpot = (
     const rightSafe = new Point(0.8, 0.5);
     if (
       player.tetherLength === "Short" &&
-      (player.role === "Healer" || player.tetheredRole === "Healer")
+      (player.role === "Healer" ||
+        getRole(player.tetheredDesignation) === "Healer")
     ) {
       return rightSafe;
     }
     if (player.tetherLength === "Long" && player.role === "Tank") {
       return rightSafe;
     }
-    if (player.tetherLength === "Long" && player.tetheredRole === "Healer") {
+    if (
+      player.tetherLength === "Long" &&
+      getRole(player.tetheredDesignation) === "Healer"
+    ) {
       return rightSafe;
     }
     return leftSafe;
@@ -36,13 +40,17 @@ const getSafeRevelationSpot = (
     return topSafe;
   }
   if (player.tetherLength === "Long") {
-    return player.tetheredRole === "Healer" ? topSafe : bottomSafe;
+    return getRole(player.tetheredDesignation) === "Healer"
+      ? topSafe
+      : bottomSafe;
   } else {
-    return player.tetheredRole === "Healer" ? bottomSafe : topSafe;
+    return getRole(player.tetheredDesignation) === "Healer"
+      ? bottomSafe
+      : topSafe;
   }
 };
 
-export type RevelationGameState = GameState & {
+export type RevelationGameState = GameState<DarkAndLightPlayer> & {
   bossColour: "Dark" | "Light";
   topBomb: "Dark" | "Light";
 };
@@ -74,18 +82,13 @@ export const RevelationState: GameLoop<
   RevelationGameState
 > = {
   arena: (
-    player: DarkAndLightPlayer,
-    otherPlayers: DarkAndLightPlayer[],
-    isDead: boolean,
     gameState: RevelationGameState,
     moveTo: (p: Point) => void,
     animationEnd: () => void
   ) => (
     <Arena
-      player={player}
-      otherPlayer={otherPlayers[0]}
+      players={gameState.players}
       bossColour={gameState.cast ? gameState.bossColour : null}
-      isDead={isDead}
       dangerPuddles={getDangerPuddles(gameState, animationEnd)}
       moveTo={moveTo}
     >
@@ -116,9 +119,21 @@ export const RevelationState: GameLoop<
       hasFinished: true,
     };
   },
-  isSafe: (gameState: RevelationGameState, player: DarkAndLightPlayer) => {
-    const dangerPuddles = getDangerPuddles(gameState);
-    return survivePuddles(dangerPuddles, player);
+  applyDamage: (gameState: RevelationGameState): RevelationGameState => {
+    return {
+      ...gameState,
+      players: gameState.players.map((p) => ({
+        ...p,
+        alive:
+          survivePuddles(getDangerPuddles(gameState), p) &&
+          isTetherSafe(
+            p,
+            gameState.players.filter(
+              (o) => o.designation === p.tetheredDesignation
+            )[0]
+          ),
+      })),
+    };
   },
   getSafeSpot: (
     gameState: RevelationGameState,

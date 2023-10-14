@@ -1,13 +1,14 @@
 import { Point } from "@flatten-js/core";
 import { DangerPuddle, survivePuddles } from "../../../Mechanics/DangerPuddles";
-import { GameLoop } from "../../../gameState";
-import { Marker3, Marker1, MarkerB, MarkerD } from "../../p11sMarkers";
+import { GameLoop, getRole } from "../../../gameState";
 import { Arena } from "../Arena";
 import {
-  getDefaultPos,
   DarkAndLightPlayer,
   DarkAndLightGameState,
+  getDefaultPos,
+  isTetherSafe,
 } from "../gameState";
+import { Marker3, Marker1, MarkerB, MarkerD } from "../../p11sMarkers";
 
 const getSafeSpot1 = (
   player: DarkAndLightPlayer,
@@ -16,12 +17,19 @@ const getSafeSpot1 = (
   const short = player.tetherLength === "Short";
   const leftSafe = new Point(0.2, 0.5);
   const rightSafe = new Point(0.8, 0.5);
-  if (short && (player.role === "Healer" || player.tetheredRole === "Healer")) {
+  if (
+    short &&
+    (player.role === "Healer" ||
+      getRole(player.tetheredDesignation) === "Healer")
+  ) {
     return bossColour === "Light"
       ? rightSafe
       : new Point(rightSafe.x, Marker3.y);
   }
-  if (!short && (player.role === "Tank" || player.tetheredRole === "Healer")) {
+  if (
+    !short &&
+    (player.role === "Tank" || getRole(player.tetheredDesignation) === "Healer")
+  ) {
     return bossColour === "Light"
       ? rightSafe
       : new Point(rightSafe.x, Marker1.y);
@@ -40,17 +48,19 @@ const getSafeSpot2 = (
 ): Point => {
   const short = player.tetherLength === "Short";
   if (bossColour === "Light") {
-    const leftSafe = new Point(0.2, 0.5);
-    const rightSafe = new Point(0.8, 0.5);
+    const leftSafe = new Point(0.18, 0.5);
+    const rightSafe = new Point(0.82, 0.5);
     if (
       short &&
-      (player.role === "Healer" || player.tetheredRole === "Healer")
+      (player.role === "Healer" ||
+        getRole(player.tetheredDesignation) === "Healer")
     ) {
       return rightSafe;
     }
     if (
       !short &&
-      (player.role === "Tank" || player.tetheredRole === "Healer")
+      (player.role === "Tank" ||
+        getRole(player.tetheredDesignation) === "Healer")
     ) {
       return rightSafe;
     }
@@ -62,10 +72,17 @@ const getSafeSpot2 = (
     return leftSafe;
   }
 
-  if (short && (player.role === "Healer" || player.tetheredRole === "Healer")) {
+  if (
+    short &&
+    (player.role === "Healer" ||
+      getRole(player.tetheredDesignation) === "Healer")
+  ) {
     return new Point(MarkerB.x, Marker3.y);
   }
-  if (!short && (player.role === "Tank" || player.tetheredRole === "Healer")) {
+  if (
+    !short &&
+    (player.role === "Tank" || getRole(player.tetheredDesignation) === "Healer")
+  ) {
     return new Point(MarkerB.x, Marker1.y);
   }
 
@@ -80,12 +97,15 @@ export type DivisiveOverrulingGameState = DarkAndLightGameState & {
   stage: "Before" | "Explosion1" | "Explosion2";
 };
 
-export const initialDivisiveState: DivisiveOverrulingGameState = {
+export const initialDivisiveState = (
+  players: DarkAndLightPlayer[]
+): DivisiveOverrulingGameState => ({
   bossColour: null,
   cast: null,
+  players: players,
   hasFinished: false,
   stage: "Before",
-};
+});
 
 const getDangerPuddles = (
   gameState: DivisiveOverrulingGameState
@@ -151,18 +171,13 @@ export const DivisiveOverrulingState: GameLoop<
   DivisiveOverrulingGameState
 > = {
   arena: (
-    player: DarkAndLightPlayer,
-    otherPlayers: DarkAndLightPlayer[],
-    isDead: boolean,
     gameState: DivisiveOverrulingGameState,
     moveTo: (p: Point) => void
   ) => (
     <Arena
-      player={player}
-      otherPlayer={otherPlayers[0]}
+      players={gameState.players}
       bossColour={gameState.bossColour}
       dangerPuddles={getDangerPuddles(gameState)}
-      isDead={isDead}
       moveTo={moveTo}
     >
       {gameState.hasFinished && (
@@ -192,6 +207,7 @@ export const DivisiveOverrulingState: GameLoop<
           name: "Divisive Overruling",
           value: 50,
         },
+        players: gameState.players,
         stage: "Before",
         hasFinished: false,
       };
@@ -218,11 +234,23 @@ export const DivisiveOverrulingState: GameLoop<
       hasFinished: true,
     };
   },
-  isSafe: (
-    gameState: DivisiveOverrulingGameState,
-    player: DarkAndLightPlayer
-  ) => {
-    return survivePuddles(getDangerPuddles(gameState), player);
+  applyDamage: (
+    gameState: DivisiveOverrulingGameState
+  ): DivisiveOverrulingGameState => {
+    return {
+      ...gameState,
+      players: gameState.players.map((p) => ({
+        ...p,
+        alive:
+          survivePuddles(getDangerPuddles(gameState), p) &&
+          isTetherSafe(
+            p,
+            gameState.players.filter(
+              (o) => o.designation === p.tetheredDesignation
+            )[0]
+          ),
+      })),
+    };
   },
   getSafeSpot: (
     gameState: DivisiveOverrulingGameState,

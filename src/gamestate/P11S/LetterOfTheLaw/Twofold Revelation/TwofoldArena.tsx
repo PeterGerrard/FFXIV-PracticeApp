@@ -1,6 +1,4 @@
-import { useRef, useState, useEffect } from "react";
-import Xarrow, { useXarrow } from "react-xarrows";
-import { Add } from "../Add";
+import { Add, addPosition } from "../Add";
 import { Arena } from "../../P11SArena";
 import { LetterOfTheLawPlayer } from "../gameState";
 import Grow from "@mui/material/Grow";
@@ -10,28 +8,18 @@ import { Tower } from "../../Tower";
 import { Point } from "@flatten-js/core";
 
 export const TwofoldArena = (props: {
-  player: LetterOfTheLawPlayer;
-  isDead: boolean;
+  players: LetterOfTheLawPlayer[];
   moveTo: (p: Point) => void;
   gameState: TwofoldRevelationState;
   dangerPuddles: DangerPuddle[];
   animationEnd: () => void;
 }) => {
-  const { animationEnd, gameState, isDead, moveTo, player } = props;
-  const updateXarrow = useXarrow();
-  const playerRef = useRef<HTMLImageElement>(null);
-  const addRef = useRef<HTMLImageElement>(null);
-
-  const [moved, setMoved] = useState(0);
-  useEffect(() => updateXarrow(), [moved, player, gameState]);
+  const { animationEnd, gameState, moveTo, players } = props;
 
   return (
     <Arena
-      ref={playerRef}
-      player={player}
-      isDead={isDead}
+      players={players}
       moveTo={(p) => {
-        setMoved((x) => x + 1);
         moveTo(p);
       }}
       dangerPuddles={props.dangerPuddles}
@@ -41,34 +29,45 @@ export const TwofoldArena = (props: {
       <Tower position={towerPos("South East")} />
       <Tower position={towerPos("North West")} />
       <Tower position={towerPos("South West")} />
-      {(!gameState.cast || gameState.stage === "Inner") && (
+      {!gameState.cast && (
         <>
-          <Add
-            ref={player.role === "Tank" ? addRef : null}
-            inter={gameState.darkAddLocation}
-            colour="Dark"
-          />
-          <Add
-            ref={player.role !== "Tank" ? addRef : null}
-            inter={gameState.lightAddLocation}
-            colour="Light"
-          />
+          <Add inter={gameState.darkAddLocation} colour="Dark" />
+          <Add inter={gameState.lightAddLocation} colour="Light" />
         </>
       )}
-      {(!gameState.cast || gameState.stage === "Inner") &&
-        player.isTethered && (
-          <Xarrow
-            start={playerRef}
-            end={addRef}
-            showHead={false}
-            endAnchor="middle"
-            startAnchor="middle"
-            showTail={false}
-            path="straight"
-          />
-        )}
+      {!gameState.cast &&
+        gameState.players
+          .filter((x) => x.isTethered)
+          .map((p) => {
+            const addPos = addPosition(
+              p.role === "Tank"
+                ? gameState.darkAddLocation
+                : gameState.lightAddLocation
+            );
+            return (
+              <svg
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  height: "100%",
+                  width: "100%",
+                }}
+                viewBox="0 0 1 1"
+              >
+                <line
+                  x1={p.position.x}
+                  y1={p.position.y}
+                  x2={addPos.x}
+                  y2={addPos.y}
+                  stroke="blue"
+                  strokeWidth={0.02}
+                />
+              </svg>
+            );
+          })}
 
-      {gameState.cast && gameState.stage === "Inner" && (
+      {gameState.cast && gameState.stage === "Jump" && (
         <>
           <Grow
             in={gameState.cast.value >= 100}
@@ -80,8 +79,16 @@ export const TwofoldArena = (props: {
               width="55%"
               style={{
                 position: "absolute",
-                left: `${gameState.tankPosition.x * 100}%`,
-                top: `${gameState.tankPosition.y * 100}%`,
+                left: `${
+                  gameState.players.filter(
+                    (p) => p.isTethered && p.role === "Tank"
+                  )[0].position.x * 100
+                }%`,
+                top: `${
+                  gameState.players.filter(
+                    (p) => p.isTethered && p.role === "Tank"
+                  )[0].position.y * 100
+                }%`,
                 transform: "translate(-50%, -50%)",
               }}
             >
@@ -94,8 +101,16 @@ export const TwofoldArena = (props: {
               width="25%"
               style={{
                 position: "absolute",
-                left: `${gameState.nonTankPosition.x * 100}%`,
-                top: `${gameState.nonTankPosition.y * 100}%`,
+                left: `${
+                  gameState.players.filter(
+                    (p) => p.isTethered && p.role !== "Tank"
+                  )[0].position.x * 100
+                }%`,
+                top: `${
+                  gameState.players.filter(
+                    (p) => p.isTethered && p.role !== "Tank"
+                  )[0].position.y * 100
+                }%`,
                 transform: "translate(-50%, -50%)",
               }}
             >

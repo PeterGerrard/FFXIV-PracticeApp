@@ -1,5 +1,6 @@
 import { IterateGames3 } from "../..";
-import { Setup } from "../../gameState";
+import { Designations, Setup, getRole } from "../../gameState";
+import { pickOne, shuffle } from "../../helpers";
 import {
   DivisiveOverrulingGameState,
   DivisiveOverrulingState,
@@ -14,12 +15,7 @@ import {
   RevelationGameState,
   RevelationState,
 } from "./Revelation/revelationsState";
-import {
-  DarkAndLightPlayer,
-  createPartner,
-  createPlayer,
-  isTetherSafe,
-} from "./gameState";
+import { DarkAndLightPlayer, createPlayer } from "./gameState";
 
 export type DarkAndLightState = IterateGames3<
   DarkAndLightPlayer,
@@ -29,23 +25,57 @@ export type DarkAndLightState = IterateGames3<
 >;
 
 export const startDarkAndLight = (setup: Setup): DarkAndLightState => {
-  const player = createPlayer(setup.role);
-  const otherPlayer = createPartner(player);
+  let dps = Designations.filter((d) => getRole(d) === "DPS");
+  let tanks = Designations.filter((d) => getRole(d) === "Tank");
+  let healers = Designations.filter((d) => getRole(d) === "Healer");
+
+  dps = shuffle(dps);
+  healers = shuffle(healers);
+  tanks = shuffle(tanks);
+  const debuffPairs: ["Dark" | "Light", "Dark" | "Light"][] = [
+    ["Dark", "Dark"],
+    ["Light", "Light"],
+    ["Dark", "Light"],
+    ["Light", "Dark"],
+  ];
+  const prio = pickOne(["Tank", "Healer"]);
+  const soups = [0, 1].flatMap((i) =>
+    prio === "Tank" ? [tanks[i], healers[i]] : [healers[i], tanks[i]]
+  );
+
+  const players = [0, 1, 2, 3].flatMap((i) => {
+    const d = dps[i];
+    const s = soups[i];
+    return [
+      createPlayer(
+        d,
+        debuffPairs[i][0],
+        s,
+        debuffPairs[i][1],
+        d === setup.designation
+      ),
+      createPlayer(
+        s,
+        debuffPairs[i][1],
+        d,
+        debuffPairs[i][0],
+        s === setup.designation
+      ),
+    ];
+  });
+
   return {
-    player,
-    otherPlayers: [otherPlayer],
     game: RevelationState,
     gameState: {
       hasFinished: false,
       bossColour: Math.random() < 0.5 ? "Dark" : "Light",
       topBomb: Math.random() < 0.5 ? "Dark" : "Light",
       cast: null,
+      players: players,
     },
-    isSafe: (p, ps) => isTetherSafe(p, ps[0]),
-    isDead: false,
     next: [
-      [JuryOverrulingState, () => initialJuryOverrullingState],
-      [DivisiveOverrulingState, initialDivisiveState],
+      [JuryOverrulingState, (_, s) => initialJuryOverrullingState(s.players)],
+      [DivisiveOverrulingState, (_, s) => initialDivisiveState(s.players)],
     ],
     loop: 3,
   };

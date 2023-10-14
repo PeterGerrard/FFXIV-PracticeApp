@@ -1,6 +1,6 @@
 import { Point } from "@flatten-js/core";
 import { DangerPuddle, survivePuddles } from "../../../Mechanics/DangerPuddles";
-import { GameLoop } from "../../../gameState";
+import { GameLoop, getRole } from "../../../gameState";
 import {
   MarkerC,
   MarkerA,
@@ -13,9 +13,10 @@ import {
 } from "../../p11sMarkers";
 import { Arena } from "../Arena";
 import {
-  getDefaultPos,
   DarkAndLightPlayer,
   DarkAndLightGameState,
+  getDefaultPos,
+  isTetherSafe,
 } from "../gameState";
 
 const getSafeSpot = (
@@ -26,15 +27,22 @@ const getSafeSpot = (
   if (bossColour === "Dark") {
     if (
       short &&
-      (player.role === "Healer" || player.tetheredRole === "Healer")
+      (player.role === "Healer" ||
+        getRole(player.tetheredDesignation) === "Healer")
     ) {
       return MarkerC;
     }
-    if (short && (player.role === "Tank" || player.tetheredRole === "Tank")) {
+    if (
+      short &&
+      (player.role === "Tank" || getRole(player.tetheredDesignation) === "Tank")
+    ) {
       return MarkerA;
     }
 
-    if (player.role === "Tank" || player.tetheredRole === "Healer") {
+    if (
+      player.role === "Tank" ||
+      getRole(player.tetheredDesignation) === "Healer"
+    ) {
       return Marker1;
     }
     return Marker3;
@@ -43,13 +51,15 @@ const getSafeSpot = (
     const rightSafe = new Point(0.8, 0.5);
     if (
       short &&
-      (player.role === "Healer" || player.tetheredRole === "Healer")
+      (player.role === "Healer" ||
+        getRole(player.tetheredDesignation) === "Healer")
     ) {
       return rightSafe;
     }
     if (
       !short &&
-      (player.role === "Tank" || player.tetheredRole === "Healer")
+      (player.role === "Tank" ||
+        getRole(player.tetheredDesignation) === "Healer")
     ) {
       return rightSafe;
     }
@@ -62,12 +72,15 @@ export type JuryOverrulingGameState = DarkAndLightGameState & {
   explosions: "Before" | "Lines" | "Move" | "AOE";
 };
 
-export const initialJuryOverrullingState: JuryOverrulingGameState = {
+export const initialJuryOverrullingState = (
+  players: DarkAndLightPlayer[]
+): JuryOverrulingGameState => ({
   bossColour: null,
   cast: null,
+  players: players,
   explosions: "Before",
   hasFinished: false,
-};
+});
 
 const getDangerPuddles = (
   gameState: JuryOverrulingGameState,
@@ -126,18 +139,13 @@ export const JuryOverrulingState: GameLoop<
   JuryOverrulingGameState
 > = {
   arena: (
-    player: DarkAndLightPlayer,
-    otherPlayers: DarkAndLightPlayer[],
-    isDead: boolean,
     gameState: JuryOverrulingGameState,
     moveTo: (p: Point) => void,
     animationEnd: () => void
   ) => (
     <Arena
-      player={player}
-      otherPlayer={otherPlayers[0]}
+      players={gameState.players}
       bossColour={gameState.bossColour}
-      isDead={isDead}
       dangerPuddles={getDangerPuddles(gameState, animationEnd)}
       moveTo={moveTo}
     />
@@ -150,6 +158,7 @@ export const JuryOverrulingState: GameLoop<
           name: "Jury Overruling",
           value: 100,
         },
+        players: gameState.players,
         explosions: "Lines",
         hasFinished: false,
       };
@@ -172,11 +181,22 @@ export const JuryOverrulingState: GameLoop<
       hasFinished: true,
     };
   },
-  isSafe: (gameState: JuryOverrulingGameState, player: DarkAndLightPlayer) => {
-    const dangerPuddles = getDangerPuddles(gameState);
-    return survivePuddles(dangerPuddles, player);
+  applyDamage: (
+    gameState: JuryOverrulingGameState
+  ): JuryOverrulingGameState => {
+    return {
+      ...gameState,
+      players: gameState.players.map((p) => ({
+        ...p,
+        alive:
+          survivePuddles(getDangerPuddles(gameState), p) &&
+          isTetherSafe(
+            p,
+            gameState.players.filter(o => o.designation === p.tetheredDesignation)[0]
+          ),
+      })),
+    };
   },
-
   getSafeSpot: (
     gameState: JuryOverrulingGameState,
     player: DarkAndLightPlayer

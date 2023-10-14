@@ -1,8 +1,8 @@
 import { CSSProperties } from "react";
-import { DesignatedPlayer } from "./Player";
+import { Player } from "./Player";
 
 export const DesignationDisplay = (props: {
-  player: DesignatedPlayer;
+  player: Player;
   style: CSSProperties;
 }) => {
   return (

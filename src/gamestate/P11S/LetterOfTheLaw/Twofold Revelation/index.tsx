@@ -1,5 +1,5 @@
-import { Point } from "@flatten-js/core";
-import { InterCardinal, distanceTo, Cast, GameLoop } from "../../../gameState";
+import { Point, point } from "@flatten-js/core";
+import { InterCardinal, Cast, GameLoop, distanceTo } from "../../../gameState";
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
 import { TwofoldArena } from "./TwofoldArena";
 
@@ -10,15 +10,12 @@ export type TwofoldRevelationState = LetterOfTheLawState & {
         cast: null;
         darkAddLocation: InterCardinal;
         lightAddLocation: InterCardinal;
-        nonTankPosition: Point;
       }
     | {
         darkAddLocation: InterCardinal;
         lightAddLocation: InterCardinal;
         cast: Cast;
-        tankPosition: Point;
-        nonTankPosition: Point;
-        stage: "Inner";
+        stage: "Jump";
       }
     | {
         cast: Cast;
@@ -45,58 +42,99 @@ export const twofoldRevelation: GameLoop<
   LetterOfTheLawPlayer,
   TwofoldRevelationState
 > = {
-  arena: (player, _, isDead, gameState, moveTo, animationEnd) => (
+  arena: (gameState, moveTo, animationEnd) => (
     <TwofoldArena
       animationEnd={animationEnd}
       gameState={gameState}
-      isDead={isDead}
       moveTo={moveTo}
       dangerPuddles={[]}
-      player={player}
+      players={gameState.players}
     />
   ),
   getSafeSpot: (
     gameState: TwofoldRevelationState,
     player: LetterOfTheLawPlayer
   ) => {
-    if (gameState.cast && gameState.stage === "Inner") {
+    if (
+      gameState.cast &&
+      (gameState.stage === "Jump" || gameState.stage === "Space1")
+    ) {
+      if (player.isTethered && player.role === "Tank") {
+        return new Point(0.5, 0.5);
+      } else {
+        return gameState.players.filter(
+          (x) => x.isTethered && x.role !== "Tank"
+        )[0].position;
+      }
+    }
+    if (gameState.cast) {
       return new Point(0.55, 0.45);
     }
     if (player.isTethered && player.role === "Tank") {
       return new Point(0.5, 0.5);
     } else {
-      return gameState.cast === null
-        ? gameState.nonTankPosition
-        : new Point(0.4, 0.8);
+      return gameState.cast === null ? point() : new Point(0.4, 0.8);
     }
   },
-  isSafe: (gameState: TwofoldRevelationState, player: LetterOfTheLawPlayer) => {
+  applyDamage: (gameState: TwofoldRevelationState): TwofoldRevelationState => {
     if (
       !gameState.cast ||
       gameState.cast.value < 100 ||
       gameState.stage === "Space1"
     ) {
-      return true;
+      return gameState;
     }
-    if (gameState.stage === "Inner") {
-      if (player.isTethered && player.role === "Tank") {
-        return player.position.y <= 0.55;
-      } else {
-        return (
-          distanceTo(player.position, gameState.tankPosition) > 0.275 &&
-          distanceTo(player.position, gameState.nonTankPosition) < 0.25
-        );
-      }
+    if (gameState.stage === "Jump") {
+      return {
+        ...gameState,
+        players: gameState.players.map((p) => {
+          let alive = true;
+          if (p.isTethered && p.role === "Tank") {
+            alive =
+              distanceTo(
+                p.position,
+                gameState.players.filter(
+                  (x) => x.isTethered && x.role !== "Tank"
+                )[0].position
+              ) > 0.25;
+          } else {
+            alive =
+              distanceTo(
+                p.position,
+                gameState.players.filter(
+                  (x) => x.isTethered && x.role === "Tank"
+                )[0].position
+              ) > 0.275 &&
+              distanceTo(
+                p.position,
+                gameState.players.filter(
+                  (x) => x.isTethered && x.role !== "Tank"
+                )[0].position
+              ) < 0.15;
+          }
+          return {
+            ...p,
+            alive: alive,
+          };
+        }),
+      };
     }
     if (gameState.stage === "Outer") {
-      return (
-        distanceTo(player.position, gameState.tankPosition) < 0.175 &&
-        distanceTo(player.position, gameState.nonTankPosition) > 0.225
-      );
+      return {
+        ...gameState,
+        players: gameState.players.map((p) => {
+          return {
+            ...p,
+            alive:
+              distanceTo(p.position, gameState.tankPosition) < 0.175 &&
+              distanceTo(p.position, gameState.nonTankPosition) > 0.225,
+          };
+        }),
+      };
     }
-    return true;
+    return gameState;
   },
-  nextState: (s, player): TwofoldRevelationState => {
+  nextState: (s): TwofoldRevelationState => {
     if (!s.cast) {
       return {
         ...s,
@@ -104,18 +142,18 @@ export const twofoldRevelation: GameLoop<
           name: "Twofold Revelation",
           value: 100,
         },
-        tankPosition:
-          player.isTethered && player.role === "Tank"
-            ? player.position
-            : new Point(0.5, 0.5),
-        nonTankPosition: s.nonTankPosition,
-        stage: "Inner",
-        hasFinished: false,
+        stage: "Jump",
       };
     }
-    if (s.stage === "Inner") {
+    if (s.stage === "Jump") {
       return {
         ...s,
+        tankPosition: s.players.filter(
+          (x) => x.role === "Tank" && x.isTethered
+        )[0].position,
+        nonTankPosition: s.players.filter(
+          (x) => x.role !== "Tank" && x.isTethered
+        )[0].position,
         stage: "Space1",
       };
     }

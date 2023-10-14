@@ -1,6 +1,4 @@
-import { useRef, useState, useEffect } from "react";
-import Xarrow, { useXarrow } from "react-xarrows";
-import { Add } from "../Add";
+import { Add, addPosition } from "../Add";
 import { Arena } from "../../P11SArena";
 import { LetterOfTheLawPlayer } from "../gameState";
 import { rotation } from "../../../gameState";
@@ -10,16 +8,11 @@ import { Bombs } from "../../Bombs";
 import { Point } from "@flatten-js/core";
 
 export const HeartArena = (props: {
-  player: LetterOfTheLawPlayer;
-  isDead: boolean;
+  players: LetterOfTheLawPlayer[];
   moveTo: (p: Point) => void;
   gameState: HeartOfJudgementState;
   dangerPuddles: DangerPuddle[];
-  animationEnd: () => void;
 }) => {
-  const updateXarrow = useXarrow();
-  const playerRef = useRef<HTMLImageElement>(null);
-  const addRef = useRef<HTMLImageElement>(null);
   const innerBox =
     props.gameState.bossColour === "Dark"
       ? props.gameState.darkBoxLocation
@@ -29,41 +22,45 @@ export const HeartArena = (props: {
       ? props.gameState.lightBoxLocation
       : props.gameState.darkBoxLocation;
 
-  const [moved, setMoved] = useState(0);
-  useEffect(() => updateXarrow(), [moved, props.player, props.gameState]);
   return (
     <Arena
-      ref={playerRef}
-      player={props.player}
-      isDead={props.isDead}
-      moveTo={(p) => {
-        setMoved((x) => x + 1);
-        props.moveTo(p);
-      }}
+      players={props.players}
+      moveTo={props.moveTo}
       dangerPuddles={props.dangerPuddles}
       bossColour={props.gameState.bossColour}
     >
-      <Add
-        ref={props.player.role === "Tank" ? addRef : null}
-        inter={props.gameState.darkAddLocation}
-        colour="Dark"
-      />
-      <Add
-        ref={props.player.role !== "Tank" ? addRef : null}
-        inter={props.gameState.lightAddLocation}
-        colour="Light"
-      />
-      {props.player.isTethered && (
-        <Xarrow
-          start={playerRef}
-          end={addRef}
-          showHead={false}
-          endAnchor="middle"
-          startAnchor="middle"
-          showTail={false}
-          path="straight"
-        />
-      )}
+      <Add inter={props.gameState.darkAddLocation} colour="Dark" />
+      <Add inter={props.gameState.lightAddLocation} colour="Light" />
+      {props.players
+        .filter((x) => x.isTethered)
+        .map((p) => {
+          const addPos = addPosition(
+            p.role === "Tank"
+              ? props.gameState.darkAddLocation
+              : props.gameState.lightAddLocation
+          );
+          return (
+            <svg
+              style={{
+                position: "absolute",
+                left: 0,
+                top: 0,
+                height: "100%",
+                width: "100%",
+              }}
+              viewBox="0 0 1 1"
+            >
+              <line
+                x1={p.position.x}
+                y1={p.position.y}
+                x2={addPos.x}
+                y2={addPos.y}
+                stroke="blue"
+                strokeWidth={0.02}
+              />
+            </svg>
+          );
+        })}
 
       {props.gameState.cast && (
         <>

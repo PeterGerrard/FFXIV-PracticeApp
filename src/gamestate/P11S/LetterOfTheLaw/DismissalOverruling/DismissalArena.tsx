@@ -16,26 +16,23 @@ const addLoc = (inter: InterCardinal, offset?: number): Point => {
     case "South East":
       return new Point(0.9 - o, 0.9 + o);
     case "South West":
-      return new Point(0.1 + o, 0.9 - o);
+      return new Point(0.1 + o, 0.9 + o);
     case "North West":
       return new Point(0.1 + o, 0.1 - o);
   }
 };
 
 export const DismissalArena = (props: {
-  player: LetterOfTheLawPlayer;
-  isDead: boolean;
+  players: LetterOfTheLawPlayer[];
   moveTo: (p: Point) => void;
   gameState: DismissalOverrulingState;
   dangerPuddles: DangerPuddle[];
   animationEnd: () => void;
 }) => {
-  const { animationEnd, gameState, isDead, moveTo, player, dangerPuddles } =
-    props;
+  const { animationEnd, gameState, moveTo, players, dangerPuddles } = props;
   return (
     <Arena
-      player={player}
-      isDead={isDead}
+      players={players}
       moveTo={moveTo}
       dangerPuddles={dangerPuddles}
       bossColour={gameState.bossColour}
@@ -75,21 +72,6 @@ export const DismissalArena = (props: {
             colour="yellow"
           />
         </>
-      )}
-      {gameState.stage === "InOut" && !isDead && (
-        <h1
-          style={{
-            position: "absolute",
-            left: `50%`,
-            top: `50%`,
-            transformOrigin: "0 0",
-            transform: `translate(-50%,0)`,
-            fontSize: "10rem",
-            color: "hotpink",
-          }}
-        >
-          Finished!
-        </h1>
       )}
     </Arena>
   );

@@ -1,5 +1,6 @@
 import { Point } from "@flatten-js/core";
 import React from "react";
+import { Player } from "./Player";
 
 export type Role = "Tank" | "Healer" | "DPS";
 export type Designation = "MT" | "OT" | "H1" | "H2" | "M1" | "M2" | "R1" | "R2";
@@ -34,15 +35,49 @@ export const ClockSpots = InterCardinals.flatMap((_, i) => [
 
 export type Group = "Group1" | "Group2";
 
-export const getGroup = (clockSpot: ClockSpot): Group => {
-  return ["North East", "East", "South East", "South"].includes(clockSpot)
-    ? "Group2"
-    : "Group1";
+export const getRole = (designation: Designation): Role => {
+  switch (designation) {
+    case "MT":
+    case "OT":
+      return "Tank";
+    case "H1":
+    case "H2":
+      return "Healer";
+    case "M1":
+    case "M2":
+    case "R1":
+    case "R2":
+      return "DPS";
+  }
+};
+
+export const getClockSpot = (designation: Designation): ClockSpot => {
+  switch (designation) {
+    case "MT":
+      return "North";
+    case "OT":
+      return "South";
+    case "H1":
+      return "West";
+    case "H2":
+      return "East";
+    case "M1":
+      return "North West";
+    case "M2":
+      return "North East";
+    case "R1":
+      return "South East";
+    case "R2":
+      return "South West";
+  }
+};
+
+export const getGroup = (designation: Designation): Group => {
+  return ["R2", "H2", "M2", "OT"].includes(designation) ? "Group2" : "Group1";
 };
 
 export type Setup = {
-  role: Role;
-  clockSpot: ClockSpot;
+  designation: Designation;
 };
 
 export type Cast = {
@@ -50,27 +85,21 @@ export type Cast = {
   value: number;
 };
 
-export type GameState = {
+export type GameState<TPlayer extends Player> = {
   hasFinished: boolean;
+  players: TPlayer[];
   cast: Cast | null;
 };
 
 export type GameLoop<TPlayer, T> = {
   arena: (
-    player: TPlayer,
-    otherPlayers: TPlayer[],
-    isDead: boolean,
     gameState: T,
     moveTo: (p: Point) => void,
     animationEnd: () => void
   ) => React.ReactElement;
-  nextState: (gameState: T, player: TPlayer) => T;
-  isSafe: (gameState: T, player: TPlayer, otherPlayers: TPlayer[]) => boolean;
-  getSafeSpot: (
-    gameState: T,
-    player: TPlayer,
-    otherPlayers: TPlayer[]
-  ) => Point;
+  getSafeSpot: (gameState: T, player: TPlayer) => Point;
+  applyDamage: (gameState: T) => T;
+  nextState: (gameState: T) => T;
 };
 
 export const distanceTo = (source: Point, target: Point) =>

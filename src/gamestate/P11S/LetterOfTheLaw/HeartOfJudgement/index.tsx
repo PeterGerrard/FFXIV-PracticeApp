@@ -1,13 +1,9 @@
-import {
-  InterCardinal,
-  distanceTo,
-  GameLoop,
-  rotation,
-} from "../../../gameState";
+import { InterCardinal, GameLoop, rotation } from "../../../gameState";
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
 import { HeartArena } from "./HeartArena";
 import { DangerPuddle, survivePuddles } from "../../../Mechanics/DangerPuddles";
 import { Point } from "@flatten-js/core";
+import { Marker3, MarkerA } from "../../p11sMarkers";
 
 const addLoc = (inter: InterCardinal, offset?: number): Point => {
   const o = offset ? offset / Math.sqrt(2) : 0;
@@ -24,7 +20,8 @@ const addLoc = (inter: InterCardinal, offset?: number): Point => {
 };
 
 export const getDangerPuddles = (
-  state: HeartOfJudgementState
+  state: HeartOfJudgementState,
+  animationEnd: () => void
 ): DangerPuddle[] => {
   const innerBox =
     state.bossColour === "Dark"
@@ -35,11 +32,15 @@ export const getDangerPuddles = (
       ? state.lightBoxLocation
       : state.darkBoxLocation;
   if (state.cast && state.cast.value >= 100) {
-    return [
+    const bombLocations: Point[] =
+      state.bossColour === state.topBomb
+        ? [new Point(0.5, 0.2), new Point(0.5, 0.8)]
+        : [new Point(0.2, 0.5), new Point(0.8, 0.5)];
+    const lineAoes: DangerPuddle[] = [
       {
         type: "line",
         angle: 180 + rotation(innerBox),
-        onAnimationEnd: () => {},
+        onAnimationEnd: animationEnd,
         source: addLoc(innerBox),
         width: 0.475,
         colour: state.bossColour === "Dark" ? "purple" : "yellow",
@@ -67,6 +68,17 @@ export const getDangerPuddles = (
         roleRequirement: null,
       },
     ];
+    return lineAoes.concat(
+      bombLocations.map<DangerPuddle>((b) => ({
+        type: "circle",
+        source: b,
+        colour: state.bossColour === "Dark" ? "purple" : "yellow",
+        radius: 0.4,
+        onAnimationEnd: () => {},
+        survivable: 0,
+        roleRequirement: null,
+      }))
+    );
   }
   return [];
 };
@@ -83,15 +95,13 @@ export const heartOfJudgement: GameLoop<
   LetterOfTheLawPlayer,
   HeartOfJudgementState
 > = {
-  arena: (player, _, isDead, gameState, moveTo, animationEnd) => {
+  arena: (gameState, moveTo, animationEnd) => {
     return (
       <HeartArena
-        animationEnd={animationEnd}
         gameState={gameState}
-        isDead={isDead}
         moveTo={moveTo}
-        dangerPuddles={getDangerPuddles(gameState)}
-        player={player}
+        dangerPuddles={getDangerPuddles(gameState, animationEnd)}
+        players={gameState.players}
       />
     );
   },
@@ -99,6 +109,9 @@ export const heartOfJudgement: GameLoop<
     gameState: HeartOfJudgementState,
     player: LetterOfTheLawPlayer
   ) => {
+    if (gameState.cast === null || gameState.cast.value < 100) {
+      return player.isTethered && player.role === "Tank" ? MarkerA : Marker3;
+    }
     const innerBox =
       gameState.bossColour === "Dark"
         ? gameState.darkBoxLocation
@@ -106,43 +119,40 @@ export const heartOfJudgement: GameLoop<
     if (gameState.topBomb === gameState.bossColour) {
       if (player.isTethered && player.role === "Tank") {
         return new Point(
-          0.83,
-          innerBox === "North West" || innerBox === "South East" ? 0.4 : 0.6
+          0.85,
+          innerBox === "North West" || innerBox === "South East" ? 0.45 : 0.55
         );
       } else {
         return new Point(
-          0.17,
-          innerBox === "North West" || innerBox === "South East" ? 0.6 : 0.4
+          0.15,
+          innerBox === "North West" || innerBox === "South East" ? 0.55 : 0.45
         );
       }
     } else {
       if (player.isTethered && player.role === "Tank") {
         return new Point(
-          innerBox === "North West" || innerBox === "South East" ? 0.6 : 0.4,
-          0.17
+          innerBox === "North West" || innerBox === "South East" ? 0.55 : 0.45,
+          0.15
         );
       } else {
         return new Point(
-          innerBox === "North West" || innerBox === "South East" ? 0.4 : 0.6,
-          0.83
+          innerBox === "North West" || innerBox === "South East" ? 0.45 : 0.55,
+          0.85
         );
       }
     }
   },
-  isSafe: (gameState: HeartOfJudgementState, player: LetterOfTheLawPlayer) => {
-    if (!gameState.cast || gameState.cast.value < 100) {
-      return true;
-    }
-    const bombs: Point[] =
-      gameState.bossColour == gameState.topBomb
-        ? [new Point(0.5, 0.2), new Point(0.5, 0.8)]
-        : [new Point(0.2, 0.5), new Point(0.8, 0.5)];
-    const hitByBomb = bombs.some((b) => distanceTo(player.position, b) < 0.35);
-    const safeFromDangerPuddles = survivePuddles(
-      getDangerPuddles(gameState),
-      player
-    );
-    return !hitByBomb && safeFromDangerPuddles;
+  applyDamage: (gameState: HeartOfJudgementState): HeartOfJudgementState => {
+    return {
+      ...gameState,
+      players: gameState.players.map((p) => ({
+        ...p,
+        alive: survivePuddles(
+          getDangerPuddles(gameState, () => {}),
+          p
+        ),
+      })),
+    };
   },
   nextState: (s) => {
     if (s.cast === null) {

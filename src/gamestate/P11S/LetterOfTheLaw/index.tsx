@@ -1,17 +1,21 @@
 import { IterateGames3 } from "../..";
 import {
+  Designations,
   GameLoop,
   InterCardinal,
   InterCardinals,
   Setup,
+  getClockSpot,
+  getRandomPos,
+  getRole,
 } from "../../gameState";
 import { HeartOfJudgementState, heartOfJudgement } from "./HeartOfJudgement";
 import {
   TwofoldRevelationState,
   twofoldRevelation,
 } from "./Twofold Revelation";
-import { LetterOfTheLawPlayer, createPlayer } from "./gameState";
-import { pickOne } from "../../helpers";
+import { LetterOfTheLawPlayer } from "./gameState";
+import { pickOne, split } from "../../helpers";
 import {
   DismissalOverrulingState,
   dismissalOverruling,
@@ -25,7 +29,23 @@ type LetterOfTheLawGame = IterateGames3<
 >;
 
 export const startLetterOfTheLaw = (setup: Setup): LetterOfTheLawGame => {
-  const player = createPlayer(setup.role, setup.clockSpot);
+  const [tanks, others] = split(Designations, (d) => getRole(d) === "Tank");
+  const tetheredTank = pickOne(tanks);
+  const tetheredNonTank = pickOne(others);
+  const players = Designations.map((d) => {
+    const role = getRole(d);
+    return {
+      role: role,
+      position: getRandomPos(),
+      clockSpot: getClockSpot(d),
+      isTethered: d === tetheredTank || d === tetheredNonTank,
+      debuffs: [],
+      controlled: d === setup.designation,
+      designation: d,
+      show: true,
+      alive: true,
+    };
+  });
   const paired = InterCardinals.map<[InterCardinal, InterCardinal]>((_, i) => [
     InterCardinals[i],
     InterCardinals[(i + 1) % InterCardinals.length],
@@ -37,8 +57,6 @@ export const startLetterOfTheLaw = (setup: Setup): LetterOfTheLawGame => {
   const i = Math.round(Math.random());
   const j = Math.round(Math.random());
   return {
-    player,
-    otherPlayers: [],
     game: heartOfJudgement,
     gameState: {
       hasFinished: false,
@@ -49,38 +67,37 @@ export const startLetterOfTheLaw = (setup: Setup): LetterOfTheLawGame => {
       topBomb: pickOne<"Dark" | "Light">(["Dark", "Light"]),
       darkBoxLocation: darkBox,
       lightBoxLocation: empty.filter((x) => x !== darkBox)[0],
+      players: players,
     },
-    isSafe: () => true,
-    isDead: false,
     next: [
       [
         twofoldRevelation,
         (
-          g: GameLoop<LetterOfTheLawPlayer, HeartOfJudgementState>,
-          s: HeartOfJudgementState,
-          p: LetterOfTheLawPlayer
+          _g: GameLoop<LetterOfTheLawPlayer, HeartOfJudgementState>,
+          s: HeartOfJudgementState
         ): TwofoldRevelationState => ({
           bossColour: null,
           cast: null,
           darkAddLocation: adds1[i],
           lightAddLocation: adds1[1 - i],
           hasFinished: false,
-          nonTankPosition:
-            p.role === "Tank" && p.isTethered
-              ? g.getSafeSpot(s, { ...p, role: "DPS" }, [])
-              : p.position,
+          players: s.players,
         }),
       ],
       [
         dismissalOverruling,
-        {
+        (
+          _g: GameLoop<LetterOfTheLawPlayer, TwofoldRevelationState>,
+          s: TwofoldRevelationState
+        ): DismissalOverrulingState => ({
           stage: "Initial",
           cast: null,
           hasFinished: false,
           bossColour: null,
           darkAddLocation: adds2[j],
           lightAddLocation: adds2[1 - j],
-        },
+          players: s.players,
+        }),
       ],
     ],
     loop: 3,
