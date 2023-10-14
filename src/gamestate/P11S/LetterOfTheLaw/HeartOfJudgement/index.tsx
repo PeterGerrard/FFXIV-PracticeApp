@@ -44,8 +44,10 @@ export const getDangerPuddles = (
         source: addLoc(innerBox),
         width: 0.475,
         colour: state.bossColour === "Dark" ? "purple" : "yellow",
-        survivable: 0,
+        split: null,
         roleRequirement: null,
+        debuffRequirement: null,
+        instaKill: null,
       },
       {
         type: "line",
@@ -54,8 +56,10 @@ export const getDangerPuddles = (
         source: addLoc(outerBox, -0.36875),
         width: 0.2625,
         colour: state.bossColour === "Dark" ? "purple" : "yellow",
-        survivable: 0,
+        split: null,
         roleRequirement: null,
+        debuffRequirement: null,
+        instaKill: null,
       },
       {
         type: "line",
@@ -64,8 +68,10 @@ export const getDangerPuddles = (
         source: addLoc(outerBox, 0.36875),
         width: 0.2625,
         colour: state.bossColour === "Dark" ? "purple" : "yellow",
-        survivable: 0,
+        split: null,
         roleRequirement: null,
+        debuffRequirement: null,
+        instaKill: null,
       },
     ];
     return lineAoes.concat(
@@ -75,8 +81,10 @@ export const getDangerPuddles = (
         colour: state.bossColour === "Dark" ? "purple" : "yellow",
         radius: 0.4,
         onAnimationEnd: () => {},
-        survivable: 0,
+        split: null,
         roleRequirement: null,
+        debuffRequirement: null,
+        instaKill: null,
       }))
     );
   }
@@ -143,14 +151,15 @@ export const heartOfJudgement: GameLoop<
     }
   },
   applyDamage: (gameState: HeartOfJudgementState): HeartOfJudgementState => {
+    const survivingPlayers = survivePuddles(
+      getDangerPuddles(gameState, () => {}),
+      gameState.players
+    );
     return {
       ...gameState,
       players: gameState.players.map((p) => ({
         ...p,
-        alive: survivePuddles(
-          getDangerPuddles(gameState, () => {}),
-          p
-        ),
+        alive: survivingPlayers.includes(p.designation),
       })),
     };
   },

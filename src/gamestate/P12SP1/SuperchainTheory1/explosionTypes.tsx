@@ -77,8 +77,10 @@ const getDangerInfo = (
           source: position,
           onAnimationEnd: animationEnd,
           radius: 0.2,
-          survivable: 0,
+          split: null,
           roleRequirement: null,
+          debuffRequirement: null,
+          instaKill: null,
         },
       ];
     case "Donut":
@@ -89,8 +91,10 @@ const getDangerInfo = (
           onAnimationEnd: animationEnd,
           innerRadius: 0.2,
           outerRadius: 5,
-          survivable: 0,
+          split: null,
           roleRequirement: null,
+          debuffRequirement: null,
+          instaKill: null,
         },
       ];
     case "Protean":
@@ -102,8 +106,10 @@ const getDangerInfo = (
           vector(position, a.position)
         ),
         width: Math.PI / 6,
-        survivable: 1,
+        split: 1,
         roleRequirement: null,
+        debuffRequirement: null,
+        instaKill: null,
       }));
     case "Pair":
       return players
@@ -116,8 +122,10 @@ const getDangerInfo = (
             vector(position, a.position)
           ),
           width: Math.PI / 3,
-          survivable: 1,
+          split: 1,
           roleRequirement: null,
+          debuffRequirement: null,
+          instaKill: null,
         }));
   }
 };

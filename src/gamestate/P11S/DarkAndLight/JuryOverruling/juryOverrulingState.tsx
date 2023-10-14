@@ -96,8 +96,10 @@ const getDangerPuddles = (
       source: new Point(0.5, 0.5),
       width: 0.2,
       colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
-      survivable: 1,
+      split: 1,
       roleRequirement: null,
+      debuffRequirement: null,
+      instaKill: null,
     }));
   }
   if (gameState.bossColour && gameState.explosions === "AOE") {
@@ -119,8 +121,10 @@ const getDangerPuddles = (
             source: m,
             colour: "purple",
             onAnimationEnd: animationEnd && i == 0 ? animationEnd : () => {},
-            survivable: 0,
+            split: null,
             roleRequirement: null,
+            debuffRequirement: null,
+            instaKill: null,
           }
         : {
             type: "circle",
@@ -128,8 +132,10 @@ const getDangerPuddles = (
             radius: 0.125,
             colour: "yellow",
             onAnimationEnd: animationEnd && i == 0 ? animationEnd : () => {},
-            survivable: 0,
+            split: null,
             roleRequirement: null,
+            debuffRequirement: null,
+            instaKill: null,
           }
     );
   }
@@ -186,12 +192,16 @@ export const JuryOverrulingState: GameLoop<
   applyDamage: (
     gameState: JuryOverrulingGameState
   ): JuryOverrulingGameState => {
+    const survivingPlayers = survivePuddles(
+      getDangerPuddles(gameState),
+      gameState.players
+    );
     return {
       ...gameState,
       players: gameState.players.map((p) => ({
         ...p,
         alive:
-          survivePuddles(getDangerPuddles(gameState), p) &&
+          survivingPlayers.includes(p.designation) &&
           isTetherSafe(
             p,
             gameState.players.filter(

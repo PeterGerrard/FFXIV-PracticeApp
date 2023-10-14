@@ -4,10 +4,13 @@ import { ConeAoE, ConeAoEProps, isConeSafe } from "./ConeAoE";
 import { DonutAoE, DonutAoEProps, isDonutSafe } from "./DonutAoE";
 import { LineAoE, LineAoEProps, isLineSafe } from "./LineAoE";
 import { Role } from "..";
-import { Player } from "../Player";
+import { Debuff, Player } from "../Player";
+import { Designation } from "../gameState";
 
 export type DangerPuddle = {
-  survivable: number;
+  split: number | null;
+  instaKill: Debuff | null;
+  debuffRequirement: Debuff | null;
   roleRequirement: Role | null;
 } & (
   | ({ type: "line" } & LineAoEProps)
@@ -56,12 +59,47 @@ export const DangerPuddlesDisplay = (props: {
 
 export const survivePuddles = (
   puddles: DangerPuddle[],
-  player: Player
-): boolean => {
-  const hitBy = puddles.filter(
-    (p) =>
-      !isSafeFrom(p, player.position) &&
-      (p.roleRequirement === null || p.roleRequirement !== player.role)
-  );
-  return hitBy.every((p) => p.survivable >= hitBy.length);
+  players: Player[]
+): Designation[] => {
+  const hits = puddles.map<[DangerPuddle, Designation[]]>((dp) => [
+    dp,
+    players
+      .filter((p) => !isSafeFrom(dp, p.position))
+      .map((x) => x.designation),
+  ]);
+  const hitBy = players.map<[Designation, DangerPuddle[]]>((p) => [
+    p.designation,
+    puddles.filter((dp) => !isSafeFrom(dp, p.position)),
+  ]);
+  return players
+    .filter((p) => {
+      const dps = hitBy.filter((x) => x[0] === p.designation)[0][1];
+
+      return dps.every((dp) => {
+        if (
+          dp.debuffRequirement !== null &&
+          !p.debuffs.every((deb) => deb !== dp.debuffRequirement)
+        ) {
+          return false;
+        }
+        if (
+          dp.instaKill !== null &&
+          p.debuffs.some((deb) => deb === dp.instaKill)
+        ) {
+          return false;
+        }
+        if (dp.roleRequirement != null && p.role !== dp.roleRequirement) {
+          return false;
+        }
+        if (
+          dp.split != null &&
+          hits.filter((h) => h[0] === dp)[0][1].length < dp.split
+        ) {
+          return false;
+        }
+
+        return true;
+      });
+    })
+    .map((p) => p.designation);
 };

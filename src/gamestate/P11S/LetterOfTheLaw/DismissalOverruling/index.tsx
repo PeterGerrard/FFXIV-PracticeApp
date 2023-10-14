@@ -119,8 +119,10 @@ export const getDangerPuddles = (
         source: addLoc(state.darkLocation),
         width: 0.475,
         colour: "purple",
-        survivable: 0,
+        split: null,
         roleRequirement: null,
+        debuffRequirement: null,
+        instaKill: null,
       },
       {
         type: "line",
@@ -129,8 +131,10 @@ export const getDangerPuddles = (
         source: addLoc(state.lightLocation),
         width: 0.475,
         colour: "yellow",
-        survivable: 0,
+        split: null,
         roleRequirement: null,
+        debuffRequirement: null,
+        instaKill: null,
       },
     ];
   }
@@ -144,8 +148,10 @@ export const getDangerPuddles = (
           onAnimationEnd: animationEnd ? animationEnd : () => {},
           source: new Point(0.5, 0.5),
           colour: "purple",
-          survivable: 0,
+          split: null,
           roleRequirement: null,
+          debuffRequirement: null,
+          instaKill: null,
         },
       ];
     } else {
@@ -156,8 +162,10 @@ export const getDangerPuddles = (
           onAnimationEnd: animationEnd ? animationEnd : () => {},
           source: new Point(0.5, 0.5),
           colour: "yellow",
-          survivable: 0,
+          split: null,
           roleRequirement: null,
+          debuffRequirement: null,
+          instaKill: null,
         },
       ];
     }
@@ -256,6 +264,7 @@ export const dismissalOverruling: GameLoop<
     gameState: DismissalOverrulingState
   ): DismissalOverrulingState => {
     const dangerPuddles = getDangerPuddles(gameState);
+    const survivingPlayers = survivePuddles(dangerPuddles, gameState.players);
 
     if (gameState.stage === "Tower") {
       return {
@@ -263,7 +272,7 @@ export const dismissalOverruling: GameLoop<
         players: gameState.players.map((p) => ({
           ...p,
           alive:
-            survivePuddles(dangerPuddles, p) &&
+            survivingPlayers.includes(p.designation) &&
             distanceTo(getTowerPosition(p), p.position) < 0.1,
         })),
       };
@@ -274,7 +283,7 @@ export const dismissalOverruling: GameLoop<
         players: gameState.players.map((p) => ({
           ...p,
           alive:
-            survivePuddles(dangerPuddles, p) &&
+            survivingPlayers.includes(p.designation) &&
             getGroup(p.designation) === "Group1"
               ? p.position.x < 0.5
               : p.position.x > 0.5,
@@ -302,17 +311,21 @@ export const dismissalOverruling: GameLoop<
           return {
             ...p,
             alive:
-              survivePuddles(dangerPuddles, p) && !hitByInner && !hitByOuter,
+              survivingPlayers.includes(p.designation) &&
+              !hitByInner &&
+              !hitByOuter,
           };
         }),
       };
     }
     return {
       ...gameState,
-      players: gameState.players.map((p) => ({
-        ...p,
-        alive: survivePuddles(dangerPuddles, p),
-      })),
+      players: gameState.players.map((p) => {
+        return {
+          ...p,
+          alive: survivingPlayers.includes(p.designation),
+        };
+      }),
     };
   },
   nextState: (s): DismissalOverrulingState => {

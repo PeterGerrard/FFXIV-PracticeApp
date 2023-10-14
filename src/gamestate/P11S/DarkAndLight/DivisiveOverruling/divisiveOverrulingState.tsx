@@ -119,8 +119,10 @@ const getDangerPuddles = (
         source: new Point(0.5, 1),
         width: 0.4,
         colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
-        survivable: 0,
+        split: null,
         roleRequirement: null,
+        debuffRequirement: null,
+        instaKill: null,
       },
     ];
   }
@@ -134,8 +136,10 @@ const getDangerPuddles = (
           source: new Point(0.15, 1),
           width: 0.3,
           colour: "purple",
-          survivable: 0,
+          split: null,
           roleRequirement: null,
+          debuffRequirement: null,
+          instaKill: null,
         },
         {
           type: "line",
@@ -144,8 +148,10 @@ const getDangerPuddles = (
           source: new Point(0.85, 1),
           width: 0.3,
           colour: "purple",
-          survivable: 0,
+          split: null,
           roleRequirement: null,
+          debuffRequirement: null,
+          instaKill: null,
         },
       ];
     } else {
@@ -157,8 +163,10 @@ const getDangerPuddles = (
           source: new Point(0.5, 1),
           width: 0.6,
           colour: "yellow",
-          survivable: 0,
+          split: null,
           roleRequirement: null,
+          debuffRequirement: null,
+          instaKill: null,
         },
       ];
     }
@@ -237,12 +245,16 @@ export const DivisiveOverrulingState: GameLoop<
   applyDamage: (
     gameState: DivisiveOverrulingGameState
   ): DivisiveOverrulingGameState => {
+    const survivingPlayers = survivePuddles(
+      getDangerPuddles(gameState),
+      gameState.players
+    );
     return {
       ...gameState,
       players: gameState.players.map((p) => ({
         ...p,
         alive:
-          survivePuddles(getDangerPuddles(gameState), p) &&
+          survivingPlayers.includes(p.designation) &&
           isTetherSafe(
             p,
             gameState.players.filter(

@@ -70,8 +70,10 @@ const getDangerPuddles = (
       colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
       radius: 0.4,
       onAnimationEnd: animationEnd && i == 0 ? animationEnd : () => {},
-      survivable: 0,
+      split: null,
       roleRequirement: null,
+      debuffRequirement: null,
+      instaKill: null,
     }));
   }
   return [];
@@ -120,12 +122,16 @@ export const RevelationState: GameLoop<
     };
   },
   applyDamage: (gameState: RevelationGameState): RevelationGameState => {
+    const survivingPlayers = survivePuddles(
+      getDangerPuddles(gameState),
+      gameState.players
+    );
     return {
       ...gameState,
       players: gameState.players.map((p) => ({
         ...p,
         alive:
-          survivePuddles(getDangerPuddles(gameState), p) &&
+          survivingPlayers.includes(p.designation) &&
           isTetherSafe(
             p,
             gameState.players.filter(

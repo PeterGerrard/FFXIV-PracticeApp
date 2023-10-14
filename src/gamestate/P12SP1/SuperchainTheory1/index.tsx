@@ -126,12 +126,13 @@ export const superchainTheory1: GameLoop<
       () => {},
       gameState.players
     );
+    const survivingPlayers = survivePuddles(dangerPuddles, gameState.players);
 
     return {
       ...gameState,
       players: gameState.players.map((p) => ({
         ...p,
-        alive: survivePuddles(dangerPuddles, p),
+        alive: survivingPlayers.includes(p.designation),
       })),
     };
   },
@@ -256,8 +257,10 @@ const getDangerPuddles = (
         onAnimationEnd: animationEnd,
         roleRequirement: null,
         source: point(0.5, 0.5),
-        survivable: 1,
+        split: 4,
         width: 0.1,
+        debuffRequirement: null,
+        instaKill: null,
       },
       {
         type: "line",
@@ -270,8 +273,10 @@ const getDangerPuddles = (
         onAnimationEnd: animationEnd,
         roleRequirement: null,
         source: point(0.5, 0.5),
-        survivable: 1,
+        split: 4,
         width: 0.1,
+        debuffRequirement: null,
+        instaKill: null,
       },
     ];
     return gameState.secondCorners
