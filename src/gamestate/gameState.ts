@@ -95,12 +95,12 @@ export const getRandomPos = (): Point => {
 export const rotation = (inter: InterCardinal): number => {
   switch (inter) {
     case "North East":
-      return 45;
+      return Math.PI / 4;
     case "South East":
-      return 135;
+      return (3 * Math.PI) / 4;
     case "South West":
-      return 225;
+      return (5 * Math.PI) / 4;
     case "North West":
-      return 315;
+      return (7 * Math.PI) / 4;
   }
 };

@@ -75,7 +75,7 @@ export const HeartArena = (props: {
               top: "50%",
               transform: `translate(-50%, -50%) rotate(${rotation(
                 innerBox
-              )}deg)`,
+              )}rad)`,
             }}
           >
             <rect
@@ -117,7 +117,7 @@ export const HeartArena = (props: {
               top: "50%",
               transform: `translate(-50%, -50%) rotate(${rotation(
                 outerBox
-              )}deg)`,
+              )}rad)`,
             }}
           >
             <rect

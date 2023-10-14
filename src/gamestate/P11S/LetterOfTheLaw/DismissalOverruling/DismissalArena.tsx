@@ -51,21 +51,21 @@ export const DismissalArena = (props: {
       {gameState.stage === "CrossLine2" && (
         <>
           <LineAoE
-            angle={180 + rotation(gameState.darkLocation)}
+            angle={rotation(gameState.darkLocation)}
             onAnimationEnd={animationEnd}
             source={addLoc(gameState.darkLocation, -0.3675)}
             width={0.265}
             colour="purple"
           />
           <LineAoE
-            angle={180 + rotation(gameState.darkLocation)}
+            angle={rotation(gameState.darkLocation)}
             onAnimationEnd={() => {}}
             source={addLoc(gameState.darkLocation, 0.3675)}
             width={0.265}
             colour="purple"
           />
           <LineAoE
-            angle={180 + rotation(gameState.lightLocation)}
+            angle={rotation(gameState.lightLocation)}
             onAnimationEnd={() => {}}
             source={addLoc(gameState.lightLocation)}
             width={0.475}

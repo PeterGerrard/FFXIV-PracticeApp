@@ -247,11 +247,9 @@ const getDangerPuddles = (
         angle:
           redLaserTarget.position.distanceTo(point(0.5, 0.5))[0] < 0.00001
             ? 0
-            : (180 *
-                vector(point(0.5, 0.5), point(0.5, 0)).angleTo(
-                  vector(point(0.5, 0.5), redLaserTarget.position)
-                )) /
-              Math.PI,
+            : vector(point(0.5, 0.5), point(0.5, 0)).angleTo(
+                vector(point(0.5, 0.5), redLaserTarget.position)
+              ),
         onAnimationEnd: animationEnd,
         roleRequirement: null,
         source: point(0.5, 0.5),
@@ -263,11 +261,9 @@ const getDangerPuddles = (
         angle:
           lightLaserTarget.position.distanceTo(point(0.5, 0.5))[0] < 0.00001
             ? 0
-            : (180 *
-                vector(point(0.5, 0.5), point(0.5, 0)).angleTo(
-                  vector(point(0.5, 0.5), lightLaserTarget.position)
-                )) /
-              Math.PI,
+            : vector(point(0.5, 0.5), point(0.5, 0)).angleTo(
+                vector(point(0.5, 0.5), lightLaserTarget.position)
+              ),
         onAnimationEnd: animationEnd,
         roleRequirement: null,
         source: point(0.5, 0.5),

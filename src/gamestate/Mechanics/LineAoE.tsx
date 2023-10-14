@@ -5,7 +5,6 @@ export type LineAoEProps = {
   source: Point;
   angle: number;
   width: number;
-  length?: number;
   colour?: string;
   onAnimationEnd: () => void;
 };
@@ -14,7 +13,7 @@ export const LineAoE = (props: LineAoEProps) => {
   const [height, setHeight] = useState(0);
   useEffect(() => {
     let mounted = true;
-    setHeight(props.length ? props.length : 2);
+    setHeight(5);
     setTimeout(() => mounted && props.onAnimationEnd(), 1500);
     return () => {
       mounted = false;
@@ -42,7 +41,7 @@ export const LineAoE = (props: LineAoEProps) => {
           transition: "height 1500ms",
           opacity: 0.4,
           transformOrigin: `${props.source.x}px ${props.source.y}px`,
-          transform: `rotate(${props.angle - 180}deg)`,
+          transform: `rotate(${props.angle}rad)`,
         }}
       />
     </svg>
@@ -50,22 +49,9 @@ export const LineAoE = (props: LineAoEProps) => {
 };
 
 export const isLineSafe = (line: LineAoEProps, position: Point): boolean => {
-  const w = line.width;
-  const [i, j] = [line.source.x, line.source.y];
-  const [x, y] = [position.x, position.y];
-  const a = (Math.PI * (180 - line.angle)) / 180;
-  const adjustedPosition: Point = new Point(
-    w / 2 -
-      i * Math.cos(a) +
-      x * Math.cos(a) +
-      j * Math.sin(a) -
-      y * Math.sin(a),
-    -j * Math.cos(a) + y * Math.cos(a) - i * Math.sin(a) + x * Math.sin(a)
-  );
-  return (
-    adjustedPosition.x < 0 ||
-    adjustedPosition.x > w ||
-    adjustedPosition.y < 0 ||
-    (line.length ? adjustedPosition.y > line.length : false)
-  );
+  if (position.distanceTo(line.source)[0] < 0.00001) return false;
+
+  const p = position.rotate(-line.angle, line.source);
+
+  return Math.abs(p.x - line.source.x) > line.width / 2 || p.y < line.source.y;
 };

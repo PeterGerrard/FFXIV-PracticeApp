@@ -6,11 +6,10 @@ import { Point } from "@flatten-js/core";
 export const LineTest = () => {
   const [x, setX] = useState(0.5);
   const [y, setY] = useState(0.5);
-  const [angle, setAngle] = useState(45);
+  const [angle, setAngle] = useState(Math.PI / 4);
   const line: LineAoEProps = {
     source: new Point(x, y),
     angle: angle,
-    length: 0.5,
     onAnimationEnd: () => {},
     width: 0.2,
   };
@@ -42,8 +41,8 @@ export const LineTest = () => {
         value={angle}
         onChange={(_, v) => setAngle(v as number)}
         min={0}
-        max={360}
-        step={10}
+        max={2 * Math.PI}
+        step={0.05}
       />
       <div
         style={{

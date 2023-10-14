@@ -39,7 +39,7 @@ export const getDangerPuddles = (
     const lineAoes: DangerPuddle[] = [
       {
         type: "line",
-        angle: 180 + rotation(innerBox),
+        angle: rotation(innerBox),
         onAnimationEnd: animationEnd,
         source: addLoc(innerBox),
         width: 0.475,
@@ -49,7 +49,7 @@ export const getDangerPuddles = (
       },
       {
         type: "line",
-        angle: 180 + rotation(outerBox),
+        angle: rotation(outerBox),
         onAnimationEnd: () => {},
         source: addLoc(outerBox, -0.36875),
         width: 0.2625,
@@ -59,7 +59,7 @@ export const getDangerPuddles = (
       },
       {
         type: "line",
-        angle: 180 + rotation(outerBox),
+        angle: rotation(outerBox),
         onAnimationEnd: () => {},
         source: addLoc(outerBox, 0.36875),
         width: 0.2625,

@@ -114,7 +114,7 @@ export const getDangerPuddles = (
     return [
       {
         type: "line",
-        angle: 180 + rotation(state.darkLocation),
+        angle: rotation(state.darkLocation),
         onAnimationEnd: animationEnd ? animationEnd : () => {},
         source: addLoc(state.darkLocation),
         width: 0.475,
@@ -124,7 +124,7 @@ export const getDangerPuddles = (
       },
       {
         type: "line",
-        angle: 180 + rotation(state.lightLocation),
+        angle: rotation(state.lightLocation),
         onAnimationEnd: () => {},
         source: addLoc(state.lightLocation),
         width: 0.475,

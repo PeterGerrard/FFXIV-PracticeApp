@@ -1,4 +1,4 @@
-import { Point } from "@flatten-js/core";
+import { Point, point, vector } from "@flatten-js/core";
 import { DangerPuddle, survivePuddles } from "../../../Mechanics/DangerPuddles";
 import { GameLoop, getRole } from "../../../gameState";
 import {
@@ -87,10 +87,12 @@ const getDangerPuddles = (
   animationEnd?: () => void
 ): DangerPuddle[] => {
   if (gameState.bossColour && gameState.explosions === "Lines") {
-    return [0, 45, 90, 135, 180, 225, 270, 315].map<DangerPuddle>((d) => ({
+    return gameState.players.map<DangerPuddle>((p, i) => ({
       type: "line",
-      angle: d,
-      onAnimationEnd: animationEnd && d == 0 ? animationEnd : () => {},
+      angle: vector(point(0.5, 0.5), point(0.5, 1)).angleTo(
+        vector(point(0.5, 0.5), p.position)
+      ),
+      onAnimationEnd: animationEnd && i == 0 ? animationEnd : () => {},
       source: new Point(0.5, 0.5),
       width: 0.2,
       colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
@@ -192,7 +194,9 @@ export const JuryOverrulingState: GameLoop<
           survivePuddles(getDangerPuddles(gameState), p) &&
           isTetherSafe(
             p,
-            gameState.players.filter(o => o.designation === p.tetheredDesignation)[0]
+            gameState.players.filter(
+              (o) => o.designation === p.tetheredDesignation
+            )[0]
           ),
       })),
     };

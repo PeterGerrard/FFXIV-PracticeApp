@@ -114,7 +114,7 @@ const getDangerPuddles = (
     return [
       {
         type: "line",
-        angle: 0,
+        angle: Math.PI,
         onAnimationEnd: () => {},
         source: new Point(0.5, 1),
         width: 0.4,
@@ -129,7 +129,7 @@ const getDangerPuddles = (
       return [
         {
           type: "line",
-          angle: 0,
+          angle: Math.PI,
           onAnimationEnd: () => {},
           source: new Point(0.15, 1),
           width: 0.3,
@@ -139,7 +139,7 @@ const getDangerPuddles = (
         },
         {
           type: "line",
-          angle: 0,
+          angle: Math.PI,
           onAnimationEnd: () => {},
           source: new Point(0.85, 1),
           width: 0.3,
@@ -152,7 +152,7 @@ const getDangerPuddles = (
       return [
         {
           type: "line",
-          angle: 0,
+          angle: Math.PI,
           onAnimationEnd: () => {},
           source: new Point(0.5, 1),
           width: 0.6,
