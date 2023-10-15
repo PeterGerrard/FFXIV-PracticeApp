@@ -6,8 +6,10 @@ import {
   Designations,
   GameLoop,
   GameState,
+  getGroup,
   getRandomPos,
   getRole,
+  isRanged,
 } from "../../gameState";
 import { extractN, pickOne, shuffle, split } from "../../helpers";
 import { Arena } from "../P12SP1Arena";
@@ -26,6 +28,11 @@ import {
   RedLaserDebuff,
   RedTowerDebuff,
 } from "../debuffs";
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import LinearProgress from "@mui/material/LinearProgress";
+import DarkTower from "./assets/tower.png";
 
 export const superchainTheory1: GameLoop<
   SuperchainTheory1Player,
@@ -44,7 +51,7 @@ export const superchainTheory1: GameLoop<
     />
   ),
   getSafeSpot: (gameState, player) => {
-    if (gameState.stage === "Inter1") {
+    if (gameState.stage === "Inter1" || gameState.stage === "Inter2") {
       return player.position;
     }
     if (gameState.stage === "Explosion1") {
@@ -117,6 +124,74 @@ export const superchainTheory1: GameLoop<
       const p = gameState.secondCorners.filter(([_, e]) => e === "Donut")[0][0];
       return p.rotate(left ? 0.2 : -0.2, point(0.5, 0.5));
     }
+    if (gameState.stage === "InOutPart1") {
+      if (gameState.finalExplosions[0] === "Circle") {
+        return player.position.translate(
+          vector(player.position, gameState.finalCorner).scale(0.5, 0.5)
+        );
+      }
+      let offset = vector(0, 0);
+      if (player.debuffs.some((d) => d.name === AoeDebuff.name)) {
+        offset = vector(0, isRanged(player.designation) ? 0.18 : -0.18);
+      } else if (player.debuffs.some((d) => d.name === RedTowerDebuff.name)) {
+        offset = vector(-0.14, -0.14);
+      } else if (player.debuffs.some((d) => d.name === LightTowerDebuff.name)) {
+        offset = vector(0.14, -0.14);
+      } else {
+        offset = vector(0, -0.15);
+      }
+
+      return gameState.finalCorner
+        .translate(offset)
+        .rotate(
+          vector(
+            gameState.finalCorner,
+            gameState.finalCorner.translate(0, -0.5)
+          ).angleTo(vector(gameState.finalCorner, point(0.5, 0.5))),
+          gameState.finalCorner
+        );
+    }
+    if (gameState.stage === "InOutPart2") {
+      let offset = vector(point(), point());
+      if (gameState.finalExplosion === "Circle") {
+        if (player.debuffs.some((d) => d.name === AoeDebuff.name)) {
+          offset = vector(
+            getGroup(player.designation) === "Group1" ? -0.1 : 0.1,
+            isRanged(player.designation) ? 0.23 : -0.23
+          );
+        } else if (player.debuffs.some((d) => d.name === RedTowerDebuff.name)) {
+          offset = vector(-0.17, -0.17);
+        } else if (
+          player.debuffs.some((d) => d.name === LightTowerDebuff.name)
+        ) {
+          offset = vector(0.17, -0.17);
+        } else {
+          offset = vector(0, -0.25);
+        }
+      } else {
+        if (player.debuffs.some((d) => d.name === AoeDebuff.name)) {
+          offset = vector(0, isRanged(player.designation) ? 0.18 : -0.18);
+        } else if (player.debuffs.some((d) => d.name === RedTowerDebuff.name)) {
+          offset = vector(-0.14, -0.14);
+        } else if (
+          player.debuffs.some((d) => d.name === LightTowerDebuff.name)
+        ) {
+          offset = vector(0.14, -0.14);
+        } else {
+          offset = vector(0, -0.15);
+        }
+      }
+
+      return gameState.finalCorner
+        .translate(offset)
+        .rotate(
+          vector(
+            gameState.finalCorner,
+            gameState.finalCorner.translate(0, -0.5)
+          ).angleTo(vector(gameState.finalCorner, point(0.5, 0.5))),
+          gameState.finalCorner
+        );
+    }
 
     return new Point(0.5, 0.5);
   },
@@ -136,7 +211,7 @@ export const superchainTheory1: GameLoop<
       })),
     };
   },
-  nextState: (s) => {
+  nextState: (s): SuperchainTheoryGameState => {
     if (s.stage === "Initial") {
       return {
         ...s,
@@ -180,11 +255,69 @@ export const superchainTheory1: GameLoop<
         ...s,
         stage: "Lasers",
         cast: null,
+      };
+    }
+    if (s.stage === "Lasers") {
+      return {
+        ...s,
+        stage: "Inter2",
+        cast: null,
+        players: s.players.map((p) => ({
+          ...p,
+          debuffs: [
+            p.debuffs.some((d) => d.name === LightTowerDebuff.name) &&
+              LightTowerDebuff,
+            p.debuffs.some((d) => d.name === RedTowerDebuff.name) &&
+              RedTowerDebuff,
+            p.debuffs.some(
+              (d) =>
+                d.name === RedLaserDebuff.name ||
+                d.name === LightDebuff.name ||
+                d.name === LightTowerDebuff.name
+            ) && RedDebuff,
+            p.debuffs.some(
+              (d) =>
+                d.name === LightLaserDebuff.name ||
+                d.name === RedDebuff.name ||
+                d.name === RedTowerDebuff.name
+            ) && LightDebuff,
+            p.debuffs.some((d) => d.name === AoeDebuff.name) && AoeDebuff,
+          ].filter(notFalse),
+        })),
+      };
+    }
+    if (s.stage === "Inter2") {
+      return {
+        ...s,
+        stage: "InOutPart1",
+      };
+    }
+    if (s.stage === "InOutPart1") {
+      return {
+        ...s,
+        stage: "InOutPart2",
+        finalExplosion: s.finalExplosions[1],
+      };
+    }
+    if (s.stage === "InOutPart2") {
+      return {
+        ...s,
+        stage: "DropTower",
         hasFinished: true,
+        darkTower: s.players.filter((p) =>
+          p.debuffs.some((d) => d.name === RedTowerDebuff.name)
+        )[0].position,
+        lightTower: s.players.filter((p) =>
+          p.debuffs.some((d) => d.name === LightTowerDebuff.name)
+        )[0].position,
       };
     }
     return s;
   },
+};
+
+const notFalse = <T extends {}>(x: T | false): x is T => {
+  return x !== false;
 };
 
 type SuperchainTheory1Player = Player;
@@ -198,7 +331,9 @@ type SuperchainTheoryGameState = GameState<SuperchainTheory1Player> &
           [Point, SuperchainExplosionInOut],
           [Point, SuperchainExplosionInOut]
         ];
+        finalCorner: Point;
         initialExplosions: [SuperchainExplosion, SuperchainExplosion];
+        finalExplosions: [SuperchainExplosionInOut, SuperchainExplosionInOut];
       }
     | {
         stage: "Explosion1";
@@ -207,7 +342,9 @@ type SuperchainTheoryGameState = GameState<SuperchainTheory1Player> &
           [Point, SuperchainExplosionInOut],
           [Point, SuperchainExplosionInOut]
         ];
+        finalCorner: Point;
         initialExplosions: [SuperchainExplosion, SuperchainExplosion];
+        finalExplosions: [SuperchainExplosionInOut, SuperchainExplosionInOut];
       }
     | {
         stage: "Inter1";
@@ -215,6 +352,8 @@ type SuperchainTheoryGameState = GameState<SuperchainTheory1Player> &
           [Point, SuperchainExplosionInOut],
           [Point, SuperchainExplosionInOut]
         ];
+        finalCorner: Point;
+        finalExplosions: [SuperchainExplosionInOut, SuperchainExplosionInOut];
       }
     | {
         stage: "Lasers";
@@ -222,6 +361,29 @@ type SuperchainTheoryGameState = GameState<SuperchainTheory1Player> &
           [Point, SuperchainExplosionInOut],
           [Point, SuperchainExplosionInOut]
         ];
+        finalCorner: Point;
+        finalExplosions: [SuperchainExplosionInOut, SuperchainExplosionInOut];
+      }
+    | {
+        stage: "Inter2";
+        finalCorner: Point;
+        finalExplosions: [SuperchainExplosionInOut, SuperchainExplosionInOut];
+      }
+    | {
+        stage: "InOutPart1";
+        finalCorner: Point;
+        finalExplosions: [SuperchainExplosionInOut, SuperchainExplosionInOut];
+      }
+    | {
+        stage: "InOutPart2";
+        finalCorner: Point;
+        finalExplosion: SuperchainExplosionInOut;
+      }
+    | {
+        stage: "DropTower";
+        finalCorner: Point;
+        darkTower: Point;
+        lightTower: Point;
       }
   );
 
@@ -290,6 +452,48 @@ const getDangerPuddles = (
       )
       .concat(lasers);
   }
+  if (gameState.stage === "InOutPart1") {
+    return getSuperChainDangerPuddles(
+      [gameState.finalExplosions[0]],
+      gameState.finalCorner,
+      gameState.players,
+      () => {}
+    );
+  }
+  if (gameState.stage === "InOutPart2") {
+    return getSuperChainDangerPuddles(
+      [gameState.finalExplosion],
+      gameState.finalCorner,
+      gameState.players,
+      animationEnd
+    );
+  }
+  if (gameState.stage === "DropTower") {
+    return [
+      {
+        type: "circle",
+        debuffRequirement: RedTowerDebuff,
+        radius: 0.05,
+        colour: "black",
+        instaKill: null,
+        split: 1,
+        onAnimationEnd: animationEnd,
+        roleRequirement: null,
+        source: gameState.darkTower,
+      },
+      {
+        type: "circle",
+        debuffRequirement: LightTowerDebuff,
+        radius: 0.05,
+        colour: "white",
+        instaKill: null,
+        split: 1,
+        onAnimationEnd: animationEnd,
+        roleRequirement: null,
+        source: gameState.lightTower,
+      },
+    ];
+  }
 
   return [];
 };
@@ -340,12 +544,53 @@ const SuperchainTheory1Arena = (props: {
           />
         </>
       )}
+
+      {(props.gameState.stage === "Lasers" ||
+        props.gameState.stage === "Inter2") && (
+        <>
+          <SuperchainExplosionDisplay
+            explosion={props.gameState.finalExplosions[0]}
+            position={props.gameState.finalCorner.translate(-0.1, -0.1)}
+            target={props.gameState.finalCorner}
+          />
+          <SuperchainExplosionDisplay
+            explosion={props.gameState.finalExplosions[1]}
+            position={props.gameState.finalCorner.translate(-0.2, 0.1)}
+            target={props.gameState.finalCorner}
+          />
+        </>
+      )}
+
+      {props.gameState.stage === "DropTower" && (
+        <>
+          <img
+            src={DarkTower}
+            style={{
+              position: "absolute",
+              left: `${props.gameState.darkTower.x * 100}%`,
+              top: `${props.gameState.darkTower.y * 100}%`,
+              width: "10%",
+              translate: "-50% -80%",
+            }}
+          />
+          <img
+            src={DarkTower}
+            style={{
+              position: "absolute",
+              left: `${props.gameState.lightTower.x * 100}%`,
+              top: `${props.gameState.lightTower.y * 100}%`,
+              width: "10%",
+              translate: "-50% -80%",
+            }}
+          />
+        </>
+      )}
     </Arena>
   );
 };
 
 export const SuperchainTheory1 = () => {
-  const [_gameState, _restart, arena] = useGameState1<
+  const [state, restart, arena] = useGameState1<
     SuperchainTheory1Player,
     SuperchainTheoryGameState
   >((setup) => {
@@ -387,11 +632,52 @@ export const SuperchainTheory1 = () => {
             ["Donut", "Circle"][1 - j] as SuperchainExplosionInOut,
           ],
         ],
+        finalCorner: point(1 - initialCorner.x, 1 - initialCorner.y),
+        finalExplosions: shuffle(["Donut", "Circle"]) as [
+          SuperchainExplosionInOut,
+          SuperchainExplosionInOut
+        ],
       },
       loop: 1,
       next: [],
     };
   });
 
-  return arena();
+  return (
+    <Stack flexDirection="column">
+      <div>
+        <Button endIcon={<RestartAltIcon />} onClick={() => restart()}>
+          Reset
+        </Button>
+      </div>
+      <div
+        style={{
+          display: "inline-block",
+          width: "75vh",
+          height: "75vh",
+          position: "relative",
+        }}
+      >
+        {arena()}
+      </div>
+      <div
+        style={{
+          maxWidth: "500px",
+          paddingBottom: "50px",
+        }}
+      >
+        {state.gameState.cast && (
+          <>
+            <h1>{state.gameState.cast.name}</h1>
+            <LinearProgress
+              sx={{ height: "16px" }}
+              color="warning"
+              variant="determinate"
+              value={state.gameState.cast.value}
+            />
+          </>
+        )}
+      </div>
+    </Stack>
+  );
 };

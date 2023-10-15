@@ -51,6 +51,21 @@ export const getRole = (designation: Designation): Role => {
   }
 };
 
+export const isRanged = (designation: Designation): boolean => {
+  switch (designation) {
+    case "MT":
+    case "OT":
+    case "M1":
+    case "M2":
+      return false;
+    case "H1":
+    case "H2":
+    case "R1":
+    case "R2":
+      return true;
+  }
+};
+
 export const getGroup = (designation: Designation): Group => {
   return ["R2", "H2", "M2", "OT"].includes(designation) ? "Group2" : "Group1";
 };

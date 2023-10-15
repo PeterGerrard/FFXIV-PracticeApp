@@ -122,7 +122,7 @@ const getDangerInfo = (
             vector(position, a.position)
           ),
           width: Math.PI / 3,
-          split: 1,
+          split: 2,
           roleRequirement: null,
           debuffRequirement: null,
           instaKill: null,

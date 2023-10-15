@@ -20,7 +20,7 @@ export const PartyList = (props: { players: Player[] }) => {
         }}
       />
       {p.debuffs.map((d) => (
-        <img src={d.src} height="64px" />
+        <img src={d.src} key={d.name} height="64px" />
       ))}
     </div>
   ));

@@ -93,12 +93,12 @@ export const survivePuddles = (
         }
         if (
           dp.split != null &&
-          hits.filter((h) => h[0] === dp)[0][1].length < dp.split
+          hits.filter((h) => h[0] === dp)[0][1].length >= dp.split
         ) {
-          return false;
+          return true;
         }
 
-        return true;
+        return false;
       });
     })
     .map((p) => p.designation);

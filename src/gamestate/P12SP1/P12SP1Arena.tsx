@@ -8,6 +8,7 @@ import { Player, PlayerComponent } from "../Player";
 import { DangerPuddle, DangerPuddlesDisplay } from "../Mechanics/DangerPuddles";
 import { Point } from "@flatten-js/core";
 import { PartyList } from "../PartyList/PartyList";
+import { Stack } from "@mui/material";
 
 export const Arena = (
   props: PropsWithChildren<{
@@ -17,13 +18,16 @@ export const Arena = (
   }>
 ) => {
   return (
-    <div>
+    <Stack flexDirection="row">
       <div
         style={{
           position: "relative",
           display: "inline-block",
           height: "100%",
+          width: "100%",
           overflow: "hidden",
+          flexGrow: 0,
+          flexShrink: 0,
         }}
         onClick={(e) => {
           const p = getPosition(e.currentTarget);
@@ -40,10 +44,7 @@ export const Arena = (
           <Athena />
           {props.children}
           {props.players.map((p, i) => (
-            <PlayerComponent
-              key={i}
-              player={p}
-            />
+            <PlayerComponent key={i} player={p} />
           ))}
           <DangerPuddlesDisplay puddles={props.dangerPuddles} />
         </>
@@ -51,6 +52,6 @@ export const Arena = (
       <div style={{ display: "inline-block" }}>
         <PartyList players={props.players} />
       </div>
-    </div>
+    </Stack>
   );
 };
