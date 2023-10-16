@@ -32,7 +32,8 @@ import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import LinearProgress from "@mui/material/LinearProgress";
-import DarkTower from "./assets/tower.png";
+import DarkTower from "./assets/darktower.png";
+import LightTower from "./assets/lighttower.png";
 
 export const superchainTheory1: GameLoop<
   SuperchainTheory1Player,
@@ -134,9 +135,9 @@ export const superchainTheory1: GameLoop<
       if (player.debuffs.some((d) => d.name === AoeDebuff.name)) {
         offset = vector(0, isRanged(player.designation) ? 0.18 : -0.18);
       } else if (player.debuffs.some((d) => d.name === RedTowerDebuff.name)) {
-        offset = vector(-0.14, -0.14);
-      } else if (player.debuffs.some((d) => d.name === LightTowerDebuff.name)) {
         offset = vector(0.14, -0.14);
+      } else if (player.debuffs.some((d) => d.name === LightTowerDebuff.name)) {
+        offset = vector(-0.14, -0.14);
       } else {
         offset = vector(0, -0.15);
       }
@@ -160,11 +161,11 @@ export const superchainTheory1: GameLoop<
             isRanged(player.designation) ? 0.23 : -0.23
           );
         } else if (player.debuffs.some((d) => d.name === RedTowerDebuff.name)) {
-          offset = vector(-0.17, -0.17);
+          offset = vector(0.17, -0.17);
         } else if (
           player.debuffs.some((d) => d.name === LightTowerDebuff.name)
         ) {
-          offset = vector(0.17, -0.17);
+          offset = vector(-0.17, -0.17);
         } else {
           offset = vector(0, -0.25);
         }
@@ -172,14 +173,39 @@ export const superchainTheory1: GameLoop<
         if (player.debuffs.some((d) => d.name === AoeDebuff.name)) {
           offset = vector(0, isRanged(player.designation) ? 0.18 : -0.18);
         } else if (player.debuffs.some((d) => d.name === RedTowerDebuff.name)) {
-          offset = vector(-0.14, -0.14);
+          offset = vector(0.14, -0.14);
         } else if (
           player.debuffs.some((d) => d.name === LightTowerDebuff.name)
         ) {
-          offset = vector(0.14, -0.14);
+          offset = vector(-0.14, -0.14);
         } else {
           offset = vector(0, -0.15);
         }
+      }
+
+      return gameState.finalCorner
+        .translate(offset)
+        .rotate(
+          vector(
+            gameState.finalCorner,
+            gameState.finalCorner.translate(0, -0.5)
+          ).angleTo(vector(gameState.finalCorner, point(0.5, 0.5))),
+          gameState.finalCorner
+        );
+    }
+    if (gameState.stage === "DropTower") {
+      let offset = vector(point(), point());
+      if (player.debuffs.some((d) => d.name === AoeDebuff.name)) {
+        offset = vector(
+          getGroup(player.designation) === "Group1" ? -0.14 : 0.14,
+          isRanged(player.designation) ? 0.23 : -0.5
+        );
+      } else if (player.debuffs.some((d) => d.name === RedTowerDebuff.name)) {
+        offset = vector(0.23, -0.23);
+      } else if (player.debuffs.some((d) => d.name === LightTowerDebuff.name)) {
+        offset = vector(-0.23, -0.23);
+      } else {
+        offset = vector(0, -0.25);
       }
 
       return gameState.finalCorner
@@ -419,7 +445,8 @@ const getDangerPuddles = (
         onAnimationEnd: animationEnd,
         roleRequirement: null,
         source: point(0.5, 0.5),
-        split: 4,
+        split: true,
+        damage: 3.8,
         width: 0.1,
         debuffRequirement: null,
         instaKill: null,
@@ -435,7 +462,8 @@ const getDangerPuddles = (
         onAnimationEnd: animationEnd,
         roleRequirement: null,
         source: point(0.5, 0.5),
-        split: 4,
+        split: true,
+        damage: 3.8,
         width: 0.1,
         debuffRequirement: null,
         instaKill: null,
@@ -476,7 +504,8 @@ const getDangerPuddles = (
         radius: 0.05,
         colour: "black",
         instaKill: null,
-        split: 1,
+        split: false,
+        damage: 0.6,
         onAnimationEnd: animationEnd,
         roleRequirement: null,
         source: gameState.darkTower,
@@ -487,7 +516,8 @@ const getDangerPuddles = (
         radius: 0.05,
         colour: "white",
         instaKill: null,
-        split: 1,
+        split: false,
+        damage: 0.6,
         onAnimationEnd: animationEnd,
         roleRequirement: null,
         source: gameState.lightTower,
@@ -574,7 +604,7 @@ const SuperchainTheory1Arena = (props: {
             }}
           />
           <img
-            src={DarkTower}
+            src={LightTower}
             style={{
               position: "absolute",
               left: `${props.gameState.lightTower.x * 100}%`,

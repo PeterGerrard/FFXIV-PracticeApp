@@ -8,7 +8,8 @@ import { Debuff, Player } from "../Player";
 import { Designation } from "../gameState";
 
 export type DangerPuddle = {
-  split: number | null;
+  split: boolean;
+  damage: number;
   instaKill: Debuff | null;
   debuffRequirement: Debuff | null;
   roleRequirement: Role | null;
@@ -75,31 +76,32 @@ export const survivePuddles = (
     .filter((p) => {
       const dps = hitBy.filter((x) => x[0] === p.designation)[0][1];
 
-      return dps.every((dp) => {
-        if (
-          dp.debuffRequirement !== null &&
-          !p.debuffs.every((deb) => deb !== dp.debuffRequirement)
-        ) {
-          return false;
-        }
-        if (
-          dp.instaKill !== null &&
-          p.debuffs.some((deb) => deb === dp.instaKill)
-        ) {
-          return false;
-        }
-        if (dp.roleRequirement != null && p.role !== dp.roleRequirement) {
-          return false;
-        }
-        if (
-          dp.split != null &&
-          hits.filter((h) => h[0] === dp)[0][1].length >= dp.split
-        ) {
-          return true;
-        }
+      const totalDamage = dps
+        .map((dp) => {
+          if (
+            dp.debuffRequirement !== null &&
+            !p.debuffs.every((deb) => deb !== dp.debuffRequirement)
+          ) {
+            return 2;
+          }
+          if (
+            dp.instaKill !== null &&
+            p.debuffs.some((deb) => deb === dp.instaKill)
+          ) {
+            return 2;
+          }
+          if (dp.roleRequirement != null && p.role !== dp.roleRequirement) {
+            return 2;
+          }
+          if (dp.split != null) {
+            return dp.damage / hits.filter((h) => h[0] === dp)[0][1].length;
+          }
 
-        return false;
-      });
+          return dp.damage;
+        })
+        .reduce((a: number, b: number) => a + b, 0);
+
+      return totalDamage < 1;
     })
     .map((p) => p.designation);
 };
