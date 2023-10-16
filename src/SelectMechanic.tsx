@@ -15,7 +15,7 @@ export const SelectMechanic = () => (
     <ul>
       <li>
         <NavLink to="/p12s/p1/superchaintheory1">
-          Superchain Theory 1 (beta, only 1st chain)
+          Superchain Theory 1 (beta)
         </NavLink>
       </li>
     </ul>

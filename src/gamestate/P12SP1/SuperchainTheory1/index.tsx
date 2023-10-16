@@ -218,6 +218,33 @@ export const superchainTheory1: GameLoop<
           gameState.finalCorner
         );
     }
+    if (gameState.stage === "SoakAndAoes") {
+      let offset = vector(point(), point());
+      if (player.debuffs.some((d) => d.name === AoeDebuff.name)) {
+        offset = vector(
+          getGroup(player.designation) === "Group1" ? -0.14 : 0.14,
+          isRanged(player.designation) ? 0.23 : -0.5
+        );
+      } else if (player.debuffs.some((d) => d.name === RedTowerDebuff.name)) {
+        offset = vector(0.26, -0.26);
+      } else if (player.debuffs.some((d) => d.name === LightTowerDebuff.name)) {
+        offset = vector(-0.26, -0.26);
+      } else if (player.debuffs.some((d) => d.name === RedDebuff.name)) {
+        return gameState.darkTower;
+      } else if (player.debuffs.some((d) => d.name === LightDebuff.name)) {
+        return gameState.lightTower;
+      }
+
+      return gameState.finalCorner
+        .translate(offset)
+        .rotate(
+          vector(
+            gameState.finalCorner,
+            gameState.finalCorner.translate(0, -0.5)
+          ).angleTo(vector(gameState.finalCorner, point(0.5, 0.5))),
+          gameState.finalCorner
+        );
+    }
 
     return new Point(0.5, 0.5);
   },
@@ -227,7 +254,19 @@ export const superchainTheory1: GameLoop<
       () => {},
       gameState.players
     );
-    const survivingPlayers = survivePuddles(dangerPuddles, gameState.players);
+    let survivingPlayers = survivePuddles(dangerPuddles, gameState.players);
+    if (gameState.stage === "SoakAndAoes") {
+      const soakDark = gameState.players.some(
+        (p) => p.position.distanceTo(gameState.darkTower)[0] < 0.1
+      );
+      const soakLight = gameState.players.some(
+        (p) => p.position.distanceTo(gameState.lightTower)[0] < 0.1
+      );
+
+      if (!soakDark || !soakLight) {
+        survivingPlayers = [];
+      }
+    }
 
     return {
       ...gameState,
@@ -329,13 +368,19 @@ export const superchainTheory1: GameLoop<
       return {
         ...s,
         stage: "DropTower",
-        hasFinished: true,
         darkTower: s.players.filter((p) =>
           p.debuffs.some((d) => d.name === RedTowerDebuff.name)
         )[0].position,
         lightTower: s.players.filter((p) =>
           p.debuffs.some((d) => d.name === LightTowerDebuff.name)
         )[0].position,
+      };
+    }
+    if (s.stage === "DropTower") {
+      return {
+        ...s,
+        stage: "SoakAndAoes",
+        hasFinished: true,
       };
     }
     return s;
@@ -407,6 +452,12 @@ type SuperchainTheoryGameState = GameState<SuperchainTheory1Player> &
       }
     | {
         stage: "DropTower";
+        finalCorner: Point;
+        darkTower: Point;
+        lightTower: Point;
+      }
+    | {
+        stage: "SoakAndAoes";
         finalCorner: Point;
         darkTower: Point;
         lightTower: Point;
@@ -493,7 +544,7 @@ const getDangerPuddles = (
       [gameState.finalExplosion],
       gameState.finalCorner,
       gameState.players,
-      animationEnd
+      () => {}
     );
   }
   if (gameState.stage === "DropTower") {
@@ -506,7 +557,7 @@ const getDangerPuddles = (
         instaKill: null,
         split: false,
         damage: 0.6,
-        onAnimationEnd: animationEnd,
+        onAnimationEnd: () => {},
         roleRequirement: null,
         source: gameState.darkTower,
       },
@@ -518,11 +569,53 @@ const getDangerPuddles = (
         instaKill: null,
         split: false,
         damage: 0.6,
-        onAnimationEnd: animationEnd,
+        onAnimationEnd: () => {},
         roleRequirement: null,
         source: gameState.lightTower,
       },
     ];
+  }
+  if (gameState.stage === "SoakAndAoes") {
+    const soaks: DangerPuddle[] = [
+      {
+        type: "circle",
+        debuffRequirement: LightDebuff,
+        radius: 0.05,
+        colour: "black",
+        instaKill: null,
+        split: false,
+        damage: 0.6,
+        onAnimationEnd: () => {},
+        roleRequirement: null,
+        source: gameState.darkTower,
+      },
+      {
+        type: "circle",
+        debuffRequirement: RedDebuff,
+        radius: 0.05,
+        colour: "white",
+        instaKill: null,
+        split: false,
+        damage: 0.6,
+        onAnimationEnd: () => {},
+        roleRequirement: null,
+        source: gameState.lightTower,
+      },
+    ];
+    const aoes: DangerPuddle[] = players
+      .filter((p) => p.debuffs.some((d) => d.name === AoeDebuff.name))
+      .map((p) => ({
+        type: "circle",
+        damage: 0.8,
+        debuffRequirement: null,
+        instaKill: null,
+        onAnimationEnd: () => {},
+        radius: 0.15,
+        roleRequirement: null,
+        split: false,
+        source: p.position,
+      }));
+    return soaks.concat(aoes);
   }
 
   return [];
