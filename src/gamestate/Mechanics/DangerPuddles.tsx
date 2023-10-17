@@ -93,7 +93,7 @@ export const survivePuddles = (
           if (dp.roleRequirement != null && p.role !== dp.roleRequirement) {
             return 2;
           }
-          if (dp.split != null) {
+          if (dp.split) {
             return dp.damage / hits.filter((h) => h[0] === dp)[0][1].length;
           }
 
@@ -101,7 +101,7 @@ export const survivePuddles = (
         })
         .reduce((a: number, b: number) => a + b, 0);
 
-      console.log({ name: p.designation, totalDamage });
+      console.log({ name: p.designation, p, totalDamage, dps });
       return totalDamage < 1;
     })
     .map((p) => p.designation);
