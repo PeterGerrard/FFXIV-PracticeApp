@@ -339,13 +339,13 @@ export const superchainTheory1: GameLoop<
                 d.name === RedLaserDebuff.name ||
                 d.name === LightDebuff.name ||
                 d.name === LightTowerDebuff.name
-            ) && RedDebuff,
+            ) && LightDebuff,
             p.debuffs.some(
               (d) =>
                 d.name === LightLaserDebuff.name ||
                 d.name === RedDebuff.name ||
                 d.name === RedTowerDebuff.name
-            ) && LightDebuff,
+            ) && RedDebuff,
             p.debuffs.some((d) => d.name === AoeDebuff.name) && AoeDebuff,
           ].filter(notFalse),
         })),
