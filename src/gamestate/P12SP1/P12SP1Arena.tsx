@@ -8,7 +8,6 @@ import { Player, PlayerComponent } from "../Player";
 import { DangerPuddle, DangerPuddlesDisplay } from "../Mechanics/DangerPuddles";
 import { Point } from "@flatten-js/core";
 import { PartyList } from "../PartyList/PartyList";
-import { Stack } from "@mui/material";
 
 export const Arena = (
   props: PropsWithChildren<{
