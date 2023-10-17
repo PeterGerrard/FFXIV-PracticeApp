@@ -230,9 +230,9 @@ export const superchainTheory1: GameLoop<
       } else if (player.debuffs.some((d) => d.name === LightTowerDebuff.name)) {
         offset = vector(-0.26, -0.26);
       } else if (player.debuffs.some((d) => d.name === RedDebuff.name)) {
-        return gameState.darkTower;
-      } else if (player.debuffs.some((d) => d.name === LightDebuff.name)) {
         return gameState.lightTower;
+      } else if (player.debuffs.some((d) => d.name === LightDebuff.name)) {
+        return gameState.darkTower;
       }
 
       return gameState.finalCorner

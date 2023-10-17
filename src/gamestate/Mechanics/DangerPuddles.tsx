@@ -80,7 +80,7 @@ export const survivePuddles = (
         .map((dp) => {
           if (
             dp.debuffRequirement !== null &&
-            !p.debuffs.every((deb) => deb !== dp.debuffRequirement)
+            p.debuffs.every((deb) => deb.name !== dp.debuffRequirement?.name)
           ) {
             return 2;
           }
@@ -101,6 +101,7 @@ export const survivePuddles = (
         })
         .reduce((a: number, b: number) => a + b, 0);
 
+      console.log({ name: p.designation, totalDamage });
       return totalDamage < 1;
     })
     .map((p) => p.designation);
