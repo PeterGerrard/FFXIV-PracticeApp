@@ -24,8 +24,8 @@ export const Arena = (
       'arena debuffs'
       'cast empty'
 `,
-        gridTemplateColumns: "75vw 25vw",
-        gridTemplateRows: "75vw auto",
+        gridTemplateColumns: "min(75vw,75vh) 25vw",
+        gridTemplateRows: "min(75vw,75vh) auto",
       }}
     >
       <div
@@ -34,6 +34,8 @@ export const Arena = (
           overflow: "hidden",
           aspectRatio: "1 / 1",
           gridArea: "arena",
+          maxHeight: "100%",
+          maxWidth: "100%",
         }}
         onClick={(e) => {
           const p = getPosition(e.currentTarget);

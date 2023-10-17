@@ -773,16 +773,7 @@ export const SuperchainTheory1 = () => {
           Reset
         </Button>
       </div>
-      <div
-        style={{
-          display: "inline-block",
-          width: "75vh",
-          height: "75vh",
-          position: "relative",
-        }}
-      >
-        {arena()}
-      </div>
+      {arena()}
       <div
         style={{
           maxWidth: "500px",
