@@ -60,10 +60,10 @@ export const superchainTheory1: GameLoop<
       if (gameState.initialExplosions[1] === "Protean") {
         switch (player.designation) {
           case "M1":
-            offset = new Point(-0.02, -0.05);
+            offset = new Point(-0.05, -0.02);
             break;
           case "MT":
-            offset = new Point(-0.05, -0.02);
+            offset = new Point(-0.02, -0.05);
             break;
           case "H1":
             offset = new Point(-0.05, 0.02);
@@ -72,10 +72,10 @@ export const superchainTheory1: GameLoop<
             offset = new Point(-0.02, 0.05);
             break;
           case "M2":
-            offset = new Point(0.02, -0.05);
+            offset = new Point(0.05, -0.02);
             break;
           case "OT":
-            offset = new Point(0.05, -0.02);
+            offset = new Point(0.02, -0.05);
             break;
           case "H2":
             offset = new Point(0.05, 0.02);
