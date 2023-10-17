@@ -18,17 +18,23 @@ export const Arena = (
   }>
 ) => {
   return (
-    <Stack flexDirection="row">
+    <div
+      style={{
+        display: "grid",
+        gridTemplateAreas: `
+      'arena debuffs'
+      'cast empty'
+`,
+        gridTemplateColumns: "75vw 25vw",
+        gridTemplateRows: "75vw auto",
+      }}
+    >
       <div
         style={{
           position: "relative",
-          display: "inline-block",
-          height: "75vh%",
-          width: "75vh",
           overflow: "hidden",
-          flexGrow: 0,
-          flexShrink: 0,
           aspectRatio: "1 / 1",
+          gridArea: "arena",
         }}
         onClick={(e) => {
           const p = getPosition(e.currentTarget);
@@ -50,9 +56,9 @@ export const Arena = (
           <DangerPuddlesDisplay puddles={props.dangerPuddles} />
         </>
       </div>
-      <div style={{ display: "inline-block" }}>
+      <div style={{ gridArea: "debuffs" }}>
         <PartyList players={props.players} />
       </div>
-    </Stack>
+    </div>
   );
 };
