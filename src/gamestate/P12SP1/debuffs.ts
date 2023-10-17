@@ -5,6 +5,8 @@ import light from "./assets/light.png";
 import redtower from "./assets/redtower.png";
 import lighttower from "./assets/lighttower.png";
 import aoe from "./assets/aoe.png";
+import cross from "./assets/crossdebuff.png";
+import plus from "./assets/plusdebuff.png";
 
 import { Debuff } from "../Player";
 
@@ -35,4 +37,12 @@ export const LightDebuff: Debuff = {
 export const AoeDebuff: Debuff = {
   name: "AOE",
   src: aoe,
+};
+export const CrossDebuff: Debuff = {
+  name: "Cross",
+  src: cross,
+};
+export const PlusDebuff: Debuff = {
+  name: "Plus",
+  src: plus,
 };

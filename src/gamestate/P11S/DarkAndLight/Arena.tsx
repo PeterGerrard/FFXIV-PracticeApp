@@ -40,43 +40,6 @@ const Tether = (props: {
         }
       />
     </svg>
-    // <Xarrow
-    //   start={tetheredRef}
-    //   startAnchor="middle"
-    //   end={playerRef}
-    //   endAnchor="middle"
-    //   path="straight"
-    //   strokeWidth={20}
-    //   lineColor={
-    //     isTetherSafe(player, tetheredTo)
-    //       ? "blue"
-    //       : player.debuff === "Dark"
-    //       ? "purple"
-    //       : "yellow"
-    //   }
-    //   showHead={!isTetherSafe(player, tetheredTo)}
-    //   headColor={tetheredTo.debuff === "Dark" ? "purple" : "yellow"}
-    //   headShape={{
-    //     svgElem:
-    //       player.debuff === tetheredTo.debuff ? (
-    //         <ForwardArrowSvg />
-    //       ) : (
-    //         <BackwardArrowSvg />
-    //       ),
-    //     offsetForward: 1,
-    //   }}
-    //   showTail={!isTetherSafe(player, tetheredTo)}
-    //   tailColor={player.debuff === "Dark" ? "purple" : "yellow"}
-    //   tailShape={{
-    //     svgElem:
-    //       player.debuff === tetheredTo.debuff ? (
-    //         <ForwardArrowSvg />
-    //       ) : (
-    //         <BackwardArrowSvg />
-    //       ),
-    //     offsetForward: 1,
-    //   }}
-    // />
   );
 };
 

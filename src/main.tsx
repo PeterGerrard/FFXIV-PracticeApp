@@ -81,6 +81,15 @@ const router = createBrowserRouter([
           return { Component };
         },
       },
+      {
+        path: "p12s/p1/paradeigma3",
+        lazy: async () => {
+          const { Paradeigma3: Component } = await import(
+            "./gamestate/P12SP1/Paradeigma3"
+          );
+          return { Component };
+        },
+      },
     ],
   },
 ]);
