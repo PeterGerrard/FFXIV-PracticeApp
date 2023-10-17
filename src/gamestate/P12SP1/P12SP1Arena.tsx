@@ -23,11 +23,12 @@ export const Arena = (
         style={{
           position: "relative",
           display: "inline-block",
-          height: "100%",
-          width: "100%",
+          height: "75vh%",
+          width: "75vh",
           overflow: "hidden",
           flexGrow: 0,
           flexShrink: 0,
+          aspectRatio: "1 / 1",
         }}
         onClick={(e) => {
           const p = getPosition(e.currentTarget);
@@ -39,7 +40,7 @@ export const Arena = (
           );
         }}
       >
-        <img src={arenaPng} height="100%"></img>
+        <img src={arenaPng} height="100%" width="100%"></img>
         <>
           <Athena />
           {props.children}
