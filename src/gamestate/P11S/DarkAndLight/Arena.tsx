@@ -14,6 +14,8 @@ const Tether = (props: {
   tetheredTo: DarkAndLightPlayer;
 }) => {
   const { player, tetheredTo } = props;
+  const halfwayX = (player.position.x + tetheredTo.position.x) / 2;
+  const halfwayY = (player.position.y + tetheredTo.position.y) / 2;
   return (
     <svg
       style={{
@@ -28,13 +30,27 @@ const Tether = (props: {
       <line
         x1={player.position.x}
         y1={player.position.y}
-        x2={tetheredTo.position.x}
-        y2={tetheredTo.position.y}
+        x2={halfwayX}
+        y2={halfwayY}
         strokeWidth={0.02}
         stroke={
           isTetherSafe(player, tetheredTo)
             ? "blue"
             : player.debuff === "Dark"
+            ? "purple"
+            : "yellow"
+        }
+      />
+      <line
+        x1={tetheredTo.position.x}
+        y1={tetheredTo.position.y}
+        x2={halfwayX}
+        y2={halfwayY}
+        strokeWidth={0.02}
+        stroke={
+          isTetherSafe(player, tetheredTo)
+            ? "blue"
+            : tetheredTo.debuff === "Dark"
             ? "purple"
             : "yellow"
         }
