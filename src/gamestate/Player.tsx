@@ -23,8 +23,8 @@ export const PlayerComponent = (props: { player: Player }) => {
     position: "absolute",
     left: `${props.player.position.x * 100}%`,
     top: `${props.player.position.y * 100}%`,
-    height: "80px",
-    width: "80px",
+    height: "8%",
+    width: "8%",
     transform: "translate(-50%, -50%)",
     opacity: props.player.controlled ? 1 : 0.5,
   };
