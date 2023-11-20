@@ -4,6 +4,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import { Designation, Designations, Setup } from "../gameState";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import { Slider } from "@mui/material";
 
 export const SetupForm = (props: {
   setup: Setup;
@@ -31,6 +32,19 @@ export const SetupForm = (props: {
               </MenuItem>
             ))}
           </Select>
+        }
+      />
+      <FormControlLabel
+        label="Icon Size"
+        labelPlacement="top"
+        control={
+          <Slider
+            value={props.setup.playerIconSize}
+            onChange={(_, v) => props.update({ playerIconSize: v as number })}
+            min={0.04}
+            max={0.15}
+            step={0.01}
+          />
         }
       />
       <Button onClick={props.save} variant="contained">

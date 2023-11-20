@@ -19,7 +19,7 @@ import { Setup } from "./gamestate/gameState";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { SetupForm } from "./gamestate/Setup/SetupForm";
 
-const defaultSetup: Setup = { designation: "H2" };
+const defaultSetup: Setup = { designation: "H2", playerIconSize: 0.08 };
 
 function App() {
   const [setup, setSetup] = useState<Setup>(() => {

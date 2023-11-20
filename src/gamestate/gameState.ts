@@ -72,6 +72,7 @@ export const getGroup = (designation: Designation): Group => {
 
 export type Setup = {
   designation: Designation;
+  playerIconSize: number;
 };
 
 export type Cast = {
