@@ -7,6 +7,7 @@ import {
   Designations,
   GameLoop,
   GameState,
+  distanceTo,
   getRandomPos,
   getRole,
 } from "../../gameState";
@@ -69,6 +70,62 @@ export const paradeigma3: GameLoop<Paradeigma3Player, Paradeigma3GameState> = {
         ? point(0.28, 0.26)
         : point(0.25, 0.55);
     }
+
+    if (gameState.stage === "Inter" || gameState.stage === "PlusCross") {
+      if (player.debuffs.some((x) => x.name === PlusDebuff.name)) {
+        return gameState.topFall === "East"
+          ? point(0.05, 0.05)
+          : point(0.95, 0.05);
+      } else if (player.debuffs.some((x) => x.name === CrossDebuff.name)) {
+        return gameState.topFall === "East"
+          ? point(0.55, 0.95)
+          : point(0.45, 0.95);
+      } else if (player.debuffs.some((x) => x.name === LightTowerDebuff.name)) {
+        // same side
+        if (
+          player.designation === gameState.eastPriority &&
+          gameState.darkSide === "East"
+        ) {
+          return point(0.35, gameState.topFall === "West" ? 0.39 : 0.61);
+        } else if (
+          player.designation !== gameState.eastPriority &&
+          gameState.darkSide === "West"
+        ) {
+          return point(0.65, gameState.topFall === "East" ? 0.39 : 0.61);
+        }
+
+        if (
+          player.designation === gameState.eastPriority &&
+          gameState.darkSide === "West"
+        ) {
+          return point(0.48, gameState.topFall === "West" ? 0.48 : 0.52);
+        } else if (
+          player.designation !== gameState.eastPriority &&
+          gameState.darkSide === "East"
+        ) {
+          return point(0.52, gameState.topFall === "East" ? 0.48 : 0.52);
+        }
+      }
+      if (player.designation === gameState.northWestAddTether) {
+        return gameState.topFall === "East"
+          ? point(0.75, 0.45)
+          : point(0.62, 0.73);
+      }
+      if (player.designation === gameState.northEastAddTether) {
+        return gameState.topFall === "West"
+          ? point(0.25, 0.45)
+          : point(0.38, 0.73);
+      }
+      if (player.designation === gameState.southWestAddTether) {
+        return gameState.topFall === "East"
+          ? point(0.72, 0.26)
+          : point(0.75, 0.55);
+      }
+      return gameState.topFall === "West"
+        ? point(0.28, 0.26)
+        : point(0.25, 0.55);
+    }
+
     return new Point(0.5, 0.5);
   },
   applyDamage: (gameState) => {
@@ -93,7 +150,6 @@ export const paradeigma3: GameLoop<Paradeigma3Player, Paradeigma3GameState> = {
               point(0.9, 0.625),
               point(0.1, 0.875),
             ];
-      console.log({ players: gameState.players, towers });
       if (
         towers.some((t) =>
           gameState.players.every((p) => p.position.distanceTo(t)[0] > 0.075)
@@ -120,6 +176,32 @@ export const paradeigma3: GameLoop<Paradeigma3Player, Paradeigma3GameState> = {
           name: "Engravement of Souls",
           value: 100,
         },
+      };
+    }
+    if (s.stage === "Fall") {
+      return {
+        ...s,
+        stage: "Inter",
+        cast: null,
+      };
+    }
+    if (s.stage === "Inter") {
+      return {
+        ...s,
+        stage: "PlusCross",
+        cast: null,
+        plusLocation: s.players.filter((p) =>
+          p.debuffs.some((d) => d.name === PlusDebuff.name)
+        )[0].position,
+        crossLocation: s.players.filter((p) =>
+          p.debuffs.some((d) => d.name === CrossDebuff.name)
+        )[0].position,
+      };
+    }
+    if (s.stage === "PlusCross") {
+      return {
+        ...s,
+        stage: "TowerDrop",
         hasFinished: true,
       };
     }
@@ -152,6 +234,44 @@ type Paradeigma3GameState = GameState<Paradeigma3Player> &
           name: "Engravement of Souls";
           value: 100;
         };
+        hasFinished: false;
+        darkSide: "East" | "West";
+        topFall: "East" | "West";
+        northEastAddTether: Designation;
+        southEastAddTether: Designation;
+        southWestAddTether: Designation;
+        northWestAddTether: Designation;
+        eastPriority: Designation;
+      }
+    | {
+        stage: "Inter";
+        cast: null;
+        hasFinished: false;
+        darkSide: "East" | "West";
+        topFall: "East" | "West";
+        northEastAddTether: Designation;
+        southEastAddTether: Designation;
+        southWestAddTether: Designation;
+        northWestAddTether: Designation;
+        eastPriority: Designation;
+      }
+    | {
+        stage: "PlusCross";
+        cast: null;
+        hasFinished: false;
+        darkSide: "East" | "West";
+        topFall: "East" | "West";
+        northEastAddTether: Designation;
+        southEastAddTether: Designation;
+        southWestAddTether: Designation;
+        northWestAddTether: Designation;
+        eastPriority: Designation;
+        plusLocation: Point;
+        crossLocation: Point;
+      }
+    | {
+        stage: "TowerDrop";
+        cast: null;
         hasFinished: true;
         darkSide: "East" | "West";
         topFall: "East" | "West";
@@ -160,6 +280,8 @@ type Paradeigma3GameState = GameState<Paradeigma3Player> &
         southWestAddTether: Designation;
         northWestAddTether: Designation;
         eastPriority: Designation;
+        plusLocation: Point;
+        crossLocation: Point;
       }
   );
 
@@ -238,6 +360,145 @@ const getDangerPuddles = (
         width: 0.1,
       },
     ];
+  }
+  if (gameState.stage === "PlusCross") {
+    const plusLocation = players.filter((p) =>
+      p.debuffs.some((d) => d.name === PlusDebuff.name)
+    )[0].position;
+    const crossLocation = players.filter((p) =>
+      p.debuffs.some((d) => d.name === CrossDebuff.name)
+    )[0].position;
+    return [
+      {
+        type: "line",
+        damage: 2,
+        angle: Math.PI / 2,
+        debuffRequirement: null,
+        instaKill: null,
+        onAnimationEnd: () => {},
+        roleRequirement: null,
+        source: plusLocation.translate(2, 0),
+        split: false,
+        width: 0.1,
+        delay: 1,
+      },
+      {
+        type: "line",
+        damage: 2,
+        angle: 0,
+        debuffRequirement: null,
+        instaKill: null,
+        onAnimationEnd: () => {},
+        roleRequirement: null,
+        source: plusLocation.translate(0, -2),
+        split: false,
+        width: 0.1,
+        delay: 1,
+      },
+      {
+        type: "line",
+        damage: 2,
+        angle: (3 * Math.PI) / 4,
+        debuffRequirement: null,
+        instaKill: null,
+        onAnimationEnd: () => {},
+        roleRequirement: null,
+        source: crossLocation.translate(2, 2),
+        split: false,
+        width: 0.1,
+        delay: 1,
+      },
+      {
+        type: "line",
+        damage: 2,
+        angle: (5 * Math.PI) / 4,
+        debuffRequirement: null,
+        instaKill: null,
+        onAnimationEnd: () => {},
+        roleRequirement: null,
+        source: crossLocation.translate(-2, 2),
+        split: false,
+        width: 0.1,
+        delay: 1,
+      },
+    ];
+  }
+  if (gameState.stage === "TowerDrop") {
+    const addLocs =
+      gameState.topFall === "East"
+        ? [point(0.25, 0.25), point(0.75, 0.75)]
+        : [point(0.75, 0.25), point(0.25, 0.75)];
+
+    const addLasers = addLocs.flatMap((a) =>
+      players
+        .map((p) => [p, distanceTo(a, p.position)] as const)
+        .sort(([_, x], [__, y]) => x - y)
+        .slice(0, 2)
+        .map<DangerPuddle>(([p, _]) => ({
+          type: "line",
+          angle: vector(a, a.translate(0, 1)).angleTo(vector(a, p.position)),
+          damage: 0.8,
+          debuffRequirement: null,
+          instaKill: null,
+          onAnimationEnd: () => {},
+          roleRequirement: null,
+          source: a,
+          split: false,
+          width: 0.05,
+          colour: "yellow",
+        }))
+    );
+
+    return addLasers.concat([
+      {
+        type: "line",
+        damage: 2,
+        angle: Math.PI / 2,
+        debuffRequirement: null,
+        instaKill: null,
+        onAnimationEnd: () => {},
+        roleRequirement: null,
+        source: gameState.plusLocation.translate(2, 0),
+        split: false,
+        width: 0.1,
+      },
+      {
+        type: "line",
+        damage: 2,
+        angle: 0,
+        debuffRequirement: null,
+        instaKill: null,
+        onAnimationEnd: () => {},
+        roleRequirement: null,
+        source: gameState.plusLocation.translate(0, -2),
+        split: false,
+        width: 0.1,
+      },
+      {
+        type: "line",
+        damage: 2,
+        angle: (3 * Math.PI) / 4,
+        debuffRequirement: null,
+        instaKill: null,
+        onAnimationEnd: () => {},
+        roleRequirement: null,
+        source: gameState.crossLocation.translate(2, 2),
+        split: false,
+        width: 0.1,
+      },
+      {
+        type: "line",
+        damage: 2,
+        angle: (5 * Math.PI) / 4,
+        debuffRequirement: null,
+        instaKill: null,
+        onAnimationEnd: () => {},
+        roleRequirement: null,
+        source: gameState.crossLocation.translate(-2, 2),
+        split: false,
+        width: 0.1,
+      },
+    ]);
   }
   return [];
 };

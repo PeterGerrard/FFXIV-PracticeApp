@@ -13,6 +13,7 @@ export type DangerPuddle = {
   instaKill: Debuff | null;
   debuffRequirement: Debuff | null;
   roleRequirement: Role | null;
+  delay?: number;
 } & (
   | ({ type: "line" } & LineAoEProps)
   | ({ type: "donut" } & DonutAoEProps)
@@ -34,6 +35,9 @@ const DangerPuddleDisplay = (props: DangerPuddle): JSX.Element => {
 };
 
 const isSafeFrom = (props: DangerPuddle, position: Point): boolean => {
+  if (props.delay !== undefined && props.delay > 0) {
+    return true;
+  }
   switch (props.type) {
     case "line":
       return isLineSafe(props, position);
