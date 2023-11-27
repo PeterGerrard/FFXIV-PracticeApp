@@ -7,6 +7,7 @@ import {
   Designations,
   GameLoop,
   GameState,
+  InterCardinal,
   distanceTo,
   getRandomPos,
   getRole,
@@ -17,7 +18,36 @@ import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import LinearProgress from "@mui/material/LinearProgress";
-import { CrossDebuff, LightTowerDebuff, PlusDebuff } from "../debuffs";
+import {
+  CrossDebuff,
+  LightTowerDebuff,
+  PlusDebuff,
+  RedTowerDebuff,
+} from "../debuffs";
+
+const getTetheredPlayer = (
+  addPos: InterCardinal,
+  gameState: Paradeigma3GameState
+) => {
+  switch (addPos) {
+    case "North East":
+      return gameState.topFall === "East"
+        ? gameState.row3Cross
+        : gameState.row2Straight;
+    case "South East":
+      return gameState.topFall === "East"
+        ? gameState.row3Straight
+        : gameState.row2Cross;
+    case "South West":
+      return gameState.topFall === "East"
+        ? gameState.row2Cross
+        : gameState.row3Straight;
+    case "North West":
+      return gameState.topFall === "East"
+        ? gameState.row2Straight
+        : gameState.row3Cross;
+  }
+};
 
 export const paradeigma3: GameLoop<Paradeigma3Player, Paradeigma3GameState> = {
   arena: (
@@ -34,96 +64,139 @@ export const paradeigma3: GameLoop<Paradeigma3Player, Paradeigma3GameState> = {
   ),
   getSafeSpot: (gameState, player) => {
     if (gameState.stage === "Fall") {
-      if (player.debuffs.some((x) => x.name === PlusDebuff.name)) {
+      if (player.designation === gameState.row1Support) {
         return gameState.topFall === "East"
           ? point(0.1, 0.125)
           : point(0.9, 0.125);
-      } else if (player.debuffs.some((x) => x.name === CrossDebuff.name)) {
+      }
+      if (player.designation === gameState.row2Support) {
+        return point(gameState.topFall === "East" ? 0.9 : 0.1, 0.375);
+      }
+      if (player.designation === gameState.row3Support) {
+        return point(gameState.topFall === "East" ? 0.1 : 0.9, 0.625);
+      }
+      if (player.designation === gameState.row4Support) {
         return gameState.topFall === "East"
           ? point(0.9, 0.875)
           : point(0.1, 0.875);
-      } else if (player.debuffs.some((x) => x.name === LightTowerDebuff.name)) {
-        return point(
-          player.designation === gameState.eastPriority ? 0.1 : 0.9,
-          (player.designation === gameState.eastPriority) !==
-            (gameState.topFall === "East")
-            ? 0.375
-            : 0.625
-        );
       }
-      if (player.designation === gameState.northWestAddTether) {
-        return gameState.topFall === "East"
-          ? point(0.75, 0.45)
-          : point(0.72, 0.74);
+
+      if (player.designation === gameState.row2Cross) {
+        return point(gameState.topFall === "East" ? 0.73 : 0.27, 0.26);
       }
-      if (player.designation === gameState.northEastAddTether) {
-        return gameState.topFall === "West"
-          ? point(0.25, 0.45)
-          : point(0.28, 0.74);
+      if (player.designation === gameState.row2Straight) {
+        return point(gameState.topFall === "East" ? 0.77 : 0.23, 0.45);
       }
-      if (player.designation === gameState.southWestAddTether) {
-        return gameState.topFall === "East"
-          ? point(0.72, 0.26)
-          : point(0.75, 0.55);
+
+      if (player.designation === gameState.row3Cross) {
+        return point(gameState.topFall === "East" ? 0.27 : 0.73, 0.74);
       }
-      return gameState.topFall === "West"
-        ? point(0.28, 0.26)
-        : point(0.25, 0.55);
+      if (player.designation === gameState.row3Straight) {
+        return point(gameState.topFall === "East" ? 0.23 : 0.77, 0.55);
+      }
     }
 
     if (gameState.stage === "Inter" || gameState.stage === "PlusCross") {
-      if (player.debuffs.some((x) => x.name === PlusDebuff.name)) {
+      if (player.designation === gameState.row1Support) {
         return gameState.topFall === "East"
           ? point(0.05, 0.05)
           : point(0.95, 0.05);
-      } else if (player.debuffs.some((x) => x.name === CrossDebuff.name)) {
+      }
+
+      if (player.designation === gameState.row4Support) {
         return gameState.topFall === "East"
           ? point(0.55, 0.95)
           : point(0.45, 0.95);
-      } else if (player.debuffs.some((x) => x.name === LightTowerDebuff.name)) {
-        // same side
-        if (
-          player.designation === gameState.eastPriority &&
-          gameState.darkSide === "East"
-        ) {
-          return point(0.35, gameState.topFall === "West" ? 0.39 : 0.61);
-        } else if (
-          player.designation !== gameState.eastPriority &&
-          gameState.darkSide === "West"
-        ) {
-          return point(0.65, gameState.topFall === "East" ? 0.39 : 0.61);
+      }
+    }
+    if (
+      gameState.stage === "Inter" ||
+      gameState.stage === "PlusCross" ||
+      gameState.stage === "TowerDrop"
+    ) {
+      const baitSide =
+        (gameState.darkAdds === "East" && gameState.darkTowers) ||
+        (gameState.darkAdds === "West" && !gameState.darkTowers)
+          ? "West"
+          : "East";
+      if (player.designation === gameState.row1Support) {
+        return gameState.topFall === "East"
+          ? point(0.25, 0.23)
+          : point(0.75, 0.23);
+      }
+      if (
+        (gameState.darkTowers && gameState.darkAdds === "West") ||
+        (!gameState.darkTowers && gameState.darkAdds === "East")
+      ) {
+        if (player.designation === gameState.row2Support) {
+          return gameState.topFall === "East"
+            ? point(0.52, 0.48)
+            : point(0.35, 0.375);
         }
+        if (player.designation === gameState.row3Support) {
+          return gameState.topFall === "East"
+            ? point(0.35, 0.625)
+            : point(0.52, 0.52);
+        }
+      } else {
+        if (player.designation === gameState.row2Support) {
+          return gameState.topFall === "East"
+            ? point(0.65, 0.375)
+            : point(0.48, 0.48);
+        }
+        if (player.designation === gameState.row3Support) {
+          return gameState.topFall === "East"
+            ? point(0.48, 0.52)
+            : point(0.65, 0.625);
+        }
+      }
+      if (player.designation === gameState.row4Support) {
+        return gameState.topFall === "East" ? point(0.8, 0.8) : point(0.2, 0.8);
+      }
 
-        if (
-          player.designation === gameState.eastPriority &&
-          gameState.darkSide === "West"
-        ) {
-          return point(0.48, gameState.topFall === "West" ? 0.48 : 0.52);
-        } else if (
-          player.designation !== gameState.eastPriority &&
-          gameState.darkSide === "East"
-        ) {
-          return point(0.52, gameState.topFall === "East" ? 0.48 : 0.52);
+      if (baitSide === "East") {
+        if (player.designation === gameState.row2Cross) {
+          return gameState.topFall === "East"
+            ? point(0.51, 0.26)
+            : point(0.48, 0.3);
+        }
+        if (player.designation === gameState.row2Straight) {
+          return gameState.topFall === "East"
+            ? point(0.75, 0.49)
+            : point(0.25, 0.45);
+        }
+        if (player.designation === gameState.row3Straight) {
+          return gameState.topFall === "East"
+            ? point(0.3, 0.55)
+            : point(0.75, 0.51);
+        }
+        if (player.designation === gameState.row3Cross) {
+          return gameState.topFall === "East"
+            ? point(0.45, 0.7)
+            : point(0.51, 0.74);
+        }
+      } else {
+        if (player.designation === gameState.row2Cross) {
+          return gameState.topFall === "East"
+            ? point(0.55, 0.3)
+            : point(0.48, 0.26);
+        }
+        if (player.designation === gameState.row2Straight) {
+          return gameState.topFall === "East"
+            ? point(0.73, 0.45)
+            : point(0.25, 0.49);
+        }
+        if (player.designation === gameState.row3Straight) {
+          return gameState.topFall === "East"
+            ? point(0.25, 0.51)
+            : point(0.7, 0.55);
+        }
+        if (player.designation === gameState.row3Cross) {
+          return gameState.topFall === "East"
+            ? point(0.49, 0.74)
+            : point(0.55, 0.7);
         }
       }
-      if (player.designation === gameState.northWestAddTether) {
-        return gameState.topFall === "East"
-          ? point(0.75, 0.45)
-          : point(0.62, 0.73);
-      }
-      if (player.designation === gameState.northEastAddTether) {
-        return gameState.topFall === "West"
-          ? point(0.25, 0.45)
-          : point(0.38, 0.73);
-      }
-      if (player.designation === gameState.southWestAddTether) {
-        return gameState.topFall === "East"
-          ? point(0.72, 0.26)
-          : point(0.75, 0.55);
-      }
-      return gameState.topFall === "West"
-        ? point(0.28, 0.26)
-        : point(0.25, 0.55);
     }
 
     return new Point(0.5, 0.5);
@@ -220,13 +293,17 @@ type Paradeigma3GameState = GameState<Paradeigma3Player> &
           value: 25;
         };
         hasFinished: false;
-        darkSide: "East" | "West";
+        darkAdds: "East" | "West";
+        darkTowers: boolean;
         topFall: "East" | "West";
-        northEastAddTether: Designation;
-        southEastAddTether: Designation;
-        southWestAddTether: Designation;
-        northWestAddTether: Designation;
-        eastPriority: Designation;
+        row1Support: Designation;
+        row2Support: Designation;
+        row2Cross: Designation;
+        row2Straight: Designation;
+        row3Support: Designation;
+        row3Cross: Designation;
+        row3Straight: Designation;
+        row4Support: Designation;
       }
     | {
         stage: "Fall";
@@ -235,37 +312,49 @@ type Paradeigma3GameState = GameState<Paradeigma3Player> &
           value: 100;
         };
         hasFinished: false;
-        darkSide: "East" | "West";
+        darkAdds: "East" | "West";
+        darkTowers: boolean;
         topFall: "East" | "West";
-        northEastAddTether: Designation;
-        southEastAddTether: Designation;
-        southWestAddTether: Designation;
-        northWestAddTether: Designation;
-        eastPriority: Designation;
+        row1Support: Designation;
+        row2Support: Designation;
+        row2Cross: Designation;
+        row2Straight: Designation;
+        row3Support: Designation;
+        row3Cross: Designation;
+        row3Straight: Designation;
+        row4Support: Designation;
       }
     | {
         stage: "Inter";
         cast: null;
         hasFinished: false;
-        darkSide: "East" | "West";
+        darkAdds: "East" | "West";
+        darkTowers: boolean;
         topFall: "East" | "West";
-        northEastAddTether: Designation;
-        southEastAddTether: Designation;
-        southWestAddTether: Designation;
-        northWestAddTether: Designation;
-        eastPriority: Designation;
+        row1Support: Designation;
+        row2Support: Designation;
+        row2Cross: Designation;
+        row2Straight: Designation;
+        row3Support: Designation;
+        row3Cross: Designation;
+        row3Straight: Designation;
+        row4Support: Designation;
       }
     | {
         stage: "PlusCross";
         cast: null;
         hasFinished: false;
-        darkSide: "East" | "West";
+        darkAdds: "East" | "West";
+        darkTowers: boolean;
         topFall: "East" | "West";
-        northEastAddTether: Designation;
-        southEastAddTether: Designation;
-        southWestAddTether: Designation;
-        northWestAddTether: Designation;
-        eastPriority: Designation;
+        row1Support: Designation;
+        row2Support: Designation;
+        row2Cross: Designation;
+        row2Straight: Designation;
+        row3Support: Designation;
+        row3Cross: Designation;
+        row3Straight: Designation;
+        row4Support: Designation;
         plusLocation: Point;
         crossLocation: Point;
       }
@@ -273,13 +362,17 @@ type Paradeigma3GameState = GameState<Paradeigma3Player> &
         stage: "TowerDrop";
         cast: null;
         hasFinished: true;
-        darkSide: "East" | "West";
+        darkAdds: "East" | "West";
+        darkTowers: boolean;
         topFall: "East" | "West";
-        northEastAddTether: Designation;
-        southEastAddTether: Designation;
-        southWestAddTether: Designation;
-        northWestAddTether: Designation;
-        eastPriority: Designation;
+        row1Support: Designation;
+        row2Support: Designation;
+        row2Cross: Designation;
+        row2Straight: Designation;
+        row3Support: Designation;
+        row3Cross: Designation;
+        row3Straight: Designation;
+        row4Support: Designation;
         plusLocation: Point;
         crossLocation: Point;
       }
@@ -295,13 +388,13 @@ const getDangerPuddles = (
   };
   if (gameState.stage === "Fall") {
     const nwAdd = point(0, 0.45);
-    const nwPlayer = getPlayer(gameState.northWestAddTether);
+    const nwPlayer = getPlayer(getTetheredPlayer("North West", gameState));
     const swAdd = point(0, 0.55);
-    const swPlayer = getPlayer(gameState.southWestAddTether);
+    const swPlayer = getPlayer(getTetheredPlayer("South West", gameState));
     const neAdd = point(1, 0.45);
-    const nePlayer = getPlayer(gameState.northEastAddTether);
+    const nePlayer = getPlayer(getTetheredPlayer("North East", gameState));
     const seAdd = point(1, 0.55);
-    const sePlayer = getPlayer(gameState.southEastAddTether);
+    const sePlayer = getPlayer(getTetheredPlayer("South East", gameState));
     return [
       {
         type: "line",
@@ -664,23 +757,35 @@ const Paradeigma3Arena = (props: {
 
           <Tether
             add={point(0, 0.45)}
-            tetheredTo={getPlayer(props.gameState.northWestAddTether).position}
-            colour={props.gameState.darkSide === "West" ? "purple" : "yellow"}
+            tetheredTo={
+              getPlayer(getTetheredPlayer("North West", props.gameState))
+                .position
+            }
+            colour={props.gameState.darkAdds === "West" ? "purple" : "yellow"}
           />
           <Tether
             add={point(0, 0.55)}
-            tetheredTo={getPlayer(props.gameState.southWestAddTether).position}
-            colour={props.gameState.darkSide === "West" ? "purple" : "yellow"}
+            tetheredTo={
+              getPlayer(getTetheredPlayer("South West", props.gameState))
+                .position
+            }
+            colour={props.gameState.darkAdds === "West" ? "purple" : "yellow"}
           />
           <Tether
             add={point(1, 0.45)}
-            tetheredTo={getPlayer(props.gameState.northEastAddTether).position}
-            colour={props.gameState.darkSide === "East" ? "purple" : "yellow"}
+            tetheredTo={
+              getPlayer(getTetheredPlayer("North East", props.gameState))
+                .position
+            }
+            colour={props.gameState.darkAdds === "East" ? "purple" : "yellow"}
           />
           <Tether
             add={point(1, 0.55)}
-            tetheredTo={getPlayer(props.gameState.southEastAddTether).position}
-            colour={props.gameState.darkSide === "East" ? "purple" : "yellow"}
+            tetheredTo={
+              getPlayer(getTetheredPlayer("South East", props.gameState))
+                .position
+            }
+            colour={props.gameState.darkAdds === "East" ? "purple" : "yellow"}
           />
         </>
       )}
@@ -693,11 +798,12 @@ export const Paradeigma3 = () => {
     Paradeigma3Player,
     Paradeigma3GameState
   >((setup) => {
+    const darkTowers = pickOne([true, false]);
     const supportDebuffs = shuffle([
       CrossDebuff,
       PlusDebuff,
-      LightTowerDebuff,
-      LightTowerDebuff,
+      darkTowers ? RedTowerDebuff : LightTowerDebuff,
+      darkTowers ? RedTowerDebuff : LightTowerDebuff,
     ]);
     let [dps, soup] = split(Designations, (d) => getRole(d) === "DPS");
     const soupDebuffs = soup
@@ -716,6 +822,16 @@ export const Paradeigma3 = () => {
       controlled: d === setup.designation,
       alive: true,
     }));
+    const towerDebuffDesignations = (["H1", "MT", "OT", "H2"] as const).filter(
+      (d: Designation) =>
+        soupDebuffs[d] &&
+        soupDebuffs[d]?.some(
+          (db) =>
+            db?.name ===
+            (darkTowers ? RedTowerDebuff.name : LightTowerDebuff.name)
+        )
+    );
+    const topFallSide = pickOne<"East" | "West">(["East", "West"]);
     return {
       game: paradeigma3,
       gameState: {
@@ -726,17 +842,21 @@ export const Paradeigma3 = () => {
         hasFinished: false,
         players: ps,
         stage: "Initial",
-        darkSide: pickOne(["East", "West"]),
-        topFall: pickOne(["East", "West"]),
-        northEastAddTether: dps[0],
-        southEastAddTether: dps[1],
-        southWestAddTether: dps[2],
-        northWestAddTether: dps[3],
-        eastPriority: (["H1", "MT", "OT", "H2"] as const).filter(
-          (d: Designation) =>
-            soupDebuffs[d] &&
-            soupDebuffs[d]?.some((db) => db?.name === LightTowerDebuff.name)
-        )[0],
+        darkAdds: pickOne(["East", "West"]),
+        darkTowers: darkTowers,
+        topFall: topFallSide,
+        row1Support: ps.filter((p) =>
+          p.debuffs.some((d) => d.name === PlusDebuff.name)
+        )[0].designation,
+        row2Support: towerDebuffDesignations[topFallSide === "East" ? 1 : 0],
+        row3Support: towerDebuffDesignations[topFallSide === "East" ? 0 : 1],
+        row4Support: ps.filter((p) =>
+          p.debuffs.some((d) => d.name === CrossDebuff.name)
+        )[0].designation,
+        row2Straight: dps[0],
+        row2Cross: dps[1],
+        row3Straight: dps[2],
+        row3Cross: dps[3],
       },
       loop: 1,
       next: [],
