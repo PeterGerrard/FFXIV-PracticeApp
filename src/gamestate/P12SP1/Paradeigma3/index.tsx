@@ -12,7 +12,7 @@ import {
   getRandomPos,
   getRole,
 } from "../../gameState";
-import { pickOne, shuffle, split } from "../../helpers";
+import { extractN, pickOne, shuffle, split } from "../../helpers";
 import { Arena } from "../P12SP1Arena";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
@@ -20,10 +20,14 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import LinearProgress from "@mui/material/LinearProgress";
 import {
   CrossDebuff,
+  LightDebuff,
   LightTowerDebuff,
   PlusDebuff,
+  RedDebuff,
   RedTowerDebuff,
 } from "../debuffs";
+import DarkTower from "../SuperchainTheory1/assets/darktower.png";
+import LightTower from "../SuperchainTheory1/assets/lighttower.png";
 
 const getTetheredPlayer = (
   addPos: InterCardinal,
@@ -112,13 +116,15 @@ export const paradeigma3: GameLoop<Paradeigma3Player, Paradeigma3GameState> = {
     if (
       gameState.stage === "Inter" ||
       gameState.stage === "PlusCross" ||
-      gameState.stage === "TowerDrop"
+      gameState.stage === "TowerDrop" ||
+      gameState.stage === "TowerInter"
     ) {
       const baitSide =
         (gameState.darkAdds === "East" && gameState.darkTowers) ||
         (gameState.darkAdds === "West" && !gameState.darkTowers)
           ? "West"
           : "East";
+
       if (player.designation === gameState.row1Support) {
         return gameState.topFall === "East"
           ? point(0.25, 0.23)
@@ -199,6 +205,78 @@ export const paradeigma3: GameLoop<Paradeigma3Player, Paradeigma3GameState> = {
       }
     }
 
+    if (gameState.stage === "TowerSoak") {
+      if (player.designation === gameState.row1Support) {
+        return point(gameState.topFall === "East" ? 0.48 : 0.52, 0.23);
+      }
+      if (player.designation === gameState.row2Support) {
+        return point(gameState.topFall === "East" ? 0.53 : 0.47, 0.375);
+      }
+      if (player.designation === gameState.row3Support) {
+        return point(gameState.topFall === "East" ? 0.47 : 0.53, 0.625);
+      }
+      if (player.designation === gameState.row4Support) {
+        return point(gameState.topFall === "East" ? 0.52 : 0.48, 0.77);
+      }
+
+      const towerSide =
+        (gameState.darkAdds === "East" && gameState.darkTowers) ||
+        (gameState.darkAdds === "West" && !gameState.darkTowers)
+          ? "East"
+          : "West";
+      const towerRow =
+        (towerSide === "East" && gameState.topFall === "East") ||
+        (towerSide === "West" && gameState.topFall === "West")
+          ? 2
+          : 3;
+
+      if (towerRow === 2) {
+        if (towerSide === "East") {
+          if (player.designation === gameState.row2Cross) {
+            return gameState.towerLocations[1].translate(0.04, -0.04);
+          } else if (player.designation === gameState.row2Straight) {
+            return gameState.towerLocations[0];
+          } else if (player.designation === gameState.row3Cross) {
+            return point(0.4, 0.65);
+          } else if (player.designation === gameState.row3Straight) {
+            return point(0.35, 0.55);
+          }
+        } else {
+          if (player.designation === gameState.row2Cross) {
+            return gameState.towerLocations[1].translate(-0.04, -0.04);
+          } else if (player.designation === gameState.row2Straight) {
+            return gameState.towerLocations[0];
+          } else if (player.designation === gameState.row3Cross) {
+            return point(0.6, 0.65);
+          } else if (player.designation === gameState.row3Straight) {
+            return point(0.65, 0.55);
+          }
+        }
+      } else {
+        if (towerSide === "East") {
+          if (player.designation === gameState.row2Cross) {
+            return point(0.35, 0.45);
+          } else if (player.designation === gameState.row2Straight) {
+            return point(0.4, 0.35);
+          } else if (player.designation === gameState.row3Cross) {
+            return gameState.towerLocations[0].translate(0.04, 0.04);
+          } else if (player.designation === gameState.row3Straight) {
+            return gameState.towerLocations[1];
+          }
+        } else {
+          if (player.designation === gameState.row2Cross) {
+            return point(0.65, 0.45);
+          } else if (player.designation === gameState.row2Straight) {
+            return point(0.6, 0.35);
+          } else if (player.designation === gameState.row3Cross) {
+            return gameState.towerLocations[0].translate(-0.04, 0.04);
+          } else if (player.designation === gameState.row3Straight) {
+            return gameState.towerLocations[1];
+          }
+        }
+      }
+    }
+
     return new Point(0.5, 0.5);
   },
   applyDamage: (gameState) => {
@@ -231,6 +309,23 @@ export const paradeigma3: GameLoop<Paradeigma3Player, Paradeigma3GameState> = {
         survivingPlayers = [];
       }
     }
+    if (gameState.stage === "TowerSoak") {
+      if (
+        gameState.towerLocations.some(
+          (t) =>
+            !gameState.players.some(
+              (p) =>
+                p.debuffs.some(
+                  (d) =>
+                    d.name ===
+                    (gameState.darkTowers ? LightDebuff.name : RedDebuff.name)
+                ) && p.position.distanceTo(t)[0] < 0.08
+            )
+        )
+      ) {
+        survivingPlayers = [];
+      }
+    }
 
     return {
       ...gameState,
@@ -254,15 +349,14 @@ export const paradeigma3: GameLoop<Paradeigma3Player, Paradeigma3GameState> = {
     if (s.stage === "Fall") {
       return {
         ...s,
-        stage: "Inter",
+        stage: "PlusCross",
         cast: null,
       };
     }
-    if (s.stage === "Inter") {
+    if (s.stage === "PlusCross") {
       return {
         ...s,
-        stage: "PlusCross",
-        cast: null,
+        stage: "Inter",
         plusLocation: s.players.filter((p) =>
           p.debuffs.some((d) => d.name === PlusDebuff.name)
         )[0].position,
@@ -271,10 +365,30 @@ export const paradeigma3: GameLoop<Paradeigma3Player, Paradeigma3GameState> = {
         )[0].position,
       };
     }
-    if (s.stage === "PlusCross") {
+    if (s.stage === "Inter") {
       return {
         ...s,
         stage: "TowerDrop",
+      };
+    }
+    if (s.stage === "TowerDrop") {
+      return {
+        ...s,
+        stage: "TowerInter",
+        towerLocations: s.players
+          .filter((x) =>
+            x.debuffs.some(
+              (d) => d === RedTowerDebuff || d === LightTowerDebuff
+            )
+          )
+          .map((p) => p.position)
+          .sort((p1, p2) => p1.y - p2.y),
+      };
+    }
+    if (s.stage === "TowerInter") {
+      return {
+        ...s,
+        stage: "TowerSoak",
         hasFinished: true,
       };
     }
@@ -325,7 +439,7 @@ type Paradeigma3GameState = GameState<Paradeigma3Player> &
         row4Support: Designation;
       }
     | {
-        stage: "Inter";
+        stage: "PlusCross";
         cast: null;
         hasFinished: false;
         darkAdds: "East" | "West";
@@ -341,7 +455,7 @@ type Paradeigma3GameState = GameState<Paradeigma3Player> &
         row4Support: Designation;
       }
     | {
-        stage: "PlusCross";
+        stage: "Inter";
         cast: null;
         hasFinished: false;
         darkAdds: "East" | "West";
@@ -361,7 +475,7 @@ type Paradeigma3GameState = GameState<Paradeigma3Player> &
     | {
         stage: "TowerDrop";
         cast: null;
-        hasFinished: true;
+        hasFinished: false;
         darkAdds: "East" | "West";
         darkTowers: boolean;
         topFall: "East" | "West";
@@ -376,11 +490,45 @@ type Paradeigma3GameState = GameState<Paradeigma3Player> &
         plusLocation: Point;
         crossLocation: Point;
       }
+    | {
+        stage: "TowerInter";
+        cast: null;
+        hasFinished: false;
+        darkAdds: "East" | "West";
+        darkTowers: boolean;
+        topFall: "East" | "West";
+        row1Support: Designation;
+        row2Support: Designation;
+        row2Cross: Designation;
+        row2Straight: Designation;
+        row3Support: Designation;
+        row3Cross: Designation;
+        row3Straight: Designation;
+        row4Support: Designation;
+        towerLocations: Point[];
+      }
+    | {
+        stage: "TowerSoak";
+        cast: null;
+        hasFinished: true;
+        darkAdds: "East" | "West";
+        darkTowers: boolean;
+        topFall: "East" | "West";
+        row1Support: Designation;
+        row2Support: Designation;
+        row2Cross: Designation;
+        row2Straight: Designation;
+        row3Support: Designation;
+        row3Cross: Designation;
+        row3Straight: Designation;
+        row4Support: Designation;
+        towerLocations: Point[];
+      }
   );
 
 const getDangerPuddles = (
   gameState: Paradeigma3GameState,
-  _animationEnd: () => void,
+  animationEnd: () => void,
   players: Paradeigma3Player[]
 ): DangerPuddle[] => {
   const getPlayer = (d: Designation): Paradeigma3Player => {
@@ -454,68 +602,6 @@ const getDangerPuddles = (
       },
     ];
   }
-  if (gameState.stage === "PlusCross") {
-    const plusLocation = players.filter((p) =>
-      p.debuffs.some((d) => d.name === PlusDebuff.name)
-    )[0].position;
-    const crossLocation = players.filter((p) =>
-      p.debuffs.some((d) => d.name === CrossDebuff.name)
-    )[0].position;
-    return [
-      {
-        type: "line",
-        damage: 2,
-        angle: Math.PI / 2,
-        debuffRequirement: null,
-        instaKill: null,
-        onAnimationEnd: () => {},
-        roleRequirement: null,
-        source: plusLocation.translate(2, 0),
-        split: false,
-        width: 0.1,
-        delay: 1,
-      },
-      {
-        type: "line",
-        damage: 2,
-        angle: 0,
-        debuffRequirement: null,
-        instaKill: null,
-        onAnimationEnd: () => {},
-        roleRequirement: null,
-        source: plusLocation.translate(0, -2),
-        split: false,
-        width: 0.1,
-        delay: 1,
-      },
-      {
-        type: "line",
-        damage: 2,
-        angle: (3 * Math.PI) / 4,
-        debuffRequirement: null,
-        instaKill: null,
-        onAnimationEnd: () => {},
-        roleRequirement: null,
-        source: crossLocation.translate(2, 2),
-        split: false,
-        width: 0.1,
-        delay: 1,
-      },
-      {
-        type: "line",
-        damage: 2,
-        angle: (5 * Math.PI) / 4,
-        debuffRequirement: null,
-        instaKill: null,
-        onAnimationEnd: () => {},
-        roleRequirement: null,
-        source: crossLocation.translate(-2, 2),
-        split: false,
-        width: 0.1,
-        delay: 1,
-      },
-    ];
-  }
   if (gameState.stage === "TowerDrop") {
     const addLocs =
       gameState.topFall === "East"
@@ -542,14 +628,31 @@ const getDangerPuddles = (
         }))
     );
 
-    return addLasers.concat([
+    const towerPuddles = [
+      getPlayer(gameState.row2Support),
+      getPlayer(gameState.row3Support),
+    ].map<DangerPuddle>((p) => ({
+      type: "circle",
+      damage: 0.8,
+      debuffRequirement: gameState.darkTowers
+        ? RedTowerDebuff
+        : LightTowerDebuff,
+      source: p.position,
+      split: false,
+      instaKill: null,
+      roleRequirement: null,
+      radius: 0.08,
+      onAnimationEnd: () => {},
+    }));
+
+    return addLasers.concat(towerPuddles).concat([
       {
         type: "line",
         damage: 2,
         angle: Math.PI / 2,
         debuffRequirement: null,
         instaKill: null,
-        onAnimationEnd: () => {},
+        onAnimationEnd: animationEnd,
         roleRequirement: null,
         source: gameState.plusLocation.translate(2, 0),
         split: false,
@@ -593,6 +696,19 @@ const getDangerPuddles = (
       },
     ]);
   }
+  if (gameState.stage === "TowerSoak") {
+    return gameState.towerLocations.map<DangerPuddle>((p) => ({
+      type: "circle",
+      damage: 0.8,
+      debuffRequirement: gameState.darkTowers ? LightDebuff : RedDebuff,
+      source: p,
+      split: false,
+      instaKill: null,
+      roleRequirement: null,
+      radius: 0.08,
+      onAnimationEnd: () => {},
+    }));
+  }
   return [];
 };
 
@@ -629,6 +745,9 @@ const Paradeigma3Arena = (props: {
   const getPlayer = (d: Designation): Paradeigma3Player => {
     return props.players.filter((x) => x.designation === d)[0];
   };
+  if (props.gameState.stage === "PlusCross") {
+    props.animationEnd();
+  }
   return (
     <Arena
       players={props.players}
@@ -789,6 +908,206 @@ const Paradeigma3Arena = (props: {
           />
         </>
       )}
+      {props.gameState.stage === "PlusCross" && (
+        <svg
+          height="100%"
+          width="100%"
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+          }}
+          viewBox="0 0 1 1"
+        >
+          <rect
+            height={0.1}
+            width={5}
+            x={getPlayer(props.gameState.row1Support).position.x - 2.5}
+            y={getPlayer(props.gameState.row1Support).position.y - 0.05}
+            fill="orange"
+            style={{
+              opacity: 0.4,
+            }}
+          />
+          <rect
+            height={5}
+            width={0.1}
+            x={getPlayer(props.gameState.row1Support).position.x - 0.05}
+            y={getPlayer(props.gameState.row1Support).position.y - 2.5}
+            fill="orange"
+            style={{
+              opacity: 0.4,
+            }}
+          />
+          <rect
+            height={0.1}
+            width={5}
+            x={getPlayer(props.gameState.row4Support).position.x - 2.5}
+            y={getPlayer(props.gameState.row4Support).position.y - 0.05}
+            fill="orange"
+            style={{
+              opacity: 0.4,
+              transformOrigin: `${
+                getPlayer(props.gameState.row4Support).position.x
+              }px ${getPlayer(props.gameState.row4Support).position.y}px`,
+              transform: "rotate(45deg)",
+            }}
+          />
+          <rect
+            height={5}
+            width={0.1}
+            x={getPlayer(props.gameState.row4Support).position.x - 0.05}
+            y={getPlayer(props.gameState.row4Support).position.y - 2.5}
+            fill="orange"
+            style={{
+              opacity: 0.4,
+              transformOrigin: `${
+                getPlayer(props.gameState.row4Support).position.x
+              }px ${getPlayer(props.gameState.row4Support).position.y}px`,
+              transform: "rotate(45deg)",
+            }}
+          />
+        </svg>
+      )}
+      {props.gameState.stage === "Inter" && (
+        <svg
+          height="100%"
+          width="100%"
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+          }}
+          viewBox="0 0 1 1"
+        >
+          <rect
+            height={0.1}
+            width={5}
+            x={props.gameState.plusLocation.x - 2.5}
+            y={props.gameState.plusLocation.y - 0.05}
+            fill="orange"
+            style={{
+              opacity: 0.4,
+            }}
+          />
+          <rect
+            height={5}
+            width={0.1}
+            x={props.gameState.plusLocation.x - 0.05}
+            y={props.gameState.plusLocation.y - 2.5}
+            fill="orange"
+            style={{
+              opacity: 0.4,
+            }}
+          />
+          <rect
+            height={0.1}
+            width={5}
+            x={props.gameState.crossLocation.x - 2.5}
+            y={props.gameState.crossLocation.y - 0.05}
+            fill="orange"
+            style={{
+              opacity: 0.4,
+              transformOrigin: `${props.gameState.crossLocation.x}px ${props.gameState.crossLocation.y}px`,
+              transform: "rotate(45deg)",
+            }}
+          />
+          <rect
+            height={5}
+            width={0.1}
+            x={props.gameState.crossLocation.x - 0.05}
+            y={props.gameState.crossLocation.y - 2.5}
+            fill="orange"
+            style={{
+              opacity: 0.4,
+              transformOrigin: `${props.gameState.crossLocation.x}px ${props.gameState.crossLocation.y}px`,
+              transform: "rotate(45deg)",
+            }}
+          />
+        </svg>
+      )}
+      {props.gameState.stage === "TowerDrop" && (
+        <>
+          <img
+            src={props.gameState.darkTowers ? DarkTower : LightTower}
+            style={{
+              position: "absolute",
+              left: `${
+                getPlayer(props.gameState.row2Support).position.x * 100
+              }%`,
+              top: `${
+                getPlayer(props.gameState.row2Support).position.y * 100
+              }%`,
+              width: "16%",
+              translate: "-50% -80%",
+            }}
+          />
+          <img
+            src={props.gameState.darkTowers ? DarkTower : LightTower}
+            style={{
+              position: "absolute",
+              left: `${
+                getPlayer(props.gameState.row3Support).position.x * 100
+              }%`,
+              top: `${
+                getPlayer(props.gameState.row3Support).position.y * 100
+              }%`,
+              width: "16%",
+              translate: "-50% -80%",
+            }}
+          />
+        </>
+      )}
+      {(props.gameState.stage === "TowerInter" ||
+        props.gameState.stage === "TowerSoak") && (
+        <>
+          {props.gameState.towerLocations.map((p, i) => (
+            <img
+              src={props.gameState.darkTowers ? DarkTower : LightTower}
+              key={i}
+              style={{
+                position: "absolute",
+                left: `${p.x * 100}%`,
+                top: `${p.y * 100}%`,
+                width: "16%",
+                translate: "-50% -80%",
+              }}
+            />
+          ))}
+        </>
+      )}
+      {(props.gameState.stage === "Fall" ||
+        props.gameState.stage === "Inter" ||
+        props.gameState.stage === "PlusCross" ||
+        props.gameState.stage === "TowerDrop") && (
+        <>
+          <svg
+            height="100%"
+            width="100%"
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+            }}
+            viewBox="0 0 1 1"
+          >
+            <rect
+              x={props.gameState.topFall === "East" ? 0.23 : 0.73}
+              y={0.23}
+              width={0.04}
+              height={0.04}
+              fill="red"
+            />
+            <rect
+              x={props.gameState.topFall === "East" ? 0.73 : 0.23}
+              y={0.73}
+              width={0.04}
+              height={0.04}
+              fill="red"
+            />
+          </svg>
+        </>
+      )}
     </Arena>
   );
 };
@@ -799,26 +1118,32 @@ export const Paradeigma3 = () => {
     Paradeigma3GameState
   >((setup) => {
     const darkTowers = pickOne([true, false]);
+    const topFallSide = pickOne<"East" | "West">(["East", "West"]);
+    const darkAdds = pickOne<"East" | "West">(["East", "West"]);
     const supportDebuffs = shuffle([
       CrossDebuff,
       PlusDebuff,
       darkTowers ? RedTowerDebuff : LightTowerDebuff,
       darkTowers ? RedTowerDebuff : LightTowerDebuff,
     ]);
-    let [dps, soup] = split(Designations, (d) => getRole(d) === "DPS");
+    const [dps, soup] = split(Designations, (d) => getRole(d) === "DPS");
     const soupDebuffs = soup
       .map<[Designation, Debuff[]]>((d, i) => [d, [supportDebuffs[i]]])
       .reduce<{ [d in Designation]?: Debuff[] }>(
         (o, a) => ({ ...o, [a[0]]: a[1] }),
         {}
       );
-    dps = shuffle(dps);
+    let [darkDps, lightDps] = extractN(dps, 2);
+    darkDps = shuffle(darkDps);
+    lightDps = shuffle(lightDps);
     const ps: Paradeigma3Player[] = Designations.map((d) => ({
       position: getRandomPos(),
       role: getRole(d),
       show: true,
       designation: d,
-      debuffs: soupDebuffs[d] ?? [],
+      debuffs: soupDebuffs[d] ?? [
+        darkDps.includes(d) ? RedDebuff : LightDebuff,
+      ],
       controlled: d === setup.designation,
       alive: true,
     }));
@@ -831,7 +1156,6 @@ export const Paradeigma3 = () => {
             (darkTowers ? RedTowerDebuff.name : LightTowerDebuff.name)
         )
     );
-    const topFallSide = pickOne<"East" | "West">(["East", "West"]);
     return {
       game: paradeigma3,
       gameState: {
@@ -842,7 +1166,7 @@ export const Paradeigma3 = () => {
         hasFinished: false,
         players: ps,
         stage: "Initial",
-        darkAdds: pickOne(["East", "West"]),
+        darkAdds: darkAdds,
         darkTowers: darkTowers,
         topFall: topFallSide,
         row1Support: ps.filter((p) =>
@@ -853,10 +1177,10 @@ export const Paradeigma3 = () => {
         row4Support: ps.filter((p) =>
           p.debuffs.some((d) => d.name === CrossDebuff.name)
         )[0].designation,
-        row2Straight: dps[0],
-        row2Cross: dps[1],
-        row3Straight: dps[2],
-        row3Cross: dps[3],
+        row2Straight: topFallSide !== darkAdds ? darkDps[0] : lightDps[0],
+        row2Cross: topFallSide !== darkAdds ? darkDps[1] : lightDps[1],
+        row3Straight: topFallSide === darkAdds ? darkDps[0] : lightDps[0],
+        row3Cross: topFallSide === darkAdds ? darkDps[1] : lightDps[1],
       },
       loop: 1,
       next: [],
