@@ -1,4 +1,4 @@
-import { point } from "@flatten-js/core";
+import { Point, point } from "@flatten-js/core";
 import { DangerPuddle } from "../../Mechanics/DangerPuddles";
 import { SuperchainExplosion, SuperchainExplosionInOut, getSuperChainDangerPuddles } from "../Superchain/explosionTypes"
 import { Player } from "../../Player";
@@ -12,9 +12,9 @@ type InitialState = {
         middle: "Circle",
         south: "Pair"
     } | {
-        north: "Circle",
+        north: "Pair",
         middle: "Circle",
-        south: "Pair"
+        south: "Circle"
     },
     long: {
         north: "Circle",
@@ -177,4 +177,53 @@ export const nextStep = (state: SuperchainTheory2aGameState): SuperchainTheory2a
         }
     }
     return state;
+}
+
+export const getTargetSpot = (state: SuperchainTheory2aGameState, player: Player): Point => {
+    if (state.stage === "Initial") {
+        const ys = state.short.north === "Circle" ? [0.7, 0.73, 0.76, 0.8] : [0.3, 0.27, 0.24, 0.2];
+        switch (player.designation) {
+            case "MT":
+            case "M1":
+                return point(0.5, ys[0])
+            case "OT":
+            case "M2":
+                return point(0.5, ys[1])
+            case "H1":
+            case "R1":
+                return point(0.5, ys[2])
+            case "H2":
+            case "R2":
+                return point(0.5, ys[3])
+        }
+    }
+    if (state.stage === "Trinity") {
+        const xs = state.trinity[0] === "Left" ? [0.55, 0.6] : [0.45, 0.4];
+        const ys = state.short.north === "Circle" ? [0.7, 0.73, 0.76, 0.8] : [0.3, 0.27, 0.24, 0.2];
+        switch (player.designation) {
+            case "MT":
+            case "M1":
+                return point(xs[0], ys[0])
+            case "OT":
+            case "M2":
+                return point(xs[1], ys[1])
+            case "H1":
+            case "R1":
+                return point(xs[1], ys[2])
+            case "H2":
+            case "R2":
+                return point(xs[0], ys[3])
+        }
+    }
+    if (state.stage === "Explosion1") {
+        return point(state.trinity[1] === "Left" ? 0.4 : 0.6, 0.5)
+    }
+    if (state.stage === "Explosion2") {
+        return point(state.trinity[2] === "Left" ? 0.6 : 0.4, state.long.north === "Circle" ? 0.75 : 0.25)
+    }
+    if (state.stage === "Explosion3") {
+        return point()
+    }
+
+    return player.position;
 }

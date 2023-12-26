@@ -1,31 +1,13 @@
 import { useCallback, useEffect, useState } from "react"
 import { Arena } from "../P12SP1Arena"
 import { SuperchainExplosionDisplay } from "../Superchain/SuperchainExplosionDisplay"
-import { createInitialState, getDangerPuddles, nextStep } from "./states"
+import { createInitialState, getDangerPuddles, getTargetSpot, nextStep } from "./states"
 import { point } from "@flatten-js/core"
 import { Player } from "../../Player"
 import { Designations, getRandomPos, getRole } from "../../gameState"
 
 export const SuperchainTheory2A = () => {
     const [state, setState] = useState(createInitialState());
-    const onAnimationEnd = useCallback(() => {
-        if (state.stage !== "Initial") {
-            setState(nextStep(state))
-        }
-    }, [state])
-    const onMove = useCallback(() => {
-        if (state.stage === "Initial") {
-            setState(nextStep(state))
-        }
-    }, [state])
-
-    useEffect(() => {
-        let mounted = true;
-        setTimeout(() => mounted && onAnimationEnd(), 1500);
-        return () => {
-            mounted = false;
-        };
-    }, [onAnimationEnd]);
 
     const [players, setPlayers] = useState<Player[]>(Designations.map(d => ({
         alive: true,
@@ -35,6 +17,28 @@ export const SuperchainTheory2A = () => {
         position: getRandomPos(),
         role: getRole(d)
     })));
+
+    const autoProgress = state.stage === "Trinity" && state.displayed < 3;
+
+    const onAnimationEnd = useCallback(() => {
+        if (autoProgress) {
+            setState(nextStep(state))
+        }
+    }, [state, autoProgress])
+    const onMove = useCallback(() => {
+        if (!autoProgress) {
+            setPlayers(players.map(p => p.controlled ? p : { ...p, position: getTargetSpot(state, p) }))
+            setState(nextStep(state))
+        }
+    }, [state, players, autoProgress])
+
+    useEffect(() => {
+        let mounted = true;
+        setTimeout(() => mounted && onAnimationEnd(), 500);
+        return () => {
+            mounted = false;
+        };
+    }, [onAnimationEnd]);
 
     const dangerPuddles = getDangerPuddles(state, players);
 
@@ -60,7 +64,6 @@ export const SuperchainTheory2A = () => {
             <SuperchainExplosionDisplay explosion="Circle" position={point(-0.5, -0.5).scale(longChainLength, longChainLength).translate(0.5, 0.5)} target={point(0.5, 0.5)} />
             <SuperchainExplosionDisplay explosion={state.long.south} position={point(0.5, -0.75).scale(longChainLength, longChainLength).translate(0.5, 0.75)} target={point(0.5, 0.75)} />
         </>}
-}
         <svg
             height="100%"
             width="100%"
