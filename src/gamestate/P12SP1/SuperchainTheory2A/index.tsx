@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useState } from "react"
 import { Arena } from "../P12SP1Arena"
 import { SuperchainExplosionDisplay } from "../Superchain/SuperchainExplosionDisplay"
-import { createInitialState, getDangerPuddles, getTargetSpot, nextStep } from "./states"
+import { SuperchainTheory2aGameState, createInitialState, getDangerPuddles, getTargetSpot, nextStep } from "./states"
 import { point } from "@flatten-js/core"
 import { Player } from "../../Player"
 import { Designations, getRandomPos, getRole } from "../../gameState"
+import { survivePuddles } from "../../Mechanics/DangerPuddles"
 
 export const SuperchainTheory2A = () => {
     const [state, setState] = useState(createInitialState());
+    const [prevStage, setPrevStage] = useState<SuperchainTheory2aGameState["stage"] | undefined>();
 
     const [players, setPlayers] = useState<Player[]>(Designations.map(d => ({
         alive: true,
@@ -23,12 +25,14 @@ export const SuperchainTheory2A = () => {
     const onAnimationEnd = useCallback(() => {
         if (autoProgress) {
             setState(nextStep(state))
+            setPrevStage(state.stage);
         }
     }, [state, autoProgress])
     const onMove = useCallback(() => {
         if (!autoProgress) {
             setPlayers(players.map(p => p.controlled ? p : { ...p, position: getTargetSpot(state, p) }))
             setState(nextStep(state))
+            setPrevStage(state.stage);
         }
     }, [state, players, autoProgress])
 
@@ -39,6 +43,17 @@ export const SuperchainTheory2A = () => {
             mounted = false;
         };
     }, [onAnimationEnd]);
+
+    useEffect(() => {
+        if (prevStage !== state.stage) {
+            const survivingPlayers = survivePuddles(
+                getDangerPuddles(state, players),
+                players
+            );
+            setPlayers(players.map(p => ({ ...p, alive: p.alive && survivingPlayers.includes(p.designation) })))
+            setPrevStage(state.stage)
+        }
+    }, [players, state, prevStage])
 
     const dangerPuddles = getDangerPuddles(state, players);
 
