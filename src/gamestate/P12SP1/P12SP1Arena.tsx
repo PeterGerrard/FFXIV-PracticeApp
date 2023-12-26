@@ -14,6 +14,7 @@ export const Arena = (
     players: Player[];
     moveTo: (p: Point) => void;
     dangerPuddles: DangerPuddle[];
+    bossDirection?: "North" | "South"
   }>
 ) => {
   return (
@@ -49,7 +50,7 @@ export const Arena = (
       >
         <img src={arenaPng} height="100%" width="100%"></img>
         <>
-          <Athena />
+          <Athena direction={props.bossDirection ?? "North"} />
           {props.children}
           {props.players.map((p, i) => (
             <PlayerComponent key={i} player={p} />

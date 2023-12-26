@@ -1,7 +1,7 @@
 import bossPng from "./assets/boss.png";
 import indicatorPng from "../assets/indicator.png";
 
-export const Athena = () => (
+export const Athena = (props: { direction: "North" | "South" }) => (
   <>
     <img
       src={indicatorPng}
@@ -10,8 +10,9 @@ export const Athena = () => (
       style={{
         position: "absolute",
         left: `50%`,
-        top: `42.5%`,
-        transform: "translate(-50%, -50%)",
+        top: `50%`,
+        transformOrigin: "50% 62%",
+        transform: `translate(-50%, -62%) scale(1,${props.direction === "North" ? 1 : -1})`,
       }}
     ></img>
     <img
@@ -22,7 +23,7 @@ export const Athena = () => (
         position: "absolute",
         left: `50%`,
         top: `50%`,
-        transform: "translate(-50%, -50%)",
+        transform: `translate(-50%, -50%) scale(1,${props.direction === "North" ? 1 : -1})`,
       }}
     ></img>
   </>

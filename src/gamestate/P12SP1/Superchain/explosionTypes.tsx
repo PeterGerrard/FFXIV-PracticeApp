@@ -21,6 +21,18 @@ export const getSrc = (e: SuperchainExplosion): string => {
       return pairPng;
   }
 };
+export const getChainColour = (e: SuperchainExplosion): string => {
+  switch (e) {
+    case "Circle":
+      return "green";
+    case "Donut":
+      return "blue";
+    case "Protean":
+      return "orange";
+    case "Pair":
+      return "purple";
+  }
+};
 
 const getDangerInfo = (
   explosion: SuperchainExplosion,

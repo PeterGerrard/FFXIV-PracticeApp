@@ -1,5 +1,5 @@
 import { Point } from "@flatten-js/core";
-import { SuperchainExplosion, getSrc } from "./explosionTypes";
+import { SuperchainExplosion, getChainColour, getSrc } from "./explosionTypes";
 
 
 export const SuperchainExplosionDisplay = (props: {
@@ -24,7 +24,7 @@ export const SuperchainExplosionDisplay = (props: {
                     y1={props.position.y}
                     x2={props.target.x}
                     y2={props.target.y}
-                    stroke="green"
+                    stroke={getChainColour(props.explosion)}
                     strokeWidth={0.01} />
             </svg>
             <img
