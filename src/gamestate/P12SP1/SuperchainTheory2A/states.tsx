@@ -56,6 +56,12 @@ export const createInitialState = (): SuperchainTheory2aGameState => {
     const northFirst = pickOne([true, false]);
     const northLast = pickOne([true, false]);
     const lastType = pickOne<Exclude<SuperchainExplosion, SuperchainExplosionInOut>>(["Pair", "Protean"]);
+    const t1 = pickOne<"Left" | "Right">(["Left", "Right"]);
+    const t2 = pickOne<"Left" | "Right">(["Left", "Right"]);
+    const t3 =
+        t1 == "Left" && t2 == "Left" ? "Right" :
+            t1 == "Right" && t2 == "Right" ? "Left" :
+                pickOne<"Left" | "Right">(["Left", "Right"]);
     return {
         stage: "Initial",
         short: northFirst ? {
@@ -76,7 +82,7 @@ export const createInitialState = (): SuperchainTheory2aGameState => {
             middle: "Circle",
             south: lastType
         },
-        trinity: [pickOne<"Left" | "Right">(["Left", "Right"]), pickOne<"Left" | "Right">(["Left", "Right"]), pickOne<"Left" | "Right">(["Left", "Right"])]
+        trinity: [t1, t2, t3]
     }
 }
 
