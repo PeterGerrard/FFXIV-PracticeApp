@@ -9,7 +9,7 @@ import { Point, point, vector } from "@flatten-js/core";
 export type SuperchainExplosion = SuperchainExplosionInOut | "Protean" | "Pair";
 export type SuperchainExplosionInOut = "Circle" | "Donut";
 
-const getSrc = (e: SuperchainExplosion): string => {
+export const getSrc = (e: SuperchainExplosion): string => {
   switch (e) {
     case "Circle":
       return circlePng;
@@ -20,47 +20,6 @@ const getSrc = (e: SuperchainExplosion): string => {
     case "Pair":
       return pairPng;
   }
-};
-
-export const SuperchainExplosionDisplay = (props: {
-  explosion: SuperchainExplosion;
-  position: Point;
-  target: Point;
-}): JSX.Element => {
-  return (
-    <>
-      <svg
-        height="100%"
-        width="100%"
-        style={{
-          position: "absolute",
-          left: `0`,
-          top: `0`,
-        }}
-        viewBox="0 0 1 1"
-      >
-        <line
-          x1={props.position.x}
-          y1={props.position.y}
-          x2={props.target.x}
-          y2={props.target.y}
-          stroke="green"
-          strokeWidth={0.01}
-        />
-      </svg>
-      <img
-        src={getSrc(props.explosion)}
-        height="7.5%"
-        width="7.5%"
-        style={{
-          position: "absolute",
-          left: `${props.position.x * 100}%`,
-          top: `${props.position.y * 100}%`,
-          transform: "translate(-50%, -50%)",
-        }}
-      />
-    </>
-  );
 };
 
 const getDangerInfo = (
@@ -103,7 +62,7 @@ const getDangerInfo = (
       return players.map((a, i) => ({
         type: "cone",
         source: position,
-        onAnimationEnd: i == 0 ? animationEnd : () => {},
+        onAnimationEnd: i == 0 ? animationEnd : () => { },
         angle: vector(position, point(position.x, position.y - 1)).angleTo(
           vector(position, a.position)
         ),
@@ -120,7 +79,7 @@ const getDangerInfo = (
         .map((a, i) => ({
           type: "cone",
           source: position,
-          onAnimationEnd: i == 0 ? animationEnd : () => {},
+          onAnimationEnd: i == 0 ? animationEnd : () => { },
           angle: vector(position, point(position.x, position.y - 1)).angleTo(
             vector(position, a.position)
           ),
@@ -141,7 +100,7 @@ export const getSuperChainDangerPuddles = (
   animationEnd: () => void
 ): DangerPuddle[] => {
   const xs = explosions.flatMap((e, i) =>
-    getDangerInfo(e, position, players, i === 0 ? animationEnd : () => {})
+    getDangerInfo(e, position, players, i === 0 ? animationEnd : () => { })
   );
   return xs;
 };

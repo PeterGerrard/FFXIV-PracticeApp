@@ -19,6 +19,9 @@ export const SelectMechanic = () => (
       <li>
         <NavLink to="/p12s/p1/paradeigma3">Paradeigma 3 (beta)</NavLink>
       </li>
+      <li>
+        <NavLink to="/p12s/p1/superchain2a">Superchain Theory IIA (pre-alpha)</NavLink>
+      </li>
     </ul>
   </>
 );

@@ -12,13 +12,11 @@ import {
   isRanged,
 } from "../../gameState";
 import { extractN, pickOne, shuffle, split } from "../../helpers";
-import { Arena } from "../P12SP1Arena";
 import {
   SuperchainExplosion,
-  SuperchainExplosionDisplay,
   SuperchainExplosionInOut,
   getSuperChainDangerPuddles,
-} from "./explosionTypes";
+} from "../Superchain/explosionTypes";
 import {
   AoeDebuff,
   LightDebuff,
@@ -32,8 +30,7 @@ import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import LinearProgress from "@mui/material/LinearProgress";
-import DarkTower from "./assets/darktower.png";
-import LightTower from "./assets/lighttower.png";
+import { SuperchainTheory1Arena } from "./SuperchainTheory1Arena";
 
 export const superchainTheory1: GameLoop<
   SuperchainTheory1Player,
@@ -251,7 +248,7 @@ export const superchainTheory1: GameLoop<
   applyDamage: (gameState) => {
     const dangerPuddles = getDangerPuddles(
       gameState,
-      () => {},
+      () => { },
       gameState.players
     );
     let survivingPlayers = survivePuddles(dangerPuddles, gameState.players);
@@ -302,15 +299,15 @@ export const superchainTheory1: GameLoop<
           debuffs: lightAoes.includes(p.designation)
             ? [LightDebuff, AoeDebuff]
             : redAoes.includes(p.designation)
-            ? [RedDebuff, AoeDebuff]
-            : [
+              ? [RedDebuff, AoeDebuff]
+              : [
                 p.designation === lightTower
                   ? LightTowerDebuff
                   : p.designation === redTower
-                  ? RedTowerDebuff
-                  : p.designation === lightLaser
-                  ? LightLaserDebuff
-                  : RedLaserDebuff,
+                    ? RedTowerDebuff
+                    : p.designation === lightLaser
+                      ? LightLaserDebuff
+                      : RedLaserDebuff,
               ],
         })),
       };
@@ -331,9 +328,9 @@ export const superchainTheory1: GameLoop<
           ...p,
           debuffs: [
             p.debuffs.some((d) => d.name === LightTowerDebuff.name) &&
-              LightTowerDebuff,
+            LightTowerDebuff,
             p.debuffs.some((d) => d.name === RedTowerDebuff.name) &&
-              RedTowerDebuff,
+            RedTowerDebuff,
             p.debuffs.some(
               (d) =>
                 d.name === RedLaserDebuff.name ||
@@ -387,84 +384,84 @@ export const superchainTheory1: GameLoop<
   },
 };
 
-const notFalse = <T extends {}>(x: T | false): x is T => {
+const notFalse = <T extends object>(x: T | false): x is T => {
   return x !== false;
 };
 
-type SuperchainTheory1Player = Player;
+export type SuperchainTheory1Player = Player;
 
-type SuperchainTheoryGameState = GameState<SuperchainTheory1Player> &
+export type SuperchainTheoryGameState = GameState<SuperchainTheory1Player> &
   (
     | {
-        stage: "Initial";
-        initialCorner: Point;
-        secondCorners: [
-          [Point, SuperchainExplosionInOut],
-          [Point, SuperchainExplosionInOut]
-        ];
-        finalCorner: Point;
-        initialExplosions: [SuperchainExplosion, SuperchainExplosion];
-        finalExplosions: [SuperchainExplosionInOut, SuperchainExplosionInOut];
-      }
+      stage: "Initial";
+      initialCorner: Point;
+      secondCorners: [
+        [Point, SuperchainExplosionInOut],
+        [Point, SuperchainExplosionInOut]
+      ];
+      finalCorner: Point;
+      initialExplosions: [SuperchainExplosion, SuperchainExplosion];
+      finalExplosions: [SuperchainExplosionInOut, SuperchainExplosionInOut];
+    }
     | {
-        stage: "Explosion1";
-        initialCorner: Point;
-        secondCorners: [
-          [Point, SuperchainExplosionInOut],
-          [Point, SuperchainExplosionInOut]
-        ];
-        finalCorner: Point;
-        initialExplosions: [SuperchainExplosion, SuperchainExplosion];
-        finalExplosions: [SuperchainExplosionInOut, SuperchainExplosionInOut];
-      }
+      stage: "Explosion1";
+      initialCorner: Point;
+      secondCorners: [
+        [Point, SuperchainExplosionInOut],
+        [Point, SuperchainExplosionInOut]
+      ];
+      finalCorner: Point;
+      initialExplosions: [SuperchainExplosion, SuperchainExplosion];
+      finalExplosions: [SuperchainExplosionInOut, SuperchainExplosionInOut];
+    }
     | {
-        stage: "Inter1";
-        secondCorners: [
-          [Point, SuperchainExplosionInOut],
-          [Point, SuperchainExplosionInOut]
-        ];
-        finalCorner: Point;
-        finalExplosions: [SuperchainExplosionInOut, SuperchainExplosionInOut];
-      }
+      stage: "Inter1";
+      secondCorners: [
+        [Point, SuperchainExplosionInOut],
+        [Point, SuperchainExplosionInOut]
+      ];
+      finalCorner: Point;
+      finalExplosions: [SuperchainExplosionInOut, SuperchainExplosionInOut];
+    }
     | {
-        stage: "Lasers";
-        secondCorners: [
-          [Point, SuperchainExplosionInOut],
-          [Point, SuperchainExplosionInOut]
-        ];
-        finalCorner: Point;
-        finalExplosions: [SuperchainExplosionInOut, SuperchainExplosionInOut];
-      }
+      stage: "Lasers";
+      secondCorners: [
+        [Point, SuperchainExplosionInOut],
+        [Point, SuperchainExplosionInOut]
+      ];
+      finalCorner: Point;
+      finalExplosions: [SuperchainExplosionInOut, SuperchainExplosionInOut];
+    }
     | {
-        stage: "Inter2";
-        finalCorner: Point;
-        finalExplosions: [SuperchainExplosionInOut, SuperchainExplosionInOut];
-      }
+      stage: "Inter2";
+      finalCorner: Point;
+      finalExplosions: [SuperchainExplosionInOut, SuperchainExplosionInOut];
+    }
     | {
-        stage: "InOutPart1";
-        finalCorner: Point;
-        finalExplosions: [SuperchainExplosionInOut, SuperchainExplosionInOut];
-      }
+      stage: "InOutPart1";
+      finalCorner: Point;
+      finalExplosions: [SuperchainExplosionInOut, SuperchainExplosionInOut];
+    }
     | {
-        stage: "InOutPart2";
-        finalCorner: Point;
-        finalExplosion: SuperchainExplosionInOut;
-      }
+      stage: "InOutPart2";
+      finalCorner: Point;
+      finalExplosion: SuperchainExplosionInOut;
+    }
     | {
-        stage: "DropTower";
-        finalCorner: Point;
-        darkTower: Point;
-        lightTower: Point;
-      }
+      stage: "DropTower";
+      finalCorner: Point;
+      darkTower: Point;
+      lightTower: Point;
+    }
     | {
-        stage: "SoakAndAoes";
-        finalCorner: Point;
-        darkTower: Point;
-        lightTower: Point;
-      }
+      stage: "SoakAndAoes";
+      finalCorner: Point;
+      darkTower: Point;
+      lightTower: Point;
+    }
   );
 
-const getDangerPuddles = (
+export const getDangerPuddles = (
   gameState: SuperchainTheoryGameState,
   animationEnd: () => void,
   players: SuperchainTheory1Player[]
@@ -491,8 +488,8 @@ const getDangerPuddles = (
           redLaserTarget.position.distanceTo(point(0.5, 0.5))[0] < 0.00001
             ? 0
             : vector(point(0.5, 0.5), point(0.5, 1)).angleTo(
-                vector(point(0.5, 0.5), redLaserTarget.position)
-              ),
+              vector(point(0.5, 0.5), redLaserTarget.position)
+            ),
         onAnimationEnd: animationEnd,
         roleRequirement: null,
         source: point(0.5, 0.5),
@@ -508,8 +505,8 @@ const getDangerPuddles = (
           lightLaserTarget.position.distanceTo(point(0.5, 0.5))[0] < 0.00001
             ? 0
             : vector(point(0.5, 0.5), point(0.5, 1)).angleTo(
-                vector(point(0.5, 0.5), lightLaserTarget.position)
-              ),
+              vector(point(0.5, 0.5), lightLaserTarget.position)
+            ),
         onAnimationEnd: animationEnd,
         roleRequirement: null,
         source: point(0.5, 0.5),
@@ -526,7 +523,7 @@ const getDangerPuddles = (
           [x[1]],
           x[0],
           players,
-          i == 0 ? animationEnd : () => {}
+          i == 0 ? animationEnd : () => { }
         )
       )
       .concat(lasers);
@@ -536,7 +533,7 @@ const getDangerPuddles = (
       [gameState.finalExplosions[0]],
       gameState.finalCorner,
       gameState.players,
-      () => {}
+      () => { }
     );
   }
   if (gameState.stage === "InOutPart2") {
@@ -544,7 +541,7 @@ const getDangerPuddles = (
       [gameState.finalExplosion],
       gameState.finalCorner,
       gameState.players,
-      () => {}
+      () => { }
     );
   }
   if (gameState.stage === "DropTower") {
@@ -557,7 +554,7 @@ const getDangerPuddles = (
         instaKill: null,
         split: false,
         damage: 0.6,
-        onAnimationEnd: () => {},
+        onAnimationEnd: () => { },
         roleRequirement: null,
         source: gameState.darkTower,
       },
@@ -569,7 +566,7 @@ const getDangerPuddles = (
         instaKill: null,
         split: false,
         damage: 0.6,
-        onAnimationEnd: () => {},
+        onAnimationEnd: () => { },
         roleRequirement: null,
         source: gameState.lightTower,
       },
@@ -585,7 +582,7 @@ const getDangerPuddles = (
         instaKill: null,
         split: false,
         damage: 0.6,
-        onAnimationEnd: () => {},
+        onAnimationEnd: () => { },
         roleRequirement: null,
         source: gameState.darkTower,
       },
@@ -597,7 +594,7 @@ const getDangerPuddles = (
         instaKill: null,
         split: false,
         damage: 0.6,
-        onAnimationEnd: () => {},
+        onAnimationEnd: () => { },
         roleRequirement: null,
         source: gameState.lightTower,
       },
@@ -609,7 +606,7 @@ const getDangerPuddles = (
         damage: 0.8,
         debuffRequirement: null,
         instaKill: null,
-        onAnimationEnd: () => {},
+        onAnimationEnd: () => { },
         radius: 0.15,
         roleRequirement: null,
         split: false,
@@ -619,97 +616,6 @@ const getDangerPuddles = (
   }
 
   return [];
-};
-
-const SuperchainTheory1Arena = (props: {
-  players: SuperchainTheory1Player[];
-  gameState: SuperchainTheoryGameState;
-  moveTo: (p: Point) => void;
-  animationEnd: () => void;
-}) => {
-  return (
-    <Arena
-      players={props.players}
-      moveTo={props.moveTo}
-      dangerPuddles={getDangerPuddles(
-        props.gameState,
-        props.animationEnd,
-        props.players
-      )}
-    >
-      {props.gameState.stage === "Initial" && (
-        <>
-          <SuperchainExplosionDisplay
-            explosion={props.gameState.initialExplosions[0]}
-            position={props.gameState.initialCorner.translate(-0.1, 0)}
-            target={props.gameState.initialCorner}
-          />
-          <SuperchainExplosionDisplay
-            explosion={props.gameState.initialExplosions[1]}
-            position={props.gameState.initialCorner.translate(0, -0.1)}
-            target={props.gameState.initialCorner}
-          />
-        </>
-      )}
-
-      {(props.gameState.stage === "Explosion1" ||
-        props.gameState.stage === "Inter1") && (
-        <>
-          <SuperchainExplosionDisplay
-            explosion={props.gameState.secondCorners[0][1]}
-            position={props.gameState.secondCorners[0][0].translate(0.2, 0.2)}
-            target={props.gameState.secondCorners[0][0]}
-          />
-          <SuperchainExplosionDisplay
-            explosion={props.gameState.secondCorners[1][1]}
-            position={props.gameState.secondCorners[1][0].translate(0.2, 0.2)}
-            target={props.gameState.secondCorners[1][0]}
-          />
-        </>
-      )}
-
-      {(props.gameState.stage === "Lasers" ||
-        props.gameState.stage === "Inter2") && (
-        <>
-          <SuperchainExplosionDisplay
-            explosion={props.gameState.finalExplosions[0]}
-            position={props.gameState.finalCorner.translate(-0.1, -0.1)}
-            target={props.gameState.finalCorner}
-          />
-          <SuperchainExplosionDisplay
-            explosion={props.gameState.finalExplosions[1]}
-            position={props.gameState.finalCorner.translate(-0.2, 0.1)}
-            target={props.gameState.finalCorner}
-          />
-        </>
-      )}
-
-      {props.gameState.stage === "DropTower" && (
-        <>
-          <img
-            src={DarkTower}
-            style={{
-              position: "absolute",
-              left: `${props.gameState.darkTower.x * 100}%`,
-              top: `${props.gameState.darkTower.y * 100}%`,
-              width: "10%",
-              translate: "-50% -80%",
-            }}
-          />
-          <img
-            src={LightTower}
-            style={{
-              position: "absolute",
-              left: `${props.gameState.lightTower.x * 100}%`,
-              top: `${props.gameState.lightTower.y * 100}%`,
-              width: "10%",
-              translate: "-50% -80%",
-            }}
-          />
-        </>
-      )}
-    </Arena>
-  );
 };
 
 export const SuperchainTheory1 = () => {

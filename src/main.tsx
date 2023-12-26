@@ -90,6 +90,15 @@ const router = createBrowserRouter([
           return { Component };
         },
       },
+      {
+        path: "p12s/p1/superchain2a",
+        lazy: async () => {
+          const { SuperchainTheory2A: Component } = await import(
+            "./gamestate/P12SP1/SuperchainTheory2A"
+          );
+          return { Component };
+        },
+      },
     ],
   },
 ]);
