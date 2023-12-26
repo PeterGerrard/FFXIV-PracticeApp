@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useCallback, useContext, useEffect, useState } from "react"
+import { PropsWithChildren, useCallback, useContext, useEffect, useState } from "react"
 import { Arena } from "../P12SP1Arena"
 import { SuperchainExplosionDisplay } from "../Superchain/SuperchainExplosionDisplay"
 import { SuperchainTheory2aGameState, createInitialState, getDangerPuddles, getTargetSpot, nextStep } from "./states"
