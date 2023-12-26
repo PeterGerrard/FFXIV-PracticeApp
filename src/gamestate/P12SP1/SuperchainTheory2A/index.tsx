@@ -73,12 +73,18 @@ export const SuperchainTheory2A = () => {
     const autoProgress = state.stage === "Trinity" && state.displayed < 3;
 
     const onAnimationEnd = useCallback(() => {
+        if (players.some(x => !x.alive)) {
+            return;
+        }
         if (autoProgress) {
             setState(nextStep(state))
             setPrevStage(state.stage);
         }
-    }, [state, autoProgress])
+    }, [state, autoProgress, players])
     const onMove = useCallback((newPoint: Point) => {
+        if (players.some(x => !x.alive)) {
+            return;
+        }
         if (!autoProgress) {
             setPlayers(players.map(p => p.controlled ? { ...p, position: newPoint } : { ...p, position: getTargetSpot(state, p) }))
             setState(nextStep(state))
