@@ -2,6 +2,7 @@ import { Point, point } from "@flatten-js/core";
 import { DangerPuddle } from "../../Mechanics/DangerPuddles";
 import { SuperchainExplosion, SuperchainExplosionInOut, getSuperChainDangerPuddles } from "../Superchain/explosionTypes"
 import { Player } from "../../Player";
+import { pickOne } from "../../helpers";
 
 type TrinitySide = "Left" | "Right";
 
@@ -52,19 +53,30 @@ type Explosion4 = Omit<InitialState, "stage"> & {
 export type SuperchainTheory2aGameState = InitialState | Trinity | Explosion1 | Explosion2 | Explosion3 | Explosion4
 
 export const createInitialState = (): SuperchainTheory2aGameState => {
+    const northFirst = pickOne([true, false]);
+    const northLast = pickOne([true, false]);
+    const lastType = pickOne<Exclude<SuperchainExplosion, SuperchainExplosionInOut>>(["Pair", "Protean"]);
     return {
         stage: "Initial",
-        short: {
+        short: northFirst ? {
+            north: "Pair",
+            middle: "Circle",
+            south: "Circle"
+        } : {
             north: "Circle",
             middle: "Circle",
             south: "Pair"
         },
-        long: {
+        long: northLast ? {
+            north: lastType,
+            middle: "Circle",
+            south: "Circle"
+        } : {
             north: "Circle",
             middle: "Circle",
-            south: "Protean"
+            south: lastType
         },
-        trinity: ["Left", "Right", "Left"]
+        trinity: [pickOne<"Left" | "Right">(["Left", "Right"]), pickOne<"Left" | "Right">(["Left", "Right"]), pickOne<"Left" | "Right">(["Left", "Right"])]
     }
 }
 
