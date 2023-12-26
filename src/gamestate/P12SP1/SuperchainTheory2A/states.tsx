@@ -1,4 +1,4 @@
-import { Point, point } from "@flatten-js/core";
+import { Point, point, vector } from "@flatten-js/core";
 import { DangerPuddle } from "../../Mechanics/DangerPuddles";
 import { SuperchainExplosion, SuperchainExplosionInOut, getSuperChainDangerPuddles } from "../Superchain/explosionTypes"
 import { Player } from "../../Player";
@@ -234,7 +234,38 @@ export const getTargetSpot = (state: SuperchainTheory2aGameState, player: Player
         return point(state.trinity[2] === "Left" ? 0.6 : 0.4, state.long.north === "Circle" ? 0.75 : 0.25)
     }
     if (state.stage === "Explosion3") {
-        return point()
+        let off = vector();
+        const pairs = state.long.north === "Pair" || state.long.south === "Pair"
+        switch (player.designation) {
+            case "MT":
+                off = pairs ? vector(0.7, 0.7) : vector(0.4, 0.9)
+                break;
+            case "OT":
+                off = pairs ? vector(-0.7, 0.7) : vector(-0.4, 0.9)
+                break;
+            case "H1":
+                off = pairs ? vector(0.7, -0.7) : vector(0.9, -0.4)
+                break;
+            case "H2":
+                off = pairs ? vector(-0.7, -0.7) : vector(-0.9, -0.4)
+                break;
+            case "M1":
+                off = pairs ? vector(0.7, 0.7) : vector(0.9, 0.4)
+                break;
+            case "M2":
+                off = pairs ? vector(-0.7, 0.7) : vector(-0.9, 0.4)
+                break;
+            case "R1":
+                off = pairs ? vector(0.7, -0.7) : vector(0.4, -0.9)
+                break;
+            case "R2":
+                off = pairs ? vector(-0.7, -0.7) : vector(-0.4, -0.9)
+                break;
+        }
+        if (state.long.north === "Circle") {
+            off = off.rotate(Math.PI);
+        }
+        return point(0.5, state.long.north !== "Circle" ? 0.25 : 0.75).translate(off.scale(0.05, 0.05))
     }
 
     return player.position;
