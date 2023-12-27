@@ -15,6 +15,7 @@ export const DeathOverlay = (
         top: `${props.safeLocation.y * 100}%`,
         transform: "translate(-50%, -50%)",
       }}
+      onClick={(e) => e.stopPropagation()}
     >
       <circle
         cx="50"
