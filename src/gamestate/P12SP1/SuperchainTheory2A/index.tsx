@@ -1,10 +1,10 @@
-import { PropsWithChildren, useCallback, useContext, useEffect, useState } from "react"
+import { useCallback, useContext, useEffect, useState } from "react"
 import { Arena } from "../P12SP1Arena"
 import { SuperchainExplosionDisplay } from "../Superchain/SuperchainExplosionDisplay"
 import { SuperchainTheory2aGameState, createInitialState, getDangerPuddles, getTargetSpot, nextStep } from "./states"
 import { Point, point } from "@flatten-js/core"
 import { Player } from "../../Player"
-import { Designations, getRandomPos, getRole } from "../../gameState"
+import { Designation, Designations, getRandomPos, getRole } from "../../gameState"
 import { survivePuddles } from "../../Mechanics/DangerPuddles"
 import { SetupContext } from "../../Setup/Setup"
 import Stack from "@mui/material/Stack"
@@ -41,74 +41,144 @@ const Overlay = (props: { players: Player[], state: SuperchainTheory2aGameState,
     return <></>
 }
 
+const usePlayers = <T extends Player>(createPlayers: () => T[], getTargetLocation: (player: T) => Point) => {
+    const [players, setPlayers] = useState(createPlayers());
+    const [safeLocation, setSafeLocation] = useState(point());
+    const [canMove, setCanMove] = useState(true);
+    const reset = () => {
+        setPlayers(createPlayers());
+        setSafeLocation(point());
+        setCanMove(true);
+    }
+    const moveControlled = (moveTo: Point) => {
+        if (!canMove) {
+            return;
+        }
+        setPlayers(players.map(p => p.controlled ? { ...p, position: moveTo } : { ...p, position: getTargetLocation(p) }))
+        setSafeLocation(getTargetLocation(players.filter(p => p.controlled)[0]))
+    }
+    const killPlayers = (predicate: (p: T) => boolean) => {
+        const newPlayers = players.map(p => ({ ...p, alive: p.alive && !predicate(p) }))
+        setPlayers(newPlayers)
+        return newPlayers.some(p => !p.alive)
+    }
+    const preventMovement = useCallback(() => {
+        setCanMove(false);
+    }, [setCanMove])
+
+    useEffect(() => {
+        if (canMove && players.some(p => !p.alive)) {
+            preventMovement();
+        }
+    }, [players, preventMovement, canMove])
+
+    return { players, safeLocation, reset, moveControlled, killPlayers, preventMovement };
+}
+
+const useGameState = <T extends object>(createState: () => T, autoProgress: (state: T) => false | number, progress: (state: T) => T) => {
+    const [state, setState] = useState(createState());
+    const [canProgress, setCanProgress] = useState(true);
+    const reset = () => {
+        setState(createState());
+        setCanProgress(true);
+    }
+
+    useEffect(() => {
+        let mounted = true;
+        const auto = autoProgress(state);
+        if (auto !== false) {
+            setTimeout(() => {
+                return mounted && canProgress && setState(progress(state))
+            }, auto);
+        }
+        return () => {
+            mounted = false;
+        };
+    }, [state, autoProgress, canProgress, progress]);
+
+    const goToNextState = () => {
+        if (autoProgress(state) === false) {
+            setState(progress(state))
+        }
+    }
+
+    const preventProgress = () => {
+        setCanProgress(false)
+    }
+
+    return {
+        state,
+        reset,
+        goToNextState,
+        preventProgress
+    }
+}
+
+const useGame = <TPlayer extends Player, TState extends { stage: string }>(
+    getSurvivors: (state: TState, players: TPlayer[]) => Designation[],
+    hasFinished: (state: TState) => boolean,
+    createPlayers: () => TPlayer[],
+    getTargetLocation: (state: TState, player: TPlayer) => Point,
+    createState: () => TState,
+    autoProgress: (state: TState) => false | number,
+    progress: (state: TState) => TState) => {
+    const { goToNextState, preventProgress, reset: resetState, state } = useGameState(createState, autoProgress, progress);
+    const [prevStage, setPrevStage] = useState<TState["stage"] | undefined>();
+    const { players, safeLocation, reset: resetPlayers, moveControlled, killPlayers, preventMovement } = usePlayers(createPlayers, (p) => getTargetLocation(state, p));
+
+    const restart = () => {
+        resetState();
+        setPrevStage(undefined);
+        resetPlayers();
+    }
+
+    const onMove = useCallback((newPoint: Point) => {
+        if (players.some(x => !x.alive)) {
+            return;
+        }
+        moveControlled(newPoint);
+        goToNextState();
+        setPrevStage(state.stage);
+    }, [state, players, moveControlled, goToNextState]);
+
+    useEffect(() => {
+        if (prevStage !== state.stage) {
+            const survivingPlayers = getSurvivors(
+                state,
+                players
+            );
+            const anyDied = killPlayers(p => !survivingPlayers.includes(p.designation));
+            if (anyDied) {
+                preventProgress();
+            }
+            setPrevStage(state.stage)
+        }
+    }, [players, state, prevStage, killPlayers, preventProgress, getSurvivors])
+
+    useEffect(() => {
+        if (hasFinished(state)) {
+            preventMovement();
+            preventProgress();
+        }
+    }, [state, preventMovement, preventProgress, hasFinished])
+
+    return { state, players, restart, onMove, safeLocation }
+}
+
+const autoProgress = (state: SuperchainTheory2aGameState) => state.stage === "Trinity" && state.displayed < 3 ? 500 : false;
+
 export const SuperchainTheory2A = () => {
-    const setup = useContext(SetupContext)
-    const [state, setState] = useState(createInitialState());
-    const [prevStage, setPrevStage] = useState<SuperchainTheory2aGameState["stage"] | undefined>();
-    const [players, setPlayers] = useState<Player[]>(Designations.map(d => ({
+
+    const setup = useContext(SetupContext);
+
+    const { state, players, restart, onMove, safeLocation } = useGame<Player, SuperchainTheory2aGameState>((s, p) => survivePuddles(getDangerPuddles(s, p), p), s => s.stage === "Explosion4", () => Designations.map(d => ({
         alive: true,
         controlled: setup.state.designation === d,
         debuffs: [],
         designation: d,
         position: getRandomPos(),
         role: getRole(d)
-    }))); 7
-    const [safeLocation, setSafeLocation] = useState(point())
-
-    const restart = () => {
-        setState(createInitialState());
-        setPrevStage(undefined);
-        setPlayers(Designations.map(d => ({
-            alive: true,
-            controlled: setup.state.designation === d,
-            debuffs: [],
-            designation: d,
-            position: getRandomPos(),
-            role: getRole(d)
-        })))
-    }
-
-    const autoProgress = state.stage === "Trinity" && state.displayed < 3;
-
-    const onAnimationEnd = useCallback(() => {
-        if (players.some(x => !x.alive)) {
-            return;
-        }
-        if (autoProgress) {
-            setState(nextStep(state))
-            setPrevStage(state.stage);
-        }
-    }, [state, autoProgress, players])
-    const onMove = useCallback((newPoint: Point) => {
-        if (players.some(x => !x.alive)) {
-            return;
-        }
-        if (!autoProgress) {
-            setPlayers(players.map(p => p.controlled ? { ...p, position: newPoint } : { ...p, position: getTargetSpot(state, p) }))
-            setState(nextStep(state))
-            setPrevStage(state.stage);
-            setSafeLocation(getTargetSpot(state, players.filter(p => p.controlled)[0]))
-        }
-    }, [state, players, autoProgress])
-
-    useEffect(() => {
-        let mounted = true;
-        setTimeout(() => mounted && onAnimationEnd(), 500);
-        return () => {
-            mounted = false;
-        };
-    }, [onAnimationEnd]);
-
-    useEffect(() => {
-        if (prevStage !== state.stage) {
-            const survivingPlayers = survivePuddles(
-                getDangerPuddles(state, players),
-                players
-            );
-            setPlayers(players.map(p => ({ ...p, alive: p.alive && survivingPlayers.includes(p.designation) })))
-            setPrevStage(state.stage)
-        }
-    }, [players, state, prevStage])
+    })), getTargetSpot, createInitialState, autoProgress, nextStep)
 
     const dangerPuddles = getDangerPuddles(state, players);
 
