@@ -12,8 +12,8 @@ export const DesignationDisplay = (props: {
           props.player.role === "Healer"
             ? "green"
             : props.player.role === "Tank"
-            ? "blue"
-            : "red"
+              ? "blue"
+              : "red"
         }
         x={5}
         y={5}
@@ -27,8 +27,8 @@ export const DesignationDisplay = (props: {
         x="50%"
         y="50%"
         height="80%"
-        dominant-baseline="central"
-        text-anchor="middle"
+        dominantBaseline="central"
+        textAnchor="middle"
         fill="white"
         fontSize="3rem"
       >

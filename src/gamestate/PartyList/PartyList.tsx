@@ -10,6 +10,7 @@ export const PartyList = (props: { players: Player[] }) => {
         gap: "0.25rem",
         alignItems: "center",
       }}
+      key={p.designation}
     >
       <DesignationDisplay
         key={p.designation}
