@@ -2,7 +2,7 @@ import { useContext } from "react"
 import { Arena } from "../P12SP1Arena"
 import { SuperchainExplosionDisplay } from "../Superchain/SuperchainExplosionDisplay"
 import { SuperchainTheory2aGameState, createInitialState, getDangerPuddles, getTargetSpot, nextStep } from "./states"
-import { Point, point } from "@flatten-js/core"
+import { point } from "@flatten-js/core"
 import { Player } from "../../Player"
 import { Designations, getRandomPos, getRole } from "../../gameState"
 import { survivePuddles } from "../../Mechanics/DangerPuddles"
@@ -10,37 +10,8 @@ import { SetupContext } from "../../Setup/Setup"
 import Stack from "@mui/material/Stack"
 import Button from "@mui/material/Button"
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import { DeathOverlay } from "../../Death/DeathOverlay"
 import { useGame } from "../../gameHooks"
-
-const Overlay = (props: { players: Player[], state: SuperchainTheory2aGameState, safeLocation: Point }) => {
-    const { players, state, safeLocation } = props;
-
-    if (players.some(s => !s.alive)) {
-        return <DeathOverlay safeLocation={safeLocation} />
-    }
-
-    if (state.stage === "Explosion4") {
-        return <>
-            <h1
-                style={{
-                    position: "absolute",
-                    left: `50%`,
-                    top: `50%`,
-                    transformOrigin: "0 0",
-                    transform: `translate(-50%,0)`,
-                    fontSize: "min(12vi, 12vb)",
-                    color: "hotpink",
-                }}
-                onClick={(e) => e.stopPropagation()}
-            >
-                Finished!
-            </h1>
-        </>
-    }
-
-    return <></>
-}
+import { Overlay } from "../../Overlay"
 
 const autoProgress = (state: SuperchainTheory2aGameState) => state.stage === "Trinity" && state.displayed < 3 ? 500 : false;
 
@@ -109,7 +80,7 @@ export const SuperchainTheory2A = () => {
                     {displayTrinity2 && <circle cx={state.trinity[1] === "Left" ? 0.3 : 0.7} cy={0.5} fill="transparent" r={0.05} stroke="orange" strokeWidth={0.01} />}
                     {displayTrinity3 && <circle cx={state.trinity[2] === "Left" ? 0.35 : 0.65} cy={0.375} fill="transparent" r={0.05} stroke="orange" strokeWidth={0.01} />}
                 </svg>
-                <Overlay players={players} state={state} safeLocation={safeLocation} />
+                <Overlay players={players} finished={state.stage === "Explosion4"} safeLocation={safeLocation} />
             </Arena>
         </div>
     </Stack>

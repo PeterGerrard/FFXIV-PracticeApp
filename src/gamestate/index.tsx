@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from "react";
 import { GameLoop, GameState, Role, Setup } from "./gameState";
-import { DeathOverlay } from "./Death/DeathOverlay";
 import { SetupContext } from "./Setup/Setup";
 import { Point } from "@flatten-js/core";
 import { Player } from "./Player";
+import { Overlay } from "./Overlay";
 
 export type { Role };
 
@@ -333,34 +333,12 @@ export const useGameState3 = <
       if (!gameState) {
         return <></>;
       }
-      if (gameState.gameState.players.some((x) => x.controlled && !x.alive)) {
-        return (
-          <DeathOverlay safeLocation={getSafeSpot(gameState)}>
-            {inner}
-          </DeathOverlay>
-        );
-      }
-      if (gameState.loop === 1 && gameState.gameState.hasFinished) {
-        return (
-          <>
-            {inner}
-            <h1
-              style={{
-                position: "absolute",
-                left: `50%`,
-                top: `50%`,
-                transformOrigin: "0 0",
-                transform: `translate(-50%,0)`,
-                fontSize: "10rem",
-                color: "hotpink",
-              }}
-            >
-              Finished!
-            </h1>
-          </>
-        );
-      }
-      return inner;
+      return (
+        <>
+          {inner}
+          <Overlay finished={gameState.loop === 1 && gameState.gameState.hasFinished} players={gameState.gameState.players} safeLocation={getSafeSpot(gameState)} />
+        </>
+      );
     },
   ] as const;
 };
@@ -379,25 +357,25 @@ const arena = <
     case 1:
       return gameState.game.arena(
         gameState.gameState,
-        gameState.gameState.players.some((x) => !x.alive) ? () => {} : moveTo,
+        gameState.gameState.players.some((x) => !x.alive) ? () => { } : moveTo,
         gameState.gameState.players.some((x) => !x.alive)
-          ? () => {}
+          ? () => { }
           : animationEnd
       );
     case 2:
       return gameState.game.arena(
         gameState.gameState,
-        gameState.gameState.players.some((x) => !x.alive) ? () => {} : moveTo,
+        gameState.gameState.players.some((x) => !x.alive) ? () => { } : moveTo,
         gameState.gameState.players.some((x) => !x.alive)
-          ? () => {}
+          ? () => { }
           : animationEnd
       );
     case 3:
       return gameState.game.arena(
         gameState.gameState,
-        gameState.gameState.players.some((x) => !x.alive) ? () => {} : moveTo,
+        gameState.gameState.players.some((x) => !x.alive) ? () => { } : moveTo,
         gameState.gameState.players.some((x) => !x.alive)
-          ? () => {}
+          ? () => { }
           : animationEnd
       );
   }
