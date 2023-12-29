@@ -1,4 +1,4 @@
-import { useContext } from "react"
+import { useCallback, useContext } from "react"
 import { Arena } from "../P12SP1Arena"
 import { SuperchainExplosionDisplay } from "../Superchain/SuperchainExplosionDisplay"
 import { SuperchainTheory2aGameState, createInitialState, getDangerPuddles, getTargetSpot, nextStep } from "./states"
@@ -26,7 +26,7 @@ export const SuperchainTheory2A = () => {
         designation: d,
         position: getRandomPos(),
         role: getRole(d)
-    })), getTargetSpot, createInitialState, autoProgress, nextStep)
+    })), getTargetSpot, createInitialState, autoProgress, nextStep, useCallback(() => [], []))
 
     const dangerPuddles = getDangerPuddles(state, players);
 

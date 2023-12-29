@@ -1,17 +1,20 @@
 import { Point, point } from "@flatten-js/core";
 import { useCallback, useEffect, useState } from "react";
-import { Player } from "./Player";
+import { Debuff, Player } from "./Player";
 import { Designation } from "./gameState";
 
 export const usePlayers = <T extends Player>(
   createPlayers: () => T[],
-  getTargetLocation: (player: T) => Point
+  getTargetLocation: (player: T) => Point,
+  debuffs: (player: T) => Debuff[]
 ) => {
-  const [players, setPlayers] = useState(createPlayers());
+  const [players, setPlayers] = useState(
+    createPlayers().map((p) => ({ ...p, debuffs: debuffs(p) }))
+  );
   const [safeLocation, setSafeLocation] = useState(point());
   const [canMove, setCanMove] = useState(true);
   const reset = () => {
-    setPlayers(createPlayers());
+    setPlayers(createPlayers().map((p) => ({ ...p, debuffs: debuffs(p) })));
     setSafeLocation(point());
     setCanMove(true);
   };
@@ -45,6 +48,9 @@ export const usePlayers = <T extends Player>(
       preventMovement();
     }
   }, [players, preventMovement, canMove]);
+  useEffect(() => {
+    setPlayers((ps) => ps.map((p) => ({ ...p, debuffs: debuffs(p) })));
+  }, [debuffs]);
 
   return {
     players,
@@ -109,7 +115,8 @@ export const useGame = <
   getTargetLocation: (state: TState, player: TPlayer) => Point,
   createState: () => TState,
   autoProgress: (state: TState) => false | number,
-  progress: (state: TState) => TState
+  progress: (state: TState) => TState,
+  getDebuffs: (state: TState, player: TPlayer) => Debuff[]
 ) => {
   const {
     goToNextState,
@@ -118,6 +125,10 @@ export const useGame = <
     state,
   } = useGameState(createState, autoProgress, progress);
   const [prevStage, setPrevStage] = useState<TState["stage"] | undefined>();
+  const debuffs = useCallback(
+    (p: TPlayer) => getDebuffs(state, p),
+    [state, getDebuffs]
+  );
   const {
     players,
     safeLocation,
@@ -125,7 +136,7 @@ export const useGame = <
     moveControlled,
     killPlayers,
     preventMovement,
-  } = usePlayers(createPlayers, (p) => getTargetLocation(state, p));
+  } = usePlayers(createPlayers, (p) => getTargetLocation(state, p), debuffs);
 
   const restart = () => {
     resetState();
