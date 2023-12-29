@@ -159,16 +159,16 @@ export const getTargetSpot = (state: SuperchainTheory2bGameState, player: Player
         let off = vector();
         switch (player.designation) {
             case "MT":
-                off = state.second.type === "Pair" ? vector(0.7, 0.7) : vector(0.9, 0.4)
-                break;
-            case "M1":
-                off = state.second.type === "Pair" ? vector(0.7, 0.7) : vector(0.4, 0.9)
-                break;
-            case "OT":
                 off = state.second.type === "Pair" ? vector(0.7, -0.7) : vector(0.9, -0.4)
                 break;
-            case "M2":
+            case "M1":
                 off = state.second.type === "Pair" ? vector(0.7, -0.7) : vector(0.4, -0.9)
+                break;
+            case "OT":
+                off = state.second.type === "Pair" ? vector(0.7, 0.7) : vector(0.9, 0.4)
+                break;
+            case "M2":
+                off = state.second.type === "Pair" ? vector(0.7, 0.7) : vector(0.4, 0.9)
                 break;
             case "H1":
                 off = state.second.type === "Pair" ? vector(-0.7, -0.7) : vector(-0.4, -0.9)
