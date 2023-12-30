@@ -10,6 +10,7 @@ export const Arena = (
         players: Player[];
         moveTo: (p: Point) => void;
         dangerPuddles: DangerPuddle[];
+        showPartyList: boolean
     }>
 ) => {
     return (
@@ -49,9 +50,9 @@ export const Arena = (
                 ))}
                 <DangerPuddlesDisplay puddles={props.dangerPuddles} />
             </div>
-            <div style={{ gridArea: "debuffs", maxHeight: "100%", display: "flex", flexDirection: "column" }}>
+            {props.showPartyList && <div style={{ gridArea: "debuffs", maxHeight: "100%", display: "flex", flexDirection: "column" }}>
                 <PartyList players={props.players} />
-            </div>
+            </div>}
         </div>
     );
 };

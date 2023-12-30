@@ -115,7 +115,7 @@ const getDangerPuddles = (
       {
         type: "line",
         angle: Math.PI,
-        onAnimationEnd: () => {},
+        onAnimationEnd: () => { },
         source: new Point(0.5, 1),
         width: 0.4,
         colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
@@ -133,7 +133,7 @@ const getDangerPuddles = (
         {
           type: "line",
           angle: Math.PI,
-          onAnimationEnd: () => {},
+          onAnimationEnd: () => { },
           source: new Point(0.15, 1),
           width: 0.3,
           colour: "purple",
@@ -146,7 +146,7 @@ const getDangerPuddles = (
         {
           type: "line",
           angle: Math.PI,
-          onAnimationEnd: () => {},
+          onAnimationEnd: () => { },
           source: new Point(0.85, 1),
           width: 0.3,
           colour: "purple",
@@ -162,7 +162,7 @@ const getDangerPuddles = (
         {
           type: "line",
           angle: Math.PI,
-          onAnimationEnd: () => {},
+          onAnimationEnd: () => { },
           source: new Point(0.5, 1),
           width: 0.6,
           colour: "yellow",
@@ -192,21 +192,6 @@ export const DivisiveOverrulingState: GameLoop<
       dangerPuddles={getDangerPuddles(gameState)}
       moveTo={moveTo}
     >
-      {gameState.hasFinished && (
-        <h1
-          style={{
-            position: "absolute",
-            left: `50%`,
-            top: `50%`,
-            transformOrigin: "0 0",
-            transform: `translate(-50%,0)`,
-            fontSize: "10rem",
-            color: "hotpink",
-          }}
-        >
-          Finished!
-        </h1>
-      )}
     </Arena>
   ),
   nextState: (

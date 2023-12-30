@@ -1,5 +1,5 @@
 import { Add, addPosition } from "../Add";
-import { Arena } from "../../P11SArena";
+import { P11SArena } from "../../P11SArena";
 import { LetterOfTheLawPlayer } from "../gameState";
 import { rotation } from "../../../gameState";
 import { HeartOfJudgementState } from ".";
@@ -23,7 +23,7 @@ export const HeartArena = (props: {
       : props.gameState.darkBoxLocation;
 
   return (
-    <Arena
+    <P11SArena
       players={props.players}
       moveTo={props.moveTo}
       dangerPuddles={props.dangerPuddles}
@@ -151,6 +151,6 @@ export const HeartArena = (props: {
           </svg>
         </>
       )}
-    </Arena>
+    </P11SArena>
   );
 };

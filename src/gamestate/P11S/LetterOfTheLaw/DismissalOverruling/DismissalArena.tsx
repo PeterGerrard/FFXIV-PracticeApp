@@ -1,6 +1,6 @@
 import { InterCardinal, rotation } from "../../../gameState";
 import { Add } from "../Add";
-import { Arena } from "../../P11SArena";
+import { P11SArena } from "../../P11SArena";
 import { LetterOfTheLawPlayer } from "../gameState";
 import { DismissalOverrulingState, towerPos } from ".";
 import { LineAoE } from "../../../Mechanics/LineAoE";
@@ -31,7 +31,7 @@ export const DismissalArena = (props: {
 }) => {
   const { animationEnd, gameState, moveTo, players, dangerPuddles } = props;
   return (
-    <Arena
+    <P11SArena
       players={players}
       moveTo={moveTo}
       dangerPuddles={dangerPuddles}
@@ -59,20 +59,20 @@ export const DismissalArena = (props: {
           />
           <LineAoE
             angle={rotation(gameState.darkLocation)}
-            onAnimationEnd={() => {}}
+            onAnimationEnd={() => { }}
             source={addLoc(gameState.darkLocation, 0.3675)}
             width={0.265}
             colour="purple"
           />
           <LineAoE
             angle={rotation(gameState.lightLocation)}
-            onAnimationEnd={() => {}}
+            onAnimationEnd={() => { }}
             source={addLoc(gameState.lightLocation)}
             width={0.475}
             colour="yellow"
           />
         </>
       )}
-    </Arena>
+    </P11SArena>
   );
 };

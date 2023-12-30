@@ -1,7 +1,7 @@
 /// <reference types="vite-plugin-svgr/client" />
 
 import { PropsWithChildren } from "react";
-import { Arena as P11SArena } from "../P11SArena";
+import { P11SArena as P11SArena } from "../P11SArena";
 // import { ReactComponent as ForwardArrowSvg } from "./assets/forward-arrow.svg";
 // import { ReactComponent as BackwardArrowSvg } from "./assets/backward-arrow.svg";
 
@@ -34,8 +34,8 @@ const Tether = (props: {
     player.tetherLength === "Long"
       ? tetheredTo.position
       : tetheredTo.position
-          .translate(0, 0.05)
-          .rotate(Math.PI + angle, tetheredTo.position);
+        .translate(0, 0.05)
+        .rotate(Math.PI + angle, tetheredTo.position);
   const s1 = tetheredSource
     .translate(0, 0.05)
     .rotate(Math.PI + angle2 + 0.5, tetheredSource);

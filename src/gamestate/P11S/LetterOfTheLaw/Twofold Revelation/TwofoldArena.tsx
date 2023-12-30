@@ -1,5 +1,5 @@
 import { Add, addPosition } from "../Add";
-import { Arena } from "../../P11SArena";
+import { P11SArena } from "../../P11SArena";
 import { LetterOfTheLawPlayer } from "../gameState";
 import Grow from "@mui/material/Grow";
 import { TwofoldRevelationState, towerPos } from ".";
@@ -17,7 +17,7 @@ export const TwofoldArena = (props: {
   const { animationEnd, gameState, moveTo, players } = props;
 
   return (
-    <Arena
+    <P11SArena
       players={players}
       moveTo={(p) => {
         moveTo(p);
@@ -79,16 +79,14 @@ export const TwofoldArena = (props: {
               width="55%"
               style={{
                 position: "absolute",
-                left: `${
-                  gameState.players.filter(
-                    (p) => p.isTethered && p.role === "Tank"
-                  )[0].position.x * 100
-                }%`,
-                top: `${
-                  gameState.players.filter(
-                    (p) => p.isTethered && p.role === "Tank"
-                  )[0].position.y * 100
-                }%`,
+                left: `${gameState.players.filter(
+                  (p) => p.isTethered && p.role === "Tank"
+                )[0].position.x * 100
+                  }%`,
+                top: `${gameState.players.filter(
+                  (p) => p.isTethered && p.role === "Tank"
+                )[0].position.y * 100
+                  }%`,
                 transform: "translate(-50%, -50%)",
               }}
             >
@@ -101,16 +99,14 @@ export const TwofoldArena = (props: {
               width="25%"
               style={{
                 position: "absolute",
-                left: `${
-                  gameState.players.filter(
-                    (p) => p.isTethered && p.role !== "Tank"
-                  )[0].position.x * 100
-                }%`,
-                top: `${
-                  gameState.players.filter(
-                    (p) => p.isTethered && p.role !== "Tank"
-                  )[0].position.y * 100
-                }%`,
+                left: `${gameState.players.filter(
+                  (p) => p.isTethered && p.role !== "Tank"
+                )[0].position.x * 100
+                  }%`,
+                top: `${gameState.players.filter(
+                  (p) => p.isTethered && p.role !== "Tank"
+                )[0].position.y * 100
+                  }%`,
                 transform: "translate(-50%, -50%)",
               }}
             >
@@ -164,6 +160,6 @@ export const TwofoldArena = (props: {
           </Grow>
         </>
       )}
-    </Arena>
+    </P11SArena>
   );
 };
