@@ -31,6 +31,7 @@ import Button from "@mui/material/Button";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import LinearProgress from "@mui/material/LinearProgress";
 import { SuperchainTheory1Arena } from "./SuperchainTheory1Arena";
+import { useTitle } from "../../../components/useTitle";
 
 export const superchainTheory1: GameLoop<
   SuperchainTheory1Player,
@@ -619,6 +620,7 @@ export const getDangerPuddles = (
 };
 
 export const SuperchainTheory1 = () => {
+  useTitle("Superchain Theory 1")
   const [state, restart, arena] = useGameState1<
     SuperchainTheory1Player,
     SuperchainTheoryGameState

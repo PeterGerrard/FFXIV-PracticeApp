@@ -13,6 +13,7 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { useGame } from "../../gameHooks"
 import addSrc from "./assets/add.png"
 import { Overlay } from "../../Overlay"
+import { useTitle } from "../../../components/useTitle"
 
 const Add = (props: { xPos: number }) => {
     const setup = useContext(SetupContext);
@@ -29,6 +30,7 @@ const autoProgress = (state: SuperchainTheory2bGameState) => state.stage === "Pa
 
 export const SuperchainTheory2B = () => {
 
+    useTitle("Superchain Theory 2B")
     const setup = useContext(SetupContext);
 
     const { state, players, restart, onMove, safeLocation } = useGame<Player, SuperchainTheory2bGameState>((s, p) => survivePuddles(getDangerPuddles(s, p), p), s => s.stage === "Explosion3", () => Designations.map(d => ({

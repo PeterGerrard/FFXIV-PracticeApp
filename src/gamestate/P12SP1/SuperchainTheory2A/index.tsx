@@ -12,12 +12,14 @@ import Button from "@mui/material/Button"
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { useGame } from "../../gameHooks"
 import { Overlay } from "../../Overlay"
+import { useTitle } from "../../../components/useTitle"
 
 const autoProgress = (state: SuperchainTheory2aGameState) => state.stage === "Trinity" && state.displayed < 3 ? 500 : false;
 
 export const SuperchainTheory2A = () => {
 
     const setup = useContext(SetupContext);
+    useTitle("Superchain Theory 2A")
 
     const { state, players, restart, onMove, safeLocation } = useGame<Player, SuperchainTheory2aGameState>((s, p) => survivePuddles(getDangerPuddles(s, p), p), s => s.stage === "Explosion4", () => Designations.map(d => ({
         alive: true,

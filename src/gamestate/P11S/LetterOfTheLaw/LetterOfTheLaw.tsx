@@ -4,9 +4,11 @@ import Button from "@mui/material/Button";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import Stack from "@mui/material/Stack";
 import { startLetterOfTheLaw } from ".";
+import { useTitle } from "../../../components/useTitle";
 
 export const LetterOfTheLaw = () => {
   const [state, restart, arena] = useGameState3(startLetterOfTheLaw);
+  useTitle("Letter of the Law")
 
   return (
     <Stack flexDirection="column">

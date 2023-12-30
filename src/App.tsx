@@ -44,7 +44,7 @@ function App() {
     },
   });
 
-  useEffect(() => {}, []);
+  useEffect(() => { }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -56,7 +56,7 @@ function App() {
         <CssBaseline />
         <div>
           <Link to="/">
-            <h1 style={{ display: "inline-block" }}>Themis Practice</h1>
+            <h1 style={{ display: "inline-block" }}>FFXIV Practice</h1>
           </Link>
           <Button
             startIcon={<SettingsIcon />}
