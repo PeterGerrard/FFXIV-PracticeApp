@@ -120,7 +120,7 @@ export const superchainTheory1: GameLoop<
           d.name === "Light Tower" ||
           d.name === "Light"
       );
-      const p = gameState.secondCorners.filter(([_, e]) => e === "Donut")[0][0];
+      const p = gameState.secondCorners.filter(([, e]) => e === "Donut")[0][0];
       return p.rotate(left ? 0.2 : -0.2, point(0.5, 0.5));
     }
     if (gameState.stage === "InOutPart1") {
@@ -286,7 +286,7 @@ export const superchainTheory1: GameLoop<
         split(Designations, (d) => getRole(d) === "DPS")
       );
       const [lightAoes, redAoes] = extractN(aoes, 2);
-      const [lightTower, redTower, lightLaser, _] = shuffle(others);
+      const [lightTower, redTower, lightLaser,] = shuffle(others);
 
       return {
         ...s,

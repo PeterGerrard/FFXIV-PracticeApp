@@ -1,8 +1,8 @@
-export const pickOne = <T extends unknown>(items: T[]) => {
+export const pickOne = <T,>(items: T[]) => {
   return items[(items.length * Math.random()) | 0];
 };
 
-export const extractN = <T extends unknown>(
+export const extractN = <T,>(
   items: T[],
   amount: number
 ): [T[], T[]] => {
@@ -10,7 +10,7 @@ export const extractN = <T extends unknown>(
   return [s.slice(0, amount), s.slice(amount)];
 };
 
-export const split = <T extends unknown>(
+export const split = <T,>(
   items: T[],
   predicate: (a: T) => boolean
 ): [T[], T[]] => {
@@ -27,7 +27,7 @@ export const split = <T extends unknown>(
   return [trues, falses];
 };
 
-export const shuffle = <T extends unknown>(items: T[]): T[] => {
+export const shuffle = <T,>(items: T[]): T[] => {
   let currentIndex = items.length,
     randomIndex;
   const result = [...items];

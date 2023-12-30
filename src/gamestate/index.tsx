@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { GameLoop, GameState, Role, Setup } from "./gameState";
 import { SetupContext } from "./Setup/Setup";
 import { Point } from "@flatten-js/core";
@@ -276,9 +276,9 @@ export const useGameState3 = <
     IterateGames3<TPlayer, T1, T2, T3>
   >(start(setup));
 
-  const restart = () => setGameState(start(setup));
+  const restart = useCallback(() => setGameState(start(setup)), [setup, start]);
 
-  useEffect(restart, [setup]);
+  useEffect(restart, [restart]);
 
   return [
     gameState,

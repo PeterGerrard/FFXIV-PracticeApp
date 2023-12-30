@@ -612,9 +612,9 @@ const getDangerPuddles = (
     const addLasers = addLocs.flatMap((a) =>
       players
         .map((p) => [p, distanceTo(a, p.position)] as const)
-        .sort(([_, x], [__, y]) => x - y)
+        .sort(([, x], [, y]) => x - y)
         .slice(0, 2)
-        .map<DangerPuddle>(([p, _]) => ({
+        .map<DangerPuddle>(([p, ]) => ({
           type: "line",
           angle: vector(a, a.translate(0, 1)).angleTo(vector(a, p.position)),
           damage: 0.8,

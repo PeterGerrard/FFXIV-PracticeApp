@@ -11,14 +11,15 @@ export type LineAoEProps = {
 
 export const LineAoE = (props: LineAoEProps) => {
   const [height, setHeight] = useState(0);
+  const { onAnimationEnd } = props;
   useEffect(() => {
     let mounted = true;
     setHeight(5);
-    setTimeout(() => mounted && props.onAnimationEnd(), 1500);
+    setTimeout(() => mounted && onAnimationEnd(), 1500);
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [onAnimationEnd]);
   return (
     <svg
       height="100%"

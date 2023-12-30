@@ -13,14 +13,15 @@ export type DonutAoEProps = {
 export const DonutAoE = (props: DonutAoEProps) => {
   const [opacity, setOpacity] = useState(0);
   const id = useId();
+  const { onAnimationEnd } = props;
   useEffect(() => {
     let mounted = true;
     setOpacity(0.4);
-    setTimeout(() => mounted && props.onAnimationEnd(), 1500);
+    setTimeout(() => mounted && onAnimationEnd(), 1500);
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [onAnimationEnd]);
   return (
     <svg
       height="100%"

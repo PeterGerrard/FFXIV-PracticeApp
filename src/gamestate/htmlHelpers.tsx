@@ -3,13 +3,13 @@ import { Point } from "@flatten-js/core";
 // helper function to get an element's exact position
 export function getPosition(e: HTMLElement): Point {
   let el: HTMLElement | null = e;
-  var xPosition = 0;
-  var yPosition = 0;
+  let xPosition = 0;
+  let yPosition = 0;
   while (el) {
     if (el.tagName == "BODY") {
       // deal with browser quirks with body/window/document and page scroll
-      var xScrollPos = el.scrollLeft || document.documentElement.scrollLeft;
-      var yScrollPos = el.scrollTop || document.documentElement.scrollTop;
+      const xScrollPos = el.scrollLeft || document.documentElement.scrollLeft;
+      const yScrollPos = el.scrollTop || document.documentElement.scrollTop;
       xPosition += el.offsetLeft - xScrollPos + el.clientLeft;
       yPosition += el.offsetTop - yScrollPos + el.clientTop;
     } else {

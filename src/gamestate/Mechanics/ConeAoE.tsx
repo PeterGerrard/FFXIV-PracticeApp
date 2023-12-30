@@ -11,14 +11,15 @@ export type ConeAoEProps = {
 
 export const ConeAoE = (props: ConeAoEProps) => {
   const [height, setHeight] = useState(0.01);
+  const { onAnimationEnd } = props;
   useEffect(() => {
     let mounted = true;
     setHeight(5);
-    setTimeout(() => mounted && props.onAnimationEnd(), 1500);
+    setTimeout(() => mounted && onAnimationEnd(), 1500);
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [onAnimationEnd]);
   const c = new Polygon([
     props.source,
     props.source.translate(0, -height),

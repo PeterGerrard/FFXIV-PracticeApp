@@ -10,15 +10,16 @@ export type CircleAoEProps = {
 
 export const CircleAoE = (props: CircleAoEProps) => {
   const [opacity, setOpacity] = useState(0);
-  var c = new Circle(new Point(props.source.x, props.source.y), props.radius);
+  const c = new Circle(new Point(props.source.x, props.source.y), props.radius);
+  const { onAnimationEnd } = props;
   useEffect(() => {
     let mounted = true;
     setOpacity(0.4);
-    setTimeout(() => mounted && props.onAnimationEnd(), 1500);
+    setTimeout(() => mounted && onAnimationEnd(), 1500);
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [onAnimationEnd]);
   return (
     <svg
       height="100%"
@@ -44,6 +45,6 @@ export const isCircleSafe = (
   circle: CircleAoEProps,
   position: Point
 ): boolean => {
-  var points = new Circle(circle.source, circle.radius).intersect(position);
+  const points = new Circle(circle.source, circle.radius).intersect(position);
   return points.length == 0;
 };
