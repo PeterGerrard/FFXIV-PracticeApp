@@ -13,7 +13,7 @@ import {
   getRole,
 } from "../../gameState";
 import { extractN, pickOne, shuffle, split } from "../../helpers";
-import { Arena } from "../P12SP1Arena";
+import { P12P1Arena } from "../P12SP1Arena";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
@@ -750,7 +750,7 @@ const Paradeigma3Arena = (props: {
     props.animationEnd();
   }
   return (
-    <Arena
+    <P12P1Arena
       players={props.players}
       moveTo={props.moveTo}
       dangerPuddles={getDangerPuddles(
@@ -1103,7 +1103,7 @@ const Paradeigma3Arena = (props: {
             </svg>
           </>
         )}
-    </Arena>
+    </P12P1Arena>
   );
 };
 

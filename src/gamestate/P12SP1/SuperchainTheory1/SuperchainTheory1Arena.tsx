@@ -1,5 +1,5 @@
 import { Point } from "@flatten-js/core";
-import { Arena } from "../P12SP1Arena";
+import { P12P1Arena } from "../P12SP1Arena";
 import DarkTower from "./assets/darktower.png";
 import LightTower from "./assets/lighttower.png";
 import { SuperchainExplosionDisplay } from "../Superchain/SuperchainExplosionDisplay";
@@ -12,7 +12,7 @@ export const SuperchainTheory1Arena = (props: {
     animationEnd: () => void;
 }) => {
     return (
-        <Arena
+        <P12P1Arena
             players={props.players}
             moveTo={props.moveTo}
             dangerPuddles={getDangerPuddles(
@@ -84,6 +84,6 @@ export const SuperchainTheory1Arena = (props: {
                         }} />
                 </>
             )}
-        </Arena>
+        </P12P1Arena>
     );
 };

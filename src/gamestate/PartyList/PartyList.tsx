@@ -9,6 +9,7 @@ export const PartyList = (props: { players: Player[] }) => {
         flexDirection: "row",
         gap: "0.25rem",
         alignItems: "center",
+        height: `${100 / props.players.length}%`
       }}
       key={p.designation}
     >
@@ -16,8 +17,7 @@ export const PartyList = (props: { players: Player[] }) => {
         key={p.designation}
         player={p}
         style={{
-          height: "5rem",
-          width: "5rem",
+          height: "100%",
         }}
       />
       {p.debuffs.map((d) => (

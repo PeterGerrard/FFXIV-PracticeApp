@@ -1,5 +1,5 @@
 import { useCallback, useContext } from "react"
-import { Arena } from "../P12SP1Arena"
+import { P12P1Arena } from "../P12SP1Arena"
 import { SuperchainExplosionDisplay } from "../Superchain/SuperchainExplosionDisplay"
 import { SuperchainTheory2aGameState, createInitialState, getDangerPuddles, getTargetSpot, nextStep } from "./states"
 import { point } from "@flatten-js/core"
@@ -54,7 +54,7 @@ export const SuperchainTheory2A = () => {
                 position: "relative",
             }}
         >
-            <Arena players={players} dangerPuddles={dangerPuddles} moveTo={onMove} bossDirection={state.stage === "Explosion2" ? "South" : "North"}>
+            <P12P1Arena players={players} dangerPuddles={dangerPuddles} moveTo={onMove} bossDirection={state.stage === "Explosion2" ? "South" : "North"}>
                 {shortChainLength > 0 && <>
                     <SuperchainExplosionDisplay explosion={state.short.north} position={point(0.25, 0.25)} target={point(0.5, 0.25)} />
                     <SuperchainExplosionDisplay explosion="Circle" position={point(0.25, 0.5)} target={point(0.5, 0.5)} />
@@ -83,7 +83,7 @@ export const SuperchainTheory2A = () => {
                     {displayTrinity3 && <circle cx={state.trinity[2] === "Left" ? 0.35 : 0.65} cy={0.375} fill="transparent" r={0.05} stroke="orange" strokeWidth={0.01} />}
                 </svg>
                 <Overlay players={players} finished={state.stage === "Explosion4"} safeLocation={safeLocation} />
-            </Arena>
+            </P12P1Arena>
         </div>
     </Stack>
 }
