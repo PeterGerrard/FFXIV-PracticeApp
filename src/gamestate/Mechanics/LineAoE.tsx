@@ -19,7 +19,7 @@ export const LineAoE = (props: LineAoEProps) => {
     return () => {
       mounted = false;
     };
-  }, [onAnimationEnd]);
+  }, []);
   return (
     <svg
       height="100%"

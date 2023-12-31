@@ -19,7 +19,7 @@ export const ConeAoE = (props: ConeAoEProps) => {
     return () => {
       mounted = false;
     };
-  }, [onAnimationEnd]);
+  }, []);
   const c = new Polygon([
     props.source,
     props.source.translate(0, -height),

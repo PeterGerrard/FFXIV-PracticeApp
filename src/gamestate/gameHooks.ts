@@ -22,8 +22,8 @@ export const usePlayers = <T extends Player>(
     if (!canMove) {
       return;
     }
-    setPlayers(
-      players.map((p) =>
+    setPlayers((ps) =>
+      ps.map((p) =>
         p.controlled
           ? { ...p, position: moveTo }
           : { ...p, position: getTargetLocation(p) }
@@ -36,7 +36,12 @@ export const usePlayers = <T extends Player>(
       ...p,
       alive: p.alive && !predicate(p),
     }));
-    setPlayers(newPlayers);
+    setPlayers((ps) =>
+      ps.map((p) => ({
+        ...p,
+        alive: p.alive && !predicate(p),
+      }))
+    );
     return newPlayers.some((p) => !p.alive);
   };
   const preventMovement = useCallback(() => {
@@ -49,8 +54,15 @@ export const usePlayers = <T extends Player>(
     }
   }, [players, preventMovement, canMove]);
   useEffect(() => {
-    setPlayers((ps) => ps.map((p) => ({ ...p, debuffs: debuffs(p) })));
+    setPlayers((ps) =>
+      ps.map((p) => {
+        const d = debuffs(p);
+        console.log(d);
+        return { ...p, debuffs: d };
+      })
+    );
   }, [debuffs]);
+  console.log({ players });
 
   return {
     players,

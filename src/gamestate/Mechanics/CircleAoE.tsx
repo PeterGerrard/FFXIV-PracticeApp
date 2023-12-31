@@ -19,7 +19,7 @@ export const CircleAoE = (props: CircleAoEProps) => {
     return () => {
       mounted = false;
     };
-  }, [onAnimationEnd]);
+  }, []);
   return (
     <svg
       height="100%"

@@ -21,7 +21,7 @@ export const DonutAoE = (props: DonutAoEProps) => {
     return () => {
       mounted = false;
     };
-  }, [onAnimationEnd]);
+  }, []);
   return (
     <svg
       height="100%"
