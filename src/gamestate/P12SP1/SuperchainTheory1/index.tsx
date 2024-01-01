@@ -1,11 +1,12 @@
 import { Point, point, vector } from "@flatten-js/core";
-import { useGameState1 } from "../..";
+import { IterateGames1, useGameState1 } from "../..";
 import { DangerPuddle, survivePuddles } from "../../Mechanics/DangerPuddles";
 import { Player } from "../../Player";
 import {
   Designations,
   GameLoop,
   GameState,
+  Setup,
   getGroup,
   getRandomPos,
   getRole,
@@ -619,60 +620,61 @@ export const getDangerPuddles = (
   return [];
 };
 
+const sc1 = (setup: Setup): IterateGames1<SuperchainTheory1Player, SuperchainTheoryGameState> => {
+  const initialCorner = pickOne([
+    new Point(0.26, 0.26),
+    new Point(0.74, 0.26),
+    new Point(0.26, 0.74),
+    new Point(0.74, 0.74),
+  ]);
+  const j = pickOne([0, 1]);
+  const ps: SuperchainTheory1Player[] = Designations.map((d) => ({
+    position: getRandomPos(),
+    role: getRole(d),
+    show: true,
+    designation: d,
+    debuffs: [],
+    controlled: d === setup.designation,
+    alive: true,
+  }));
+  return {
+    game: superchainTheory1,
+    gameState: {
+      cast: null,
+      hasFinished: false,
+      players: ps,
+      stage: "Initial",
+      initialCorner: initialCorner,
+      initialExplosions: [
+        pickOne(["Donut", "Circle"]),
+        pickOne(["Protean", "Pair"]),
+      ],
+      secondCorners: [
+        [
+          point(1 - initialCorner.x, initialCorner.y),
+          ["Donut", "Circle"][j] as SuperchainExplosionInOut,
+        ],
+        [
+          point(initialCorner.x, 1 - initialCorner.y),
+          ["Donut", "Circle"][1 - j] as SuperchainExplosionInOut,
+        ],
+      ],
+      finalCorner: point(1 - initialCorner.x, 1 - initialCorner.y),
+      finalExplosions: shuffle(["Donut", "Circle"]) as [
+        SuperchainExplosionInOut,
+        SuperchainExplosionInOut
+      ],
+    },
+    loop: 1,
+    next: [],
+  };
+};
 export const SuperchainTheory1 = () => {
   useTitle("Superchain Theory 1")
   const [state, restart, arena] = useGameState1<
     SuperchainTheory1Player,
     SuperchainTheoryGameState
-  >((setup) => {
-    const initialCorner = pickOne([
-      new Point(0.26, 0.26),
-      new Point(0.74, 0.26),
-      new Point(0.26, 0.74),
-      new Point(0.74, 0.74),
-    ]);
-    const j = pickOne([0, 1]);
-    const ps: SuperchainTheory1Player[] = Designations.map((d) => ({
-      position: getRandomPos(),
-      role: getRole(d),
-      show: true,
-      designation: d,
-      debuffs: [],
-      controlled: d === setup.designation,
-      alive: true,
-    }));
-    return {
-      game: superchainTheory1,
-      gameState: {
-        cast: null,
-        hasFinished: false,
-        players: ps,
-        stage: "Initial",
-        initialCorner: initialCorner,
-        initialExplosions: [
-          pickOne(["Donut", "Circle"]),
-          pickOne(["Protean", "Pair"]),
-        ],
-        secondCorners: [
-          [
-            point(1 - initialCorner.x, initialCorner.y),
-            ["Donut", "Circle"][j] as SuperchainExplosionInOut,
-          ],
-          [
-            point(initialCorner.x, 1 - initialCorner.y),
-            ["Donut", "Circle"][1 - j] as SuperchainExplosionInOut,
-          ],
-        ],
-        finalCorner: point(1 - initialCorner.x, 1 - initialCorner.y),
-        finalExplosions: shuffle(["Donut", "Circle"]) as [
-          SuperchainExplosionInOut,
-          SuperchainExplosionInOut
-        ],
-      },
-      loop: 1,
-      next: [],
-    };
-  });
+  >(sc1);
 
   return (
     <Stack flexDirection="column">
