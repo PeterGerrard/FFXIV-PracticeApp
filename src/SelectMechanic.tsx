@@ -1,29 +1,33 @@
-import { NavLink } from "react-router-dom";
+import { Link } from "@tanstack/react-router";
 
 export const SelectMechanic = () => (
   <>
     <h2>P11S</h2>
     <ul>
       <li>
-        <NavLink to="/darkandlight">Dark and Light</NavLink>
+        <Link to="/p11s/darkandlight">Dark and Light</Link>
       </li>
       <li>
-        <NavLink to="/letterofthelaw">Letter of the Law</NavLink>
+        <Link to="/p11s/letterofthelaw">Letter of the Law</Link>
       </li>
     </ul>
     <h2>P12S Phase 1</h2>
     <ul>
       <li>
-        <NavLink to="/p12s/p1/superchaintheory1">Superchain Theory 1</NavLink>
+        <Link to="/p12s/p1/superchaintheory1">Superchain Theory 1</Link>
       </li>
       <li>
-        <NavLink to="/p12s/p1/paradeigma3">Paradeigma 3</NavLink>
+        <Link to="/p12s/p1/paradeigma3">Paradeigma 3</Link>
       </li>
       <li>
-        <NavLink to="/p12s/p1/superchain2a">Superchain Theory IIA (beta)</NavLink>
+        <Link to="/p12s/p1/superchaintheory2a">
+          Superchain Theory IIA (beta)
+        </Link>
       </li>
       <li>
-        <NavLink to="/p12s/p1/superchain2b">Superchain Theory IIB (beta)</NavLink>
+        <Link to="/p12s/p1/superchaintheory2b">
+          Superchain Theory IIB (beta)
+        </Link>
       </li>
     </ul>
   </>
