@@ -5,6 +5,8 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as LetterofthelawImport } from './routes/letterofthelaw'
+import { Route as DarkandlightImport } from './routes/darkandlight'
 import { Route as IndexImport } from './routes/index'
 
 // Create Virtual Routes
@@ -23,6 +25,16 @@ const P12sP1Superchaintheory1LazyImport = createFileRoute(
 const P12sP1Paradeigma3LazyImport = createFileRoute('/p12s/p1/paradeigma3')()
 
 // Create/Update Routes
+
+const LetterofthelawRoute = LetterofthelawImport.update({
+  path: '/letterofthelaw',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DarkandlightRoute = DarkandlightImport.update({
+  path: '/darkandlight',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   path: '/',
@@ -82,6 +94,14 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/darkandlight': {
+      preLoaderRoute: typeof DarkandlightImport
+      parentRoute: typeof rootRoute
+    }
+    '/letterofthelaw': {
+      preLoaderRoute: typeof LetterofthelawImport
+      parentRoute: typeof rootRoute
+    }
     '/p11s/darkandlight': {
       preLoaderRoute: typeof P11sDarkandlightLazyImport
       parentRoute: typeof rootRoute
@@ -113,6 +133,8 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren([
   IndexRoute,
+  DarkandlightRoute,
+  LetterofthelawRoute,
   P11sDarkandlightLazyRoute,
   P11sLetterofthelawLazyRoute,
   P12sP1Paradeigma3LazyRoute,
