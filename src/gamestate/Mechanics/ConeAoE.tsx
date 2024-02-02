@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Point, Polygon } from "@flatten-js/core";
 import { useTimeout } from "../..//components/useTimeout";
 
@@ -11,17 +11,17 @@ export type ConeAoEProps = {
 };
 
 export const ConeAoE = (props: ConeAoEProps) => {
+  const id = useId();
   const [height, setHeight] = useState(0.01);
   const { onAnimationEnd } = props;
   useTimeout(onAnimationEnd, 1500);
   useEffect(() => {
     setHeight(5);
   }, []);
-  const c = new Polygon([
-    props.source,
-    props.source.translate(0, -height),
-    props.source.translate(0, -height).rotate(props.width, props.source),
-  ]).rotate(props.angle - props.width / 2, props.source);
+  const p2 = props.source
+    .translate(0, -height)
+    .rotate(props.angle - props.width / 2);
+  const p3 = p2.rotate(props.width, props.source);
   return (
     <svg
       height="100%"
@@ -32,14 +32,21 @@ export const ConeAoE = (props: ConeAoEProps) => {
         top: 0,
       }}
       viewBox="0 0 1 1"
-      dangerouslySetInnerHTML={{
-        __html: c.svg({
-          strokeWidth: 0,
-          fillOpacity: 0.4,
-          fill: props.colour ?? "orange",
-        }),
-      }}
-    />
+    >
+      <polygon
+        points={`${props.source.x},${props.source.y} ${p2.x},${p2.y} ${p3.x},${p3.y}`}
+        fill={props.colour ?? "orange"}
+        opacity="0.4"
+        mask={`url(#${id})`}
+      >
+        <animate
+          attributeName="points"
+          values={`${props.source.x},${props.source.y} ${props.source.x},${props.source.y} ${props.source.x},${props.source.y};${props.source.x},${props.source.y} ${p2.x},${p2.y} ${p3.x},${p3.y};`}
+          dur="1s"
+          repeatCount={0}
+        />
+      </polygon>
+    </svg>
   );
 };
 
