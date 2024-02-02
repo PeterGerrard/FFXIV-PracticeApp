@@ -1,20 +1,20 @@
 import { useGameState3 } from "../..";
-import LinearProgress from "@mui/material/LinearProgress";
-import Button from "@mui/material/Button";
-import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import Stack from "@mui/material/Stack";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { ReloadIcon } from "@radix-ui/react-icons";
 import { startLetterOfTheLaw } from ".";
 import { useTitle } from "../../../components/useTitle";
 
 export const LetterOfTheLaw = () => {
   const [state, restart, arena] = useGameState3(startLetterOfTheLaw);
-  useTitle("Letter of the Law")
+  useTitle("Letter of the Law");
 
   return (
-    <Stack flexDirection="column">
+    <div className="flex flex-col">
       <div>
-        <Button endIcon={<RestartAltIcon />} onClick={() => restart()}>
+        <Button onClick={() => restart()}>
           Reset
+          <ReloadIcon />
         </Button>
       </div>
       <div
@@ -36,15 +36,10 @@ export const LetterOfTheLaw = () => {
         {state.gameState.cast && (
           <>
             <h1>{state.gameState.cast.name}</h1>
-            <LinearProgress
-              sx={{ height: "16px" }}
-              color="warning"
-              variant="determinate"
-              value={state.gameState.cast.value}
-            />
+            <Progress value={state.gameState.cast.value} />
           </>
         )}
       </div>
-    </Stack>
+    </div>
   );
 };

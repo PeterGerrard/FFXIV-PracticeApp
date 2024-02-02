@@ -15,10 +15,9 @@ import {
 } from "../../gameState";
 import { extractN, pickOne, shuffle, split } from "../../helpers";
 import { P12P1Arena } from "../P12SP1Arena";
-import Stack from "@mui/material/Stack";
-import Button from "@mui/material/Button";
-import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import LinearProgress from "@mui/material/LinearProgress";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { ReloadIcon } from "@radix-ui/react-icons";
 import {
   CrossDebuff,
   LightDebuff,
@@ -1122,10 +1121,11 @@ export const Paradeigma3 = () => {
   >(startPara3);
 
   return (
-    <Stack flexDirection="column">
+    <div className="flex flex-col">
       <div>
-        <Button endIcon={<RestartAltIcon />} onClick={() => restart()}>
+        <Button onClick={() => restart()}>
           Reset
+          <ReloadIcon />
         </Button>
       </div>
       {arena()}
@@ -1138,16 +1138,11 @@ export const Paradeigma3 = () => {
         {state.gameState.cast && (
           <>
             <h1>{state.gameState.cast.name}</h1>
-            <LinearProgress
-              sx={{ height: "16px" }}
-              color="warning"
-              variant="determinate"
-              value={state.gameState.cast.value}
-            />
+            <Progress value={state.gameState.cast.value} />
           </>
         )}
       </div>
-    </Stack>
+    </div>
   );
 };
 

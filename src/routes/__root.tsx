@@ -1,23 +1,13 @@
 /// <reference types="vite-plugin-svgr/client" />
 
-import "@fontsource/roboto/300.css";
-import "@fontsource/roboto/400.css";
-import "@fontsource/roboto/500.css";
-import "@fontsource/roboto/700.css";
-import {
-  Button,
-  CssBaseline,
-  Drawer,
-  ThemeProvider,
-  createTheme,
-  useMediaQuery,
-} from "@mui/material";
 import { SetupContext } from "../gamestate/Setup/Setup";
 import { useEffect, useState } from "react";
 import { Setup } from "../gamestate/gameState";
-import SettingsIcon from "@mui/icons-material/Settings";
+import { GearIcon } from "@radix-ui/react-icons";
 import { SetupForm } from "../gamestate/Setup/SetupForm";
 import { Link, Outlet, createRootRoute } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetClose, SheetContent } from "@/components/ui/sheet";
 
 const defaultSetup: Setup = { designation: "H2", playerIconSize: 0.08 };
 
@@ -37,48 +27,45 @@ export const Route = createRootRoute({
       setShowSetup(false);
     };
 
-    const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+    useEffect(() => {
+      const root = window.document.documentElement;
 
-    const theme = createTheme({
-      palette: {
-        mode: prefersDarkMode ? "dark" : "light",
-      },
-    });
+      root.classList.remove("light", "dark");
 
-    useEffect(() => {}, []);
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
+        ? "dark"
+        : "light";
+
+      root.classList.add(systemTheme);
+    }, []);
 
     return (
-      <ThemeProvider theme={theme}>
-        <SetupContext.Provider
-          value={{
-            state: setup ?? defaultSetup,
-          }}
-        >
-          <CssBaseline />
-          <div>
-            <Link to="/">
-              <h1 style={{ display: "inline-block" }}>FFXIV Practice</h1>
-            </Link>
-            <Button
-              startIcon={<SettingsIcon />}
-              onClick={() => setShowSetup(true)}
-            >
-              Setup
-            </Button>
-          </div>
-          {setup && <Outlet />}
-          <Drawer
-            open={!setup || showSetup}
-            onClose={() => setShowSetup(false)}
-          >
+      <SetupContext.Provider
+        value={{
+          state: setup ?? defaultSetup,
+        }}
+      >
+        <div>
+          <Link to="/">
+            <h1 style={{ display: "inline-block" }}>FFXIV Practice</h1>
+          </Link>
+          <Button variant="ghost" onClick={() => setShowSetup(true)}>
+            <GearIcon />
+            Setup
+          </Button>
+        </div>
+        {setup && <Outlet />}
+        <Sheet open={!setup || showSetup} onOpenChange={setShowSetup}>
+          <SheetContent>
             <SetupForm
               setup={setup}
               save={saveSetup}
               update={(p) => setSetup((s) => ({ ...s, ...p }))}
             />
-          </Drawer>
-        </SetupContext.Provider>
-      </ThemeProvider>
+          </SheetContent>
+        </Sheet>
+      </SetupContext.Provider>
     );
   },
 });
