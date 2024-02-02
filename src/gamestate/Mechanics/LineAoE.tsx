@@ -1,5 +1,5 @@
 import { Point } from "@flatten-js/core";
-import { useEffect, useState } from "react";
+import { useTimeout } from "../../components/useTimeout";
 
 export type LineAoEProps = {
   source: Point;
@@ -10,16 +10,8 @@ export type LineAoEProps = {
 };
 
 export const LineAoE = (props: LineAoEProps) => {
-  const [height, setHeight] = useState(0);
   const { onAnimationEnd } = props;
-  useEffect(() => {
-    let mounted = true;
-    setHeight(5);
-    setTimeout(() => mounted && onAnimationEnd(), 1500);
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  useTimeout(onAnimationEnd, 1500);
   return (
     <svg
       height="100%"
@@ -32,19 +24,24 @@ export const LineAoE = (props: LineAoEProps) => {
       viewBox="0 0 1 1"
     >
       <rect
-        height={height}
+        height={5}
         width={`${props.width}`}
         x={props.source.x - props.width / 2}
         y={props.source.y}
         fill={props.colour ?? "orange"}
         style={{
-          transitionDuration: "1500ms",
-          transition: "height 1500ms",
           opacity: 0.4,
           transformOrigin: `${props.source.x}px ${props.source.y}px`,
           transform: `rotate(${props.angle}rad)`,
         }}
-      />
+      >
+        <animate
+          attributeName="height"
+          values="0;5;"
+          dur="1s"
+          repeatCount={0}
+        />
+      </rect>
     </svg>
   );
 };

@@ -7,7 +7,7 @@ import { GearIcon } from "@radix-ui/react-icons";
 import { SetupForm } from "../gamestate/Setup/SetupForm";
 import { Link, Outlet, createRootRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetClose, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 const defaultSetup: Setup = { designation: "H2", playerIconSize: 0.08 };
 

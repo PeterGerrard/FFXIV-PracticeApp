@@ -1,6 +1,7 @@
-import { useEffect, useId, useState } from "react";
+import { useId } from "react";
 import { distanceTo } from "../gameState";
 import { Point } from "@flatten-js/core";
+import { useTimeout } from "../../components/useTimeout";
 
 export type DonutAoEProps = {
   source: Point;
@@ -11,17 +12,9 @@ export type DonutAoEProps = {
 };
 
 export const DonutAoE = (props: DonutAoEProps) => {
-  const [opacity, setOpacity] = useState(0);
   const id = useId();
   const { onAnimationEnd } = props;
-  useEffect(() => {
-    let mounted = true;
-    setOpacity(0.4);
-    setTimeout(() => mounted && onAnimationEnd(), 1500);
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  useTimeout(onAnimationEnd, 1500);
   return (
     <svg
       height="100%"
@@ -47,9 +40,16 @@ export const DonutAoE = (props: DonutAoEProps) => {
         cy={props.source.y}
         r={props.outerRadius}
         fill={props.colour ?? "orange"}
-        opacity={opacity}
+        opacity="0.4"
         mask={`url(#${id})`}
-      />
+      >
+        <animate
+          attributeName="opacity"
+          values="0;0.4;"
+          dur="1s"
+          repeatCount={0}
+        />
+      </circle>
     </svg>
   );
 };
