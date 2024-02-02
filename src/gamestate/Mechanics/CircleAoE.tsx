@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { Circle, Point } from "@flatten-js/core";
+import { useTimeout } from "../../components/useTimeout";
 
 export type CircleAoEProps = {
   source: Point;
@@ -9,17 +9,10 @@ export type CircleAoEProps = {
 };
 
 export const CircleAoE = (props: CircleAoEProps) => {
-  const [opacity, setOpacity] = useState(0);
-  const c = new Circle(new Point(props.source.x, props.source.y), props.radius);
   const { onAnimationEnd } = props;
-  useEffect(() => {
-    let mounted = true;
-    setOpacity(0.4);
-    setTimeout(() => mounted && onAnimationEnd(), 1500);
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  useTimeout(() => {
+    onAnimationEnd();
+  }, 1500);
   return (
     <svg
       height="100%"
@@ -30,14 +23,24 @@ export const CircleAoE = (props: CircleAoEProps) => {
         top: 0,
       }}
       viewBox="0 0 1 1"
-      dangerouslySetInnerHTML={{
-        __html: c.svg({
-          fill: props.colour ?? "orange",
-          fillOpacity: opacity,
-          strokeWidth: 0,
-        }),
-      }}
-    />
+    >
+      <circle
+        cx={props.source.x}
+        cy={props.source.y}
+        r={props.radius}
+        fill={props.colour ?? "orange"}
+        opacity="0.4"
+        stroke-width="0"
+        stroke="black"
+      >
+        <animate
+          attributeName="opacity"
+          values="0;0.4"
+          dur="1s"
+          repeatCount={0}
+        />
+      </circle>
+    </svg>
   );
 };
 

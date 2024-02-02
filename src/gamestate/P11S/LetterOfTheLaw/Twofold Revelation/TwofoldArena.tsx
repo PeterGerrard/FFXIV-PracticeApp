@@ -1,11 +1,11 @@
 import { Add, addPosition } from "../Add";
 import { P11SArena } from "../../P11SArena";
 import { LetterOfTheLawPlayer } from "../gameState";
-import Grow from "@mui/material/Grow";
 import { TwofoldRevelationState, towerPos } from ".";
 import { DangerPuddle } from "../../../Mechanics/DangerPuddles";
 import { Tower } from "../../Tower";
 import { Point } from "@flatten-js/core";
+import { useTimeout } from "../../../../components/useTimeout";
 
 export const TwofoldArena = (props: {
   players: LetterOfTheLawPlayer[];
@@ -15,6 +15,16 @@ export const TwofoldArena = (props: {
   animationEnd: () => void;
 }) => {
   const { animationEnd, gameState, moveTo, players } = props;
+
+  useTimeout(() => {
+    if (
+      gameState.cast &&
+      gameState.cast.value >= 100 &&
+      gameState.stage !== "Space1"
+    ) {
+      animationEnd();
+    }
+  }, 1500);
 
   return (
     <P11SArena
@@ -67,62 +77,71 @@ export const TwofoldArena = (props: {
             );
           })}
 
-      {gameState.cast && gameState.stage === "Jump" && (
-        <>
-          <Grow
-            in={gameState.cast.value >= 100}
-            timeout={1500}
-            onEntered={animationEnd}
-          >
+      {gameState.cast &&
+        gameState.stage === "Jump" &&
+        gameState.cast.value >= 100 && (
+          <>
             <svg
               height="55%"
               width="55%"
               style={{
                 position: "absolute",
-                left: `${gameState.players.filter(
-                  (p) => p.isTethered && p.role === "Tank"
-                )[0].position.x * 100
-                  }%`,
-                top: `${gameState.players.filter(
-                  (p) => p.isTethered && p.role === "Tank"
-                )[0].position.y * 100
-                  }%`,
+                left: `${
+                  gameState.players.filter(
+                    (p) => p.isTethered && p.role === "Tank"
+                  )[0].position.x * 100
+                }%`,
+                top: `${
+                  gameState.players.filter(
+                    (p) => p.isTethered && p.role === "Tank"
+                  )[0].position.y * 100
+                }%`,
                 transform: "translate(-50%, -50%)",
               }}
             >
-              <circle cx="50%" cy="50%" r="50%" fill="purple" opacity={0.4} />
+              <circle cx="50%" cy="50%" r="50%" fill="purple" opacity={0.4}>
+                <animate
+                  attributeName="opacity"
+                  values="0;0.4"
+                  dur="1s"
+                  repeatCount={0}
+                />
+              </circle>
             </svg>
-          </Grow>
-          <Grow in={gameState.cast.value >= 100} timeout={1500}>
             <svg
               height="25%"
               width="25%"
               style={{
                 position: "absolute",
-                left: `${gameState.players.filter(
-                  (p) => p.isTethered && p.role !== "Tank"
-                )[0].position.x * 100
-                  }%`,
-                top: `${gameState.players.filter(
-                  (p) => p.isTethered && p.role !== "Tank"
-                )[0].position.y * 100
-                  }%`,
+                left: `${
+                  gameState.players.filter(
+                    (p) => p.isTethered && p.role !== "Tank"
+                  )[0].position.x * 100
+                }%`,
+                top: `${
+                  gameState.players.filter(
+                    (p) => p.isTethered && p.role !== "Tank"
+                  )[0].position.y * 100
+                }%`,
                 transform: "translate(-50%, -50%)",
               }}
             >
-              <circle cx="50%" cy="50%" r="50%" fill="yellow" opacity={0.4} />
+              <circle cx="50%" cy="50%" r="50%" fill="yellow" opacity={0.4}>
+                <animate
+                  attributeName="opacity"
+                  values="0;0.4"
+                  dur="1s"
+                  repeatCount={0}
+                />
+              </circle>
             </svg>
-          </Grow>
-        </>
-      )}
+          </>
+        )}
 
-      {gameState.cast && gameState.stage === "Outer" && (
-        <>
-          <Grow
-            in={gameState.cast.value >= 100}
-            timeout={1500}
-            onEntered={animationEnd}
-          >
+      {gameState.cast &&
+        gameState.stage === "Outer" &&
+        gameState.cast.value >= 100 && (
+          <>
             <svg
               height="100%"
               width="100%"
@@ -141,10 +160,15 @@ export const TwofoldArena = (props: {
                 fill="transparent"
                 strokeWidth="35%"
                 opacity={0.4}
-              />
+              >
+                <animate
+                  attributeName="opacity"
+                  values="0;0.4"
+                  dur="1s"
+                  repeatCount={0}
+                />
+              </circle>
             </svg>
-          </Grow>
-          <Grow in={gameState.cast.value >= 100} timeout={1500}>
             <svg
               height="45%"
               width="45%"
@@ -155,11 +179,17 @@ export const TwofoldArena = (props: {
                 transform: "translate(-50%, -50%)",
               }}
             >
-              <circle cx="50%" cy="50%" r="50%" fill="yellow" opacity={0.4} />
+              <circle cx="50%" cy="50%" r="50%" fill="yellow" opacity={0.4}>
+                <animate
+                  attributeName="opacity"
+                  values="0;0.4"
+                  dur="1s"
+                  repeatCount={0}
+                />
+              </circle>
             </svg>
-          </Grow>
-        </>
-      )}
+          </>
+        )}
     </P11SArena>
   );
 };
