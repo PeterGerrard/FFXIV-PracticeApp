@@ -100,12 +100,14 @@ export type GameLoop<TPlayer, T> = {
 export const distanceTo = (source: Point, target: Point) =>
   source.distanceTo(target)[0];
 
-export const getRandomPos = (): Point => {
+export const getRandomPos = (
+  isValid: ((p: Point) => boolean) | undefined = undefined
+): Point => {
   const p: Point = new Point(Math.random(), Math.random());
-  if (distanceTo(p, new Point(0.5, 0.5)) < 0.35) {
+  if (distanceTo(p, new Point(0.5, 0.5)) < 0.35 && (!isValid || isValid(p))) {
     return p;
   }
-  return getRandomPos();
+  return getRandomPos(isValid);
 };
 
 export const rotation = (inter: InterCardinal): number => {

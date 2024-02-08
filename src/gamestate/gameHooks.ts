@@ -57,12 +57,10 @@ export const usePlayers = <T extends Player>(
     setPlayers((ps) =>
       ps.map((p) => {
         const d = debuffs(p);
-        console.log(d);
         return { ...p, debuffs: d };
       })
     );
   }, [debuffs]);
-  console.log({ players });
 
   return {
     players,
@@ -119,7 +117,7 @@ const useGameState = <T extends object>(
 
 export const useGame = <
   TPlayer extends Player,
-  TState extends { stage: string }
+  TState extends { stage: string },
 >(
   getSurvivors: (state: TState, players: TPlayer[]) => Designation[],
   hasFinished: (state: TState) => boolean,
