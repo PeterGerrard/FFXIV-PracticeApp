@@ -7,7 +7,12 @@ import {
   nextStep,
 } from "./states";
 import { Debuff, Player } from "../../Player";
-import { Designations, getRandomPos, getRole } from "../../gameState";
+import {
+  Designation,
+  Designations,
+  getRandomPos,
+  getRole,
+} from "../../gameState";
 import { survivePuddles } from "../../Mechanics/DangerPuddles";
 import { SetupContext } from "../../Setup/Setup";
 import { Button } from "@/components/ui/button";
@@ -74,6 +79,9 @@ export const ClassicalConcepts1 = () => {
 
   const dangerPuddles = getDangerPuddles(state, players);
 
+  const getPlayer = (d: Designation) =>
+    players.filter((p) => p.designation === d)[0];
+
   return (
     <div className="flex flex-col">
       <div>
@@ -99,6 +107,22 @@ export const ClassicalConcepts1 = () => {
         dangerPuddles={dangerPuddles}
         moveTo={onMove}
       >
+        <Tether
+          player={getPlayer(state.circlePair[0])}
+          tetheredTo={getPlayer(state.circlePair[1])}
+        />
+        <Tether
+          player={getPlayer(state.crossPair[0])}
+          tetheredTo={getPlayer(state.crossPair[1])}
+        />
+        <Tether
+          player={getPlayer(state.squarePair[0])}
+          tetheredTo={getPlayer(state.squarePair[1])}
+        />
+        <Tether
+          player={getPlayer(state.trianglePair[0])}
+          tetheredTo={getPlayer(state.trianglePair[1])}
+        />
         <Overlay
           players={players}
           finished={false}
@@ -106,5 +130,31 @@ export const ClassicalConcepts1 = () => {
         />
       </P12P2Arena>
     </div>
+  );
+};
+
+const Tether = (props: { player: Player; tetheredTo: Player }) => {
+  const { player, tetheredTo } = props;
+
+  return (
+    <svg
+      style={{
+        position: "absolute",
+        left: 0,
+        top: 0,
+        height: "100%",
+        width: "100%",
+      }}
+      viewBox="0 0 1 1"
+    >
+      <line
+        x1={player.position.x}
+        y1={player.position.y}
+        x2={tetheredTo.position.x}
+        y2={tetheredTo.position.y}
+        strokeWidth={0.01}
+        stroke="green"
+      />
+    </svg>
   );
 };
