@@ -123,6 +123,91 @@ export const ClassicalConcepts1 = () => {
           player={getPlayer(state.trianglePair[0])}
           tetheredTo={getPlayer(state.trianglePair[1])}
         />
+        <svg
+          height="100%"
+          width="100%"
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+          }}
+          viewBox="0 0 1 1"
+        >
+          <circle
+            cx={state.die1.pos.x * 0.2 + 0.2}
+            cy={state.die1.pos.y * 0.2 + 0.35}
+            r={0.05}
+            fill="blue"
+          />
+          <circle
+            cx={state.die2.pos.x * 0.2 + 0.2}
+            cy={state.die2.pos.y * 0.2 + 0.35}
+            r={0.05}
+            fill="blue"
+          />
+          <circle
+            cx={state.die3.pos.x * 0.2 + 0.2}
+            cy={state.die3.pos.y * 0.2 + 0.35}
+            r={0.05}
+            fill="blue"
+          />
+          <circle
+            cx={state.die4.pos.x * 0.2 + 0.2}
+            cy={state.die4.pos.y * 0.2 + 0.35}
+            r={0.05}
+            fill="blue"
+          />
+
+          <circle
+            cx={state.die1.pyramidPos.x * 0.2 + 0.2}
+            cy={state.die1.pyramidPos.y * 0.2 + 0.35}
+            r={0.05}
+            fill="red"
+          />
+          <circle
+            cx={state.die2.pyramidPos.x * 0.2 + 0.2}
+            cy={state.die2.pyramidPos.y * 0.2 + 0.35}
+            r={0.05}
+            fill="red"
+          />
+          <circle
+            cx={state.die3.pyramidPos.x * 0.2 + 0.2}
+            cy={state.die3.pyramidPos.y * 0.2 + 0.35}
+            r={0.05}
+            fill="red"
+          />
+          <circle
+            cx={state.die4.pyramidPos.x * 0.2 + 0.2}
+            cy={state.die4.pyramidPos.y * 0.2 + 0.35}
+            r={0.05}
+            fill="red"
+          />
+
+          <circle
+            cx={state.die1.squarePos.x * 0.2 + 0.2}
+            cy={state.die1.squarePos.y * 0.2 + 0.35}
+            r={0.05}
+            fill="yellow"
+          />
+          <circle
+            cx={state.die2.squarePos.x * 0.2 + 0.2}
+            cy={state.die2.squarePos.y * 0.2 + 0.35}
+            r={0.05}
+            fill="yellow"
+          />
+          <circle
+            cx={state.die3.squarePos.x * 0.2 + 0.2}
+            cy={state.die3.squarePos.y * 0.2 + 0.35}
+            r={0.05}
+            fill="yellow"
+          />
+          <circle
+            cx={state.die4.squarePos.x * 0.2 + 0.2}
+            cy={state.die4.squarePos.y * 0.2 + 0.35}
+            r={0.05}
+            fill="yellow"
+          />
+        </svg>
         <Overlay
           players={players}
           finished={false}
