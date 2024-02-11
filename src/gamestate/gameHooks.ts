@@ -13,7 +13,7 @@ export const useGame = <
   getTargetLocation: (state: TState, player: TPlayer) => Point,
   createState: () => TState,
   autoProgress: (state: TState) => false | number,
-  progress: (state: TState) => TState,
+  progress: (state: TState, players: TPlayer[]) => TState,
   getDebuffs: (state: TState, player: TPlayer) => Debuff[]
 ) => {
   const [state, setState] = useState(createState());
@@ -30,19 +30,13 @@ export const useGame = <
     const auto = autoProgress(state);
     if (auto !== false) {
       setTimeout(() => {
-        return mounted && canProgress && setState(progress(state));
+        return mounted && canProgress && setState(progress(state, players));
       }, auto);
     }
     return () => {
       mounted = false;
     };
-  }, [state, autoProgress, canProgress, progress]);
-
-  const goToNextState = () => {
-    if (autoProgress(state) === false) {
-      setState(progress(state));
-    }
-  };
+  }, [state, players, autoProgress, canProgress, progress]);
 
   const preventProgress = () => {
     setCanProgress(false);
@@ -83,10 +77,12 @@ export const useGame = <
         return;
       }
       moveControlled(newPoint);
-      goToNextState();
+      if (autoProgress(state) === false) {
+        setState(progress(state, players));
+      }
       setPrevStage(state.stage);
     },
-    [state, players, moveControlled, goToNextState]
+    [state, players, moveControlled]
   );
 
   useEffect(() => {
@@ -97,7 +93,7 @@ export const useGame = <
         ps.map((p) => ({
           ...p,
           alive: p.alive && survivingPlayers.includes(p.designation),
-          debuffs: getDebuffs(state, p)
+          debuffs: getDebuffs(state, p),
         }))
       );
       setPrevStage(state.stage);
