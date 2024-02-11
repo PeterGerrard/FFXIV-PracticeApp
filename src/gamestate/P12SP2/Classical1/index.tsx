@@ -68,6 +68,22 @@ const Pyramid = (props: { pos: Point }) => {
   );
 };
 
+const checkIntercepts = (state: Classical1GameState): boolean => {
+  if (state.stage === "TetherAttach") {
+    return [
+      state.cube1Attach,
+      state.cube2Attach,
+      state.cube3Attach,
+      state.cube4Attach,
+      state.pyramid1Attach,
+      state.pyramid2Attach,
+      state.pyramid3Attach,
+      state.pyramid4Attach,
+    ].every((x) => x !== null);
+  }
+  return true;
+};
+
 export const ClassicalConcepts1 = () => {
   const setup = useContext(SetupContext);
   useTitle("Classical Concepts 1");
@@ -76,7 +92,11 @@ export const ClassicalConcepts1 = () => {
     Player,
     Classical1GameState
   >(
-    (s, p) => survivePuddles(getDangerPuddles(s, p), p),
+    (s, p) => {
+      return survivePuddles(getDangerPuddles(s, p), p).filter((_) =>
+        checkIntercepts(s)
+      );
+    },
     (s) => s.stage === "TetherAttach",
     () =>
       Designations.map((d) => ({
