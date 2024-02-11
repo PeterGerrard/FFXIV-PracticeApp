@@ -162,7 +162,19 @@ type InitialState = {
   die4: DiePosition;
 };
 
-export type Classical1GameState = InitialState;
+type TetherAttachState = Omit<InitialState, "stage"> & {
+  stage: "TetherAttach";
+  cube1Attach: Designation | null;
+  pyramid1Attach: Designation | null;
+  cube2Attach: Designation | null;
+  pyramid2Attach: Designation | null;
+  cube3Attach: Designation | null;
+  pyramid3Attach: Designation | null;
+  cube4Attach: Designation | null;
+  pyramid4Attach: Designation | null;
+};
+
+export type Classical1GameState = InitialState | TetherAttachState;
 
 const offsetGrid = (p: Point, d: Cardinal) => {
   switch (d) {
