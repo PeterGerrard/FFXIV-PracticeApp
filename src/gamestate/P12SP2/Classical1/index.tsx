@@ -27,7 +27,10 @@ import triangleSrc from "../assets/Triangle.png";
 import circleSrc from "../assets/Circle.png";
 import crossSrc from "../assets/Cross.png";
 import squareSrc from "../assets/Square.png";
-import { point } from "@flatten-js/core";
+import cubeSrc from "../assets/cube.png";
+import pyramidSrc from "../assets/pyramid.png";
+import octahedronSrc from "../assets/octahedron.png";
+import { Point, point } from "@flatten-js/core";
 
 const autoProgress = (_state: Classical1GameState) => false as const;
 
@@ -50,6 +53,46 @@ const getDebuffs = (state: Classical1GameState, player: Player) => [
     ? AlphaDebuff
     : BetaDebuff,
 ];
+
+const toDisplayPos = (gridPos: Point): Point =>
+  point(gridPos.x * 0.2 + 0.15, gridPos.y * 0.2 + 0.3);
+
+const Octahedron = (props: { gridPos: Point }) => {
+  const displayPos = toDisplayPos(props.gridPos);
+  return (
+    <image
+      href={octahedronSrc}
+      x={displayPos.x}
+      y={displayPos.y}
+      height={0.1}
+      width={0.1}
+    />
+  );
+};
+const Cube = (props: { gridPos: Point }) => {
+  const displayPos = toDisplayPos(props.gridPos);
+  return (
+    <image
+      href={cubeSrc}
+      x={displayPos.x}
+      y={displayPos.y}
+      height={0.1}
+      width={0.1}
+    />
+  );
+};
+const Pyramid = (props: { gridPos: Point }) => {
+  const displayPos = toDisplayPos(props.gridPos);
+  return (
+    <image
+      href={pyramidSrc}
+      x={displayPos.x}
+      y={displayPos.y}
+      height={0.1}
+      width={0.1}
+    />
+  );
+};
 
 export const ClassicalConcepts1 = () => {
   const setup = useContext(SetupContext);
@@ -133,80 +176,18 @@ export const ClassicalConcepts1 = () => {
           }}
           viewBox="0 0 1 1"
         >
-          <circle
-            cx={state.die1.pos.x * 0.2 + 0.2}
-            cy={state.die1.pos.y * 0.2 + 0.35}
-            r={0.05}
-            fill="blue"
-          />
-          <circle
-            cx={state.die2.pos.x * 0.2 + 0.2}
-            cy={state.die2.pos.y * 0.2 + 0.35}
-            r={0.05}
-            fill="blue"
-          />
-          <circle
-            cx={state.die3.pos.x * 0.2 + 0.2}
-            cy={state.die3.pos.y * 0.2 + 0.35}
-            r={0.05}
-            fill="blue"
-          />
-          <circle
-            cx={state.die4.pos.x * 0.2 + 0.2}
-            cy={state.die4.pos.y * 0.2 + 0.35}
-            r={0.05}
-            fill="blue"
-          />
-
-          <circle
-            cx={state.die1.pyramidPos.x * 0.2 + 0.2}
-            cy={state.die1.pyramidPos.y * 0.2 + 0.35}
-            r={0.05}
-            fill="red"
-          />
-          <circle
-            cx={state.die2.pyramidPos.x * 0.2 + 0.2}
-            cy={state.die2.pyramidPos.y * 0.2 + 0.35}
-            r={0.05}
-            fill="red"
-          />
-          <circle
-            cx={state.die3.pyramidPos.x * 0.2 + 0.2}
-            cy={state.die3.pyramidPos.y * 0.2 + 0.35}
-            r={0.05}
-            fill="red"
-          />
-          <circle
-            cx={state.die4.pyramidPos.x * 0.2 + 0.2}
-            cy={state.die4.pyramidPos.y * 0.2 + 0.35}
-            r={0.05}
-            fill="red"
-          />
-
-          <circle
-            cx={state.die1.squarePos.x * 0.2 + 0.2}
-            cy={state.die1.squarePos.y * 0.2 + 0.35}
-            r={0.05}
-            fill="yellow"
-          />
-          <circle
-            cx={state.die2.squarePos.x * 0.2 + 0.2}
-            cy={state.die2.squarePos.y * 0.2 + 0.35}
-            r={0.05}
-            fill="yellow"
-          />
-          <circle
-            cx={state.die3.squarePos.x * 0.2 + 0.2}
-            cy={state.die3.squarePos.y * 0.2 + 0.35}
-            r={0.05}
-            fill="yellow"
-          />
-          <circle
-            cx={state.die4.squarePos.x * 0.2 + 0.2}
-            cy={state.die4.squarePos.y * 0.2 + 0.35}
-            r={0.05}
-            fill="yellow"
-          />
+          <Octahedron gridPos={state.die1.pos} />
+          <Octahedron gridPos={state.die2.pos} />
+          <Octahedron gridPos={state.die3.pos} />
+          <Octahedron gridPos={state.die4.pos} />
+          <Cube gridPos={state.die1.squarePos} />
+          <Cube gridPos={state.die2.squarePos} />
+          <Cube gridPos={state.die3.squarePos} />
+          <Cube gridPos={state.die4.squarePos} />
+          <Pyramid gridPos={state.die1.pyramidPos} />
+          <Pyramid gridPos={state.die2.pyramidPos} />
+          <Pyramid gridPos={state.die3.pyramidPos} />
+          <Pyramid gridPos={state.die4.pyramidPos} />
         </svg>
         <Overlay
           players={players}
