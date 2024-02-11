@@ -3,86 +3,27 @@ import { useCallback, useEffect, useState } from "react";
 import { Debuff, Player } from "./Player";
 import { Designation } from "./gameState";
 
-export const usePlayers = <T extends Player>(
-  createPlayers: () => T[],
-  getTargetLocation: (player: T) => Point,
-  debuffs: (player: T) => Debuff[]
+export const useGame = <
+  TPlayer extends Player,
+  TState extends { stage: string },
+>(
+  getSurvivors: (state: TState, players: TPlayer[]) => Designation[],
+  hasFinished: (state: TState) => boolean,
+  createPlayers: () => TPlayer[],
+  getTargetLocation: (state: TState, player: TPlayer) => Point,
+  createState: () => TState,
+  autoProgress: (state: TState) => false | number,
+  progress: (state: TState) => TState,
+  getDebuffs: (state: TState, player: TPlayer) => Debuff[]
 ) => {
+  const [state, setState] = useState(createState());
+  const [prevStage, setPrevStage] = useState<TState["stage"] | undefined>();
   const [players, setPlayers] = useState(
-    createPlayers().map((p) => ({ ...p, debuffs: debuffs(p) }))
+    createPlayers().map((p) => ({ ...p, debuffs: getDebuffs(state, p) }))
   );
   const [safeLocation, setSafeLocation] = useState(point());
   const [canMove, setCanMove] = useState(true);
-  const reset = () => {
-    setPlayers(createPlayers().map((p) => ({ ...p, debuffs: debuffs(p) })));
-    setSafeLocation(point());
-    setCanMove(true);
-  };
-  const moveControlled = (moveTo: Point) => {
-    if (!canMove) {
-      return;
-    }
-    setPlayers((ps) =>
-      ps.map((p) =>
-        p.controlled
-          ? { ...p, position: moveTo }
-          : { ...p, position: getTargetLocation(p) }
-      )
-    );
-    setSafeLocation(getTargetLocation(players.filter((p) => p.controlled)[0]));
-  };
-  const killPlayers = (predicate: (p: T) => boolean) => {
-    const newPlayers = players.map((p) => ({
-      ...p,
-      alive: p.alive && !predicate(p),
-    }));
-    setPlayers((ps) =>
-      ps.map((p) => ({
-        ...p,
-        alive: p.alive && !predicate(p),
-      }))
-    );
-    return newPlayers.some((p) => !p.alive);
-  };
-  const preventMovement = useCallback(() => {
-    setCanMove(false);
-  }, [setCanMove]);
-
-  useEffect(() => {
-    if (canMove && players.some((p) => !p.alive)) {
-      preventMovement();
-    }
-  }, [players, preventMovement, canMove]);
-  useEffect(() => {
-    setPlayers((ps) =>
-      ps.map((p) => {
-        const d = debuffs(p);
-        return { ...p, debuffs: d };
-      })
-    );
-  }, [debuffs]);
-
-  return {
-    players,
-    safeLocation,
-    reset,
-    moveControlled,
-    killPlayers,
-    preventMovement,
-  };
-};
-
-const useGameState = <T extends object>(
-  createState: () => T,
-  autoProgress: (state: T) => false | number,
-  progress: (state: T) => T
-) => {
-  const [state, setState] = useState(createState());
   const [canProgress, setCanProgress] = useState(true);
-  const reset = () => {
-    setState(createState());
-    setCanProgress(true);
-  };
 
   useEffect(() => {
     let mounted = true;
@@ -106,52 +47,34 @@ const useGameState = <T extends object>(
   const preventProgress = () => {
     setCanProgress(false);
   };
-
-  return {
-    state,
-    reset,
-    goToNextState,
-    preventProgress,
+  const moveControlled = (moveTo: Point) => {
+    if (!canMove) {
+      return;
+    }
+    setPlayers((ps) =>
+      ps.map((p) =>
+        p.controlled
+          ? { ...p, position: moveTo }
+          : { ...p, position: getTargetLocation(state, p) }
+      )
+    );
+    setSafeLocation(
+      getTargetLocation(state, players.filter((p) => p.controlled)[0])
+    );
   };
-};
-
-export const useGame = <
-  TPlayer extends Player,
-  TState extends { stage: string },
->(
-  getSurvivors: (state: TState, players: TPlayer[]) => Designation[],
-  hasFinished: (state: TState) => boolean,
-  createPlayers: () => TPlayer[],
-  getTargetLocation: (state: TState, player: TPlayer) => Point,
-  createState: () => TState,
-  autoProgress: (state: TState) => false | number,
-  progress: (state: TState) => TState,
-  getDebuffs: (state: TState, player: TPlayer) => Debuff[]
-) => {
-  const {
-    goToNextState,
-    preventProgress,
-    reset: resetState,
-    state,
-  } = useGameState(createState, autoProgress, progress);
-  const [prevStage, setPrevStage] = useState<TState["stage"] | undefined>();
-  const debuffs = useCallback(
-    (p: TPlayer) => getDebuffs(state, p),
-    [state, getDebuffs]
-  );
-  const {
-    players,
-    safeLocation,
-    reset: resetPlayers,
-    moveControlled,
-    killPlayers,
-    preventMovement,
-  } = usePlayers(createPlayers, (p) => getTargetLocation(state, p), debuffs);
+  const preventMovement = useCallback(() => {
+    setCanMove(false);
+  }, [setCanMove]);
 
   const restart = () => {
-    resetState();
+    setState(createState());
+    setCanProgress(true);
     setPrevStage(undefined);
-    resetPlayers();
+    setPlayers(
+      createPlayers().map((p) => ({ ...p, debuffs: getDebuffs(state, p) }))
+    );
+    setSafeLocation(point());
+    setCanMove(true);
   };
 
   const onMove = useCallback(
@@ -169,16 +92,24 @@ export const useGame = <
   useEffect(() => {
     if (prevStage !== state.stage) {
       const survivingPlayers = getSurvivors(state, players);
-      const anyDied = killPlayers(
-        (p) => !survivingPlayers.includes(p.designation)
+
+      setPlayers((ps) =>
+        ps.map((p) => ({
+          ...p,
+          alive: p.alive && survivingPlayers.includes(p.designation),
+          debuffs: getDebuffs(state, p)
+        }))
       );
-      if (anyDied) {
-        preventProgress();
-      }
       setPrevStage(state.stage);
     }
-  }, [players, state, prevStage, killPlayers, preventProgress, getSurvivors]);
+  }, [players, state, prevStage, preventProgress, getSurvivors]);
 
+  useEffect(() => {
+    if (players.some((p) => !p.alive)) {
+      preventMovement();
+      preventProgress();
+    }
+  }, [players, preventMovement, preventProgress]);
   useEffect(() => {
     if (hasFinished(state)) {
       preventMovement();
