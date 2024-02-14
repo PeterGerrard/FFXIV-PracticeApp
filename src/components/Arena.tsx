@@ -58,7 +58,7 @@ export const Arena = (
         {props.players.map((p) => (
           <React.Fragment key={p.designation}>
             <PlayerComponent player={p} />
-            {"marker" in p && (
+            {"marker" in p && p.marker && (
               <img
                 src={p.marker.src}
                 style={{

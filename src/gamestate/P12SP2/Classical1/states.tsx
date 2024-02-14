@@ -189,10 +189,34 @@ type TetherAttachState = Omit<InitialState, "stage"> & {
   pyramid4Attach: Designation | null;
 };
 
+type DodgePuddles = Omit<InitialState, "stage"> & {
+  stage: "DodgePuddles";
+};
+
+type Bait = Omit<InitialState, "stage"> & {
+  stage: "Bait";
+};
+
+type BaitHit = Omit<InitialState, "stage"> & {
+  stage: "BaitHit";
+  bait1Targets: Point[];
+  bait2Targets: Point[];
+};
+
+type FinalDodge = Omit<InitialState, "stage"> & {
+  stage: "FinalDodge";
+  bait1Targets: Point[];
+  bait2Targets: Point[];
+};
+
 export type Classical1GameState =
   | InitialState
   | TetherMoveState
-  | TetherAttachState;
+  | TetherAttachState
+  | DodgePuddles
+  | Bait
+  | BaitHit
+  | FinalDodge;
 
 const offsetGrid = (p: Point, d: Cardinal) => {
   switch (d) {
@@ -251,10 +275,63 @@ export const createInitialState = (): Classical1GameState => {
   };
 };
 
+const bait1Source = point(0.3, 0.5);
+const bait2Source = point(0.7, 0.5);
+
 export const getDangerPuddles = (
-  _state: Classical1GameState,
+  state: Classical1GameState,
   _players: Player[]
 ): DangerPuddle[] => {
+  if (state.stage === "DodgePuddles") {
+    const points: Point[] = [0, 1, 2, 3].flatMap((x) =>
+      [0, 1, 2].map((y) => toDisplayPos(point(x, y)))
+    );
+    return points.map<DangerPuddle>((p) => ({
+      type: "circle",
+      damage: 2,
+      debuffRequirement: null,
+      instaKill: null,
+      onAnimationEnd: () => {},
+      radius: 0.1,
+      roleRequirement: null,
+      source: p,
+      split: false,
+    }));
+  }
+  if (state.stage === "BaitHit" || state.stage === "FinalDodge") {
+    const damage = state.stage === "BaitHit" ? 0.8 : 2;
+    const puddles1 = state.bait1Targets.map<DangerPuddle>((p) => ({
+      type: "cone",
+      angle: vector(bait1Source, bait1Source.translate(0, -1)).angleTo(
+        vector(bait1Source, p)
+      ),
+      damage: damage,
+      debuffRequirement: null,
+      instaKill: null,
+      onAnimationEnd: () => {},
+      roleRequirement: null,
+      source: bait1Source,
+      split: false,
+      width: 0.4,
+      colour: "yellow",
+    }));
+    const puddles2 = state.bait2Targets.map<DangerPuddle>((p) => ({
+      type: "cone",
+      angle: vector(bait2Source, bait2Source.translate(0, -1)).angleTo(
+        vector(bait2Source, p)
+      ),
+      damage: damage,
+      debuffRequirement: null,
+      instaKill: null,
+      onAnimationEnd: () => {},
+      roleRequirement: null,
+      source: bait2Source,
+      split: false,
+      width: 0.4,
+      colour: "yellow",
+    }));
+    return puddles1.concat(puddles2);
+  }
   return [];
 };
 
@@ -331,6 +408,43 @@ export const nextStep = (
       ),
     };
   }
+  if (state.stage === "TetherAttach") {
+    return {
+      ...state,
+      stage: "DodgePuddles",
+    };
+  }
+  if (state.stage === "DodgePuddles") {
+    return {
+      ...state,
+      stage: "Bait",
+    };
+  }
+  if (state.stage === "Bait") {
+    const playerPositions = players.map((p) => p.position);
+    return {
+      ...state,
+      stage: "BaitHit",
+      bait1Targets: playerPositions
+        .sort(
+          (p1, p2) =>
+            p1.distanceTo(bait1Source)[0] - p2.distanceTo(bait1Source)[0]
+        )
+        .slice(0, 4),
+      bait2Targets: playerPositions
+        .sort(
+          (p1, p2) =>
+            p1.distanceTo(bait2Source)[0] - p2.distanceTo(bait2Source)[0]
+        )
+        .slice(0, 4),
+    };
+  }
+  if (state.stage === "BaitHit") {
+    return {
+      ...state,
+      stage: "FinalDodge",
+    };
+  }
   return state;
 };
 
@@ -390,6 +504,61 @@ export const getTargetSpot = (
         ).scale(0.1, 0.1)
       );
     }
+  }
+  if (state.stage === "TetherAttach") {
+    let x = 0;
+    let y = 0;
+    if (
+      state.crossPair.includes(player.designation) ||
+      state.squarePair.includes(player.designation)
+    ) {
+      x = 0.3;
+    } else {
+      x = 0.7;
+    }
+    if (player.debuffs.some((d) => d.name === AlphaDebuff.name)) {
+      y = 0.45;
+    } else {
+      y = 0.65;
+    }
+    return point(x, y);
+  }
+  if (state.stage === "DodgePuddles") {
+    let x = 0;
+    let y = 0;
+    if (state.crossPair.includes(player.designation)) {
+      x = 0.27;
+    } else if (state.squarePair.includes(player.designation)) {
+      x = 0.33;
+    } else if (state.circlePair.includes(player.designation)) {
+      x = 0.67;
+    } else {
+      x = 0.73;
+    }
+    if (player.debuffs.some((d) => d.name === AlphaDebuff.name)) {
+      y = 0.47;
+    } else {
+      y = 0.53;
+    }
+    return point(x, y);
+  }
+  if (state.stage === "BaitHit") {
+    let x = 0;
+    let y = 0;
+    if (
+      state.crossPair.includes(player.designation) ||
+      state.squarePair.includes(player.designation)
+    ) {
+      x = 0.3;
+    } else {
+      x = 0.7;
+    }
+    if (player.debuffs.some((d) => d.name === AlphaDebuff.name)) {
+      y = 0.4;
+    } else {
+      y = 0.6;
+    }
+    return point(x, y);
   }
 
   return player.position;

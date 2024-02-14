@@ -32,7 +32,7 @@ import octahedronSrc from "../assets/octahedron.png";
 import { Point, point } from "@flatten-js/core";
 
 const autoProgress = (state: Classical1GameState) =>
-  state.stage === "TetherMove" ? 0 : false;
+  state.stage === "TetherMove" || state.stage === "Bait" ? 0 : false;
 
 const Octahedron = (props: { pos: Point }) => {
   return (
@@ -84,6 +84,8 @@ const checkIntercepts = (state: Classical1GameState): boolean => {
   return true;
 };
 
+const hasFinished = (s: Classical1GameState): boolean =>
+  s.stage === "FinalDodge";
 export const ClassicalConcepts1 = () => {
   const setup = useContext(SetupContext);
   useTitle("Classical Concepts 1");
@@ -97,7 +99,7 @@ export const ClassicalConcepts1 = () => {
         checkIntercepts(s)
       );
     },
-    (s) => s.stage === "TetherAttach",
+    hasFinished,
     () =>
       Designations.map((d) => ({
         alive: true,
@@ -130,63 +132,79 @@ export const ClassicalConcepts1 = () => {
       <P12P2Arena
         players={players.map((p) => ({
           ...p,
-          marker: {
-            src: state.circlePair.includes(p.designation)
-              ? circleSrc
-              : state.crossPair.includes(p.designation)
-                ? crossSrc
-                : state.squarePair.includes(p.designation)
-                  ? squareSrc
-                  : triangleSrc,
-            offset: point(0, -0.05),
-          },
+          marker: ["Initial", "TetherMove", "TetherAttach"].includes(
+            state.stage
+          )
+            ? {
+                src: state.circlePair.includes(p.designation)
+                  ? circleSrc
+                  : state.crossPair.includes(p.designation)
+                    ? crossSrc
+                    : state.squarePair.includes(p.designation)
+                      ? squareSrc
+                      : triangleSrc,
+                offset: point(0, -0.05),
+              }
+            : undefined,
         }))}
         dangerPuddles={dangerPuddles}
         moveTo={onMove}
       >
-        <Tether
-          source={getPlayer(state.circlePair[0]).position}
-          target={getPlayer(state.circlePair[1]).position}
-          thickness={0.01}
-        />
-        <Tether
-          source={getPlayer(state.crossPair[0]).position}
-          target={getPlayer(state.crossPair[1]).position}
-          thickness={0.01}
-        />
-        <Tether
-          source={getPlayer(state.squarePair[0]).position}
-          target={getPlayer(state.squarePair[1]).position}
-          thickness={0.01}
-        />
-        <Tether
-          source={getPlayer(state.trianglePair[0]).position}
-          target={getPlayer(state.trianglePair[1]).position}
-          thickness={0.01}
-        />
-        <svg
-          height="100%"
-          width="100%"
-          style={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-          }}
-          viewBox="0 0 1 1"
-        >
-          <Octahedron pos={state.die1.pos} />
-          <Octahedron pos={state.die2.pos} />
-          <Octahedron pos={state.die3.pos} />
-          <Octahedron pos={state.die4.pos} />
-          <Cube pos={state.die1.squarePos} />
-          <Cube pos={state.die2.squarePos} />
-          <Cube pos={state.die3.squarePos} />
-          <Cube pos={state.die4.squarePos} />
-          <Pyramid pos={state.die1.pyramidPos} />
-          <Pyramid pos={state.die2.pyramidPos} />
-          <Pyramid pos={state.die3.pyramidPos} />
-          <Pyramid pos={state.die4.pyramidPos} />
-        </svg>
+        {["Initial", "TetherMove", "TetherAttach"].includes(state.stage) ? (
+          <>
+            <Tether
+              source={getPlayer(state.circlePair[0]).position}
+              target={getPlayer(state.circlePair[1]).position}
+              thickness={0.01}
+            />
+            <Tether
+              source={getPlayer(state.crossPair[0]).position}
+              target={getPlayer(state.crossPair[1]).position}
+              thickness={0.01}
+            />
+            <Tether
+              source={getPlayer(state.squarePair[0]).position}
+              target={getPlayer(state.squarePair[1]).position}
+              thickness={0.01}
+            />
+            <Tether
+              source={getPlayer(state.trianglePair[0]).position}
+              target={getPlayer(state.trianglePair[1]).position}
+              thickness={0.01}
+            />
+          </>
+        ) : (
+          <></>
+        )}
+        {["Initial", "TetherMove", "TetherAttach", "DodgePuddles"].includes(
+          state.stage
+        ) ? (
+          <svg
+            height="100%"
+            width="100%"
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+            }}
+            viewBox="0 0 1 1"
+          >
+            <Octahedron pos={state.die1.pos} />
+            <Octahedron pos={state.die2.pos} />
+            <Octahedron pos={state.die3.pos} />
+            <Octahedron pos={state.die4.pos} />
+            <Cube pos={state.die1.squarePos} />
+            <Cube pos={state.die2.squarePos} />
+            <Cube pos={state.die3.squarePos} />
+            <Cube pos={state.die4.squarePos} />
+            <Pyramid pos={state.die1.pyramidPos} />
+            <Pyramid pos={state.die2.pyramidPos} />
+            <Pyramid pos={state.die3.pyramidPos} />
+            <Pyramid pos={state.die4.pyramidPos} />
+          </svg>
+        ) : (
+          <></>
+        )}
         {state.stage === "TetherAttach" && (
           <>
             <Tether
@@ -265,7 +283,7 @@ export const ClassicalConcepts1 = () => {
         )}
         <Overlay
           players={players}
-          finished={false}
+          finished={hasFinished(state)}
           safeLocation={safeLocation}
         />
       </P12P2Arena>

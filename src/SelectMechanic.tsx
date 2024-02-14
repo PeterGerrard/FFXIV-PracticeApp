@@ -29,7 +29,7 @@ export const SelectMechanic = () => (
     <h2>P12S Phase 2</h2>
     <ul>
       <li>
-        <Link to="/p12s/p2/classical1">Classical Concepts 1 (alpha)</Link>
+        <Link to="/p12s/p2/classical1">Classical Concepts 1 (beta)</Link>
       </li>
     </ul>
   </>
