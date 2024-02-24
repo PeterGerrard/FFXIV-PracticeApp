@@ -1,7 +1,7 @@
 import { Point, point, vector } from "@flatten-js/core";
 import { DangerPuddle } from "../../Mechanics/DangerPuddles";
 import { Debuff, Player } from "../../Player";
-import { Cardinal, Designation, Designations } from "../../gameState";
+import { Designation, Designations } from "../../gameState";
 import { pickOne, shuffle } from "../../helpers";
 import alphaSrc from "../assets/alpha.png";
 import betaSrc from "../assets/beta.png";
