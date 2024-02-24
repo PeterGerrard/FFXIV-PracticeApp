@@ -41,6 +41,7 @@ export const CaloricConcepts1 = () => {
         designation: d,
         position: getRandomPos((p) => p.y > 0.3),
         role: getRole(d),
+        distanceTravelled: 0,
       })),
     getTargetSpot,
     createInitialState,

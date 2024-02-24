@@ -40,6 +40,7 @@ export const SuperchainTheory2A = () => {
         designation: d,
         position: getRandomPos(),
         role: getRole(d),
+        distanceTravelled: 0,
       })),
     getTargetSpot,
     createInitialState,

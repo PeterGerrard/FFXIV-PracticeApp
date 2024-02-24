@@ -55,6 +55,7 @@ export const createPlayer = (
     controlled: controlled,
     designation: designation,
     alive: true,
+    distanceTravelled: 0,
   };
 };
 

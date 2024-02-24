@@ -46,11 +46,15 @@ export const useGame = <
       return;
     }
     setPlayers((ps) =>
-      ps.map((p) =>
-        p.controlled
-          ? { ...p, position: moveTo }
-          : { ...p, position: getTargetLocation(state, p) }
-      )
+      ps.map((p) => {
+        const target = p.controlled ? moveTo : getTargetLocation(state, p);
+        return {
+          ...p,
+          position: target,
+          distanceTravelled:
+            p.distanceTravelled + p.position.distanceTo(target)[0],
+        };
+      })
     );
     setSafeLocation(
       getTargetLocation(state, players.filter((p) => p.controlled)[0])

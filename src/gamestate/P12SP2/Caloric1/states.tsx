@@ -1,8 +1,6 @@
-import { Point, point, vector } from "@flatten-js/core";
+import { Point } from "@flatten-js/core";
 import { DangerPuddle } from "../../Mechanics/DangerPuddles";
 import { Player } from "../../Player";
-import { Designation, Designations } from "../../gameState";
-import { pickOne, shuffle } from "../../helpers";
 
 type InitialState = {
   stage: "Initial";

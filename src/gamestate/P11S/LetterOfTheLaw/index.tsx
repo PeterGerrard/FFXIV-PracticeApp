@@ -41,6 +41,7 @@ export const startLetterOfTheLaw = (setup: Setup): LetterOfTheLawGame => {
       designation: d,
       show: true,
       alive: true,
+      distanceTravelled: 0
     };
   });
   const paired = InterCardinals.map<[InterCardinal, InterCardinal]>((_, i) => [

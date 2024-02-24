@@ -17,6 +17,7 @@ export type Player = {
   debuffs: Debuff[];
   controlled: boolean;
   designation: Designation;
+  distanceTravelled: number;
 };
 
 export const PlayerComponent = (props: { player: Player }) => {

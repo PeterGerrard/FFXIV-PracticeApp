@@ -637,6 +637,7 @@ const sc1 = (
     debuffs: [],
     controlled: d === setup.designation,
     alive: true,
+    distanceTravelled: 0,
   }));
   return {
     game: superchainTheory1,

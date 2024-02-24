@@ -1175,6 +1175,7 @@ const startPara3 = (
     debuffs: soupDebuffs[d] ?? [darkDps.includes(d) ? RedDebuff : LightDebuff],
     controlled: d === setup.designation,
     alive: true,
+    distanceTravelled: 0,
   }));
   const towerDebuffDesignations = (["H1", "MT", "OT", "H2"] as const).filter(
     (d: Designation) =>
