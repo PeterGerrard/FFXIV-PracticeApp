@@ -31,6 +31,11 @@ export const SelectMechanic = () => (
       <li>
         <Link to="/p12s/p2/classical1">Classical Concepts 1 (beta)</Link>
       </li>
+      {import.meta.env.DEV && (
+        <li>
+          <Link to="/p12s/p2/caloric1">Caloric 1 (pre-alpha)</Link>
+        </li>
+      )}
     </ul>
   </>
 );

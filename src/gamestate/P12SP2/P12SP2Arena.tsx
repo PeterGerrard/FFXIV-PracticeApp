@@ -24,6 +24,7 @@ export const P12P2Arena = (
     players: (Player | PlayerWithMarker)[];
     moveTo: (p: Point) => void;
     dangerPuddles: DangerPuddle[];
+    showCaloricGrid?: boolean;
   }>
 ) => {
   return (
@@ -34,6 +35,49 @@ export const P12P2Arena = (
       showPartyList
     >
       <img src={arenaPng} height="100%" width="100%"></img>
+      {props.showCaloricGrid && (
+        <svg
+          height="100%"
+          width="100%"
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+          }}
+          viewBox="0 0 1 1"
+        >
+          <>
+            {[1, 2, 3, 4, 5].map((i) => {
+              const x = i / 5.65 - 0.03;
+              return (
+                <line
+                  key={i}
+                  x1={x}
+                  y1={0.25}
+                  x2={x}
+                  y2={1}
+                  stroke="lightblue"
+                  strokeWidth={0.005}
+                />
+              );
+            })}
+            {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
+              const y = i / 10 + 11 / 40;
+              return (
+                <line
+                  key={i}
+                  x1={0}
+                  y1={y}
+                  x2={1}
+                  y2={y}
+                  stroke="lightblue"
+                  strokeWidth={0.005}
+                />
+              );
+            })}
+          </>
+        </svg>
+      )}
       {Object.entries(P12SP2Waymarks).map(([w, p]) => (
         <WaymarkDisplay
           key={w}

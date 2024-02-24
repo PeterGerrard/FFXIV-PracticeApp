@@ -22,6 +22,7 @@ import { Route as IndexImport } from './routes/index'
 const P11sLetterofthelawLazyImport = createFileRoute('/p11s/letterofthelaw')()
 const P11sDarkandlightLazyImport = createFileRoute('/p11s/darkandlight')()
 const P12sP2Classical1LazyImport = createFileRoute('/p12s/p2/classical1')()
+const P12sP2Caloric1LazyImport = createFileRoute('/p12s/p2/caloric1')()
 const P12sP1Superchaintheory2bLazyImport = createFileRoute(
   '/p12s/p1/superchaintheory2b',
 )()
@@ -69,6 +70,13 @@ const P12sP2Classical1LazyRoute = P12sP2Classical1LazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() =>
   import('./routes/p12s/p2/classical1.lazy').then((d) => d.Route),
+)
+
+const P12sP2Caloric1LazyRoute = P12sP2Caloric1LazyImport.update({
+  path: '/p12s/p2/caloric1',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/p12s/p2/caloric1.lazy').then((d) => d.Route),
 )
 
 const P12sP1Superchaintheory2bLazyRoute =
@@ -142,6 +150,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof P12sP1Superchaintheory2bLazyImport
       parentRoute: typeof rootRoute
     }
+    '/p12s/p2/caloric1': {
+      preLoaderRoute: typeof P12sP2Caloric1LazyImport
+      parentRoute: typeof rootRoute
+    }
     '/p12s/p2/classical1': {
       preLoaderRoute: typeof P12sP2Classical1LazyImport
       parentRoute: typeof rootRoute
@@ -161,6 +173,7 @@ export const routeTree = rootRoute.addChildren([
   P12sP1Superchaintheory1LazyRoute,
   P12sP1Superchaintheory2aLazyRoute,
   P12sP1Superchaintheory2bLazyRoute,
+  P12sP2Caloric1LazyRoute,
   P12sP2Classical1LazyRoute,
 ])
 
