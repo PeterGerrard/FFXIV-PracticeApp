@@ -6,6 +6,7 @@ import { pickOne, shuffle } from "../../helpers";
 import alphaSrc from "../assets/alpha.png";
 import betaSrc from "../assets/beta.png";
 import { DiePosition, validDiePositions } from "./validDiePositions";
+import { P12SP2Waymarks } from "../P12SP2Arena";
 
 const AlphaDebuff: Debuff = {
   name: "Alpha",
@@ -116,8 +117,8 @@ export const createInitialState = (): Classical1GameState => {
   };
 };
 
-const bait1Source = point(0.3, 0.5);
-const bait2Source = point(0.7, 0.5);
+const bait1Source = P12SP2Waymarks["Waymark 3"];
+const bait2Source = P12SP2Waymarks["Waymark 4"];
 
 export const getDangerPuddles = (
   state: Classical1GameState,
@@ -368,18 +369,18 @@ export const getTargetSpot = (
     let x = 0;
     let y = 0;
     if (state.crossPair.includes(player.designation)) {
-      x = 0.27;
+      x = bait1Source.x - 0.03;
     } else if (state.squarePair.includes(player.designation)) {
-      x = 0.33;
+      x = bait1Source.x + 0.03;
     } else if (state.circlePair.includes(player.designation)) {
-      x = 0.67;
+      x = bait2Source.x - 0.03;
     } else {
-      x = 0.73;
+      x = bait2Source.x + 0.03;
     }
     if (player.debuffs.some((d) => d.name === AlphaDebuff.name)) {
-      y = 0.47;
+      y = bait1Source.y - 0.03;
     } else {
-      y = 0.53;
+      y = bait1Source.y + 0.03;
     }
     return point(x, y);
   }
