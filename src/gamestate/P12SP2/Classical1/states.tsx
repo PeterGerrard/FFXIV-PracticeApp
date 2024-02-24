@@ -5,6 +5,7 @@ import { Cardinal, Designation, Designations } from "../../gameState";
 import { pickOne, shuffle } from "../../helpers";
 import alphaSrc from "../assets/alpha.png";
 import betaSrc from "../assets/beta.png";
+import { DiePosition, validDiePositions } from "./validDiePositions";
 
 const AlphaDebuff: Debuff = {
   name: "Alpha",
@@ -14,152 +15,6 @@ const BetaDebuff: Debuff = {
   name: "Beta",
   src: betaSrc,
 };
-
-type DiePosition = {
-  pos: Point;
-  squarePos: Point;
-  pyramidPos: Point;
-};
-
-type DieState = {
-  pos: Point;
-  dir1: Cardinal;
-  dir2: Cardinal;
-};
-const validDieStates: [DieState, DieState, DieState, DieState][] = [
-  [
-    { pos: point(0, 0), dir1: "East", dir2: "South" },
-    { pos: point(1, 2), dir1: "West", dir2: "North" },
-    { pos: point(2, 0), dir1: "East", dir2: "South" },
-    { pos: point(3, 2), dir1: "West", dir2: "North" },
-  ],
-  [
-    { pos: point(0, 0), dir1: "East", dir2: "South" },
-    { pos: point(1, 2), dir1: "West", dir2: "North" },
-    { pos: point(2, 1), dir1: "North", dir2: "South" },
-    { pos: point(3, 1), dir1: "North", dir2: "South" },
-  ],
-  [
-    { pos: point(0, 0), dir1: "East", dir2: "South" },
-    { pos: point(1, 2), dir1: "West", dir2: "North" },
-    { pos: point(2, 2), dir1: "North", dir2: "East" },
-    { pos: point(3, 0), dir1: "South", dir2: "West" },
-  ],
-  [
-    { pos: point(0, 0), dir1: "East", dir2: "South" },
-    { pos: point(1, 2), dir1: "West", dir2: "East" },
-    { pos: point(2, 1), dir1: "North", dir2: "West" },
-    { pos: point(3, 1), dir1: "North", dir2: "South" },
-  ],
-  [
-    { pos: point(0, 1), dir1: "North", dir2: "East" },
-    { pos: point(1, 2), dir1: "West", dir2: "East" },
-    { pos: point(2, 0), dir1: "South", dir2: "West" },
-    { pos: point(3, 1), dir1: "North", dir2: "South" },
-  ],
-  [
-    { pos: point(0, 1), dir1: "North", dir2: "East" },
-    { pos: point(1, 2), dir1: "West", dir2: "East" },
-    { pos: point(2, 0), dir1: "East", dir2: "West" },
-    { pos: point(3, 1), dir1: "West", dir2: "South" },
-  ],
-  [
-    { pos: point(0, 1), dir1: "North", dir2: "South" },
-    { pos: point(1, 0), dir1: "East", dir2: "South" },
-    { pos: point(2, 2), dir1: "North", dir2: "West" },
-    { pos: point(3, 1), dir1: "North", dir2: "South" },
-  ],
-  [
-    { pos: point(0, 1), dir1: "North", dir2: "South" },
-    { pos: point(1, 0), dir1: "East", dir2: "South" },
-    { pos: point(2, 2), dir1: "East", dir2: "West" },
-    { pos: point(3, 1), dir1: "North", dir2: "West" },
-  ],
-  [
-    { pos: point(0, 1), dir1: "North", dir2: "South" },
-    { pos: point(1, 1), dir1: "North", dir2: "East" },
-    { pos: point(2, 2), dir1: "East", dir2: "West" },
-    { pos: point(3, 0), dir1: "South", dir2: "West" },
-  ],
-  [
-    { pos: point(0, 1), dir1: "North", dir2: "South" },
-    { pos: point(1, 1), dir1: "North", dir2: "South" },
-    { pos: point(2, 0), dir1: "South", dir2: "East" },
-    { pos: point(3, 2), dir1: "North", dir2: "West" },
-  ],
-  [
-    { pos: point(0, 1), dir1: "North", dir2: "South" },
-    { pos: point(1, 1), dir1: "North", dir2: "South" },
-    { pos: point(2, 1), dir1: "South", dir2: "North" },
-    { pos: point(3, 1), dir1: "North", dir2: "South" },
-  ],
-  [
-    { pos: point(0, 1), dir1: "North", dir2: "South" },
-    { pos: point(1, 1), dir1: "North", dir2: "South" },
-    { pos: point(2, 2), dir1: "North", dir2: "East" },
-    { pos: point(3, 0), dir1: "South", dir2: "West" },
-  ],
-  [
-    { pos: point(0, 1), dir1: "North", dir2: "South" },
-    { pos: point(1, 1), dir1: "East", dir2: "South" },
-    { pos: point(2, 0), dir1: "West", dir2: "East" },
-    { pos: point(3, 2), dir1: "North", dir2: "West" },
-  ],
-  [
-    { pos: point(0, 1), dir1: "North", dir2: "South" },
-    { pos: point(1, 2), dir1: "East", dir2: "North" },
-    { pos: point(2, 0), dir1: "South", dir2: "West" },
-    { pos: point(3, 1), dir1: "North", dir2: "South" },
-  ],
-  [
-    { pos: point(0, 1), dir1: "North", dir2: "South" },
-    { pos: point(1, 2), dir1: "East", dir2: "North" },
-    { pos: point(2, 0), dir1: "East", dir2: "West" },
-    { pos: point(3, 1), dir1: "South", dir2: "West" },
-  ],
-  [
-    { pos: point(0, 1), dir1: "South", dir2: "East" },
-    { pos: point(1, 0), dir1: "West", dir2: "East" },
-    { pos: point(2, 2), dir1: "North", dir2: "West" },
-    { pos: point(3, 1), dir1: "North", dir2: "South" },
-  ],
-  [
-    { pos: point(0, 1), dir1: "South", dir2: "East" },
-    { pos: point(1, 0), dir1: "West", dir2: "East" },
-    { pos: point(2, 2), dir1: "East", dir2: "West" },
-    { pos: point(3, 1), dir1: "West", dir2: "North" },
-  ],
-  [
-    { pos: point(0, 2), dir1: "East", dir2: "North" },
-    { pos: point(1, 0), dir1: "West", dir2: "South" },
-    { pos: point(2, 2), dir1: "East", dir2: "North" },
-    { pos: point(3, 0), dir1: "West", dir2: "South" },
-  ],
-  [
-    { pos: point(0, 2), dir1: "East", dir2: "North" },
-    { pos: point(1, 0), dir1: "West", dir2: "South" },
-    { pos: point(2, 1), dir1: "North", dir2: "South" },
-    { pos: point(3, 1), dir1: "North", dir2: "South" },
-  ],
-  [
-    { pos: point(0, 2), dir1: "East", dir2: "North" },
-    { pos: point(1, 0), dir1: "West", dir2: "South" },
-    { pos: point(2, 0), dir1: "South", dir2: "East" },
-    { pos: point(3, 2), dir1: "North", dir2: "West" },
-  ],
-  [
-    { pos: point(0, 2), dir1: "East", dir2: "North" },
-    { pos: point(1, 0), dir1: "West", dir2: "South" },
-    { pos: point(2, 0), dir1: "South", dir2: "East" },
-    { pos: point(3, 2), dir1: "North", dir2: "West" },
-  ],
-  [
-    { pos: point(0, 2), dir1: "East", dir2: "North" },
-    { pos: point(1, 0), dir1: "West", dir2: "East" },
-    { pos: point(2, 1), dir1: "South", dir2: "West" },
-    { pos: point(3, 1), dir1: "North", dir2: "South" },
-  ],
-];
 
 type InitialState = {
   stage: "Initial";
@@ -218,28 +73,14 @@ export type Classical1GameState =
   | BaitHit
   | FinalDodge;
 
-const offsetGrid = (p: Point, d: Cardinal) => {
-  switch (d) {
-    case "North":
-      return p.translate(0, -1);
-    case "East":
-      return p.translate(1, 0);
-    case "South":
-      return p.translate(0, 1);
-    case "West":
-      return p.translate(-1, 0);
-  }
-};
-
 const toDisplayPos = (gridPos: Point): Point =>
   point(gridPos.x * 0.2 + 0.2, gridPos.y * 0.2 + 0.35);
 
-const toDice = (state: DieState): DiePosition => {
-  const [pyramidDir, squareDir] = shuffle([state.dir1, state.dir2]);
+const toDice = (state: DiePosition): DiePosition => {
   return {
     pos: toDisplayPos(state.pos),
-    pyramidPos: toDisplayPos(offsetGrid(state.pos, pyramidDir)),
-    squarePos: toDisplayPos(offsetGrid(state.pos, squareDir)),
+    pyramidPos: toDisplayPos(state.pyramidPos),
+    squarePos: toDisplayPos(state.squarePos),
   };
 };
 
@@ -249,7 +90,7 @@ const getRandomDies = (): readonly [
   DiePosition,
   DiePosition,
 ] => {
-  const dieState = pickOne(validDieStates);
+  const dieState = pickOne(validDiePositions);
 
   return dieState.map(toDice) as [
     DiePosition,
