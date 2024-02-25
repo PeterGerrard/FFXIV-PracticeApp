@@ -34,7 +34,7 @@ type BeaconExplosion = {
   supportBeacon: Designation;
   dpsBeacon: Designation;
   explodingBeacon: "Support" | "DPS";
-  autoProgress: true;
+  autoProgress: 1500;
   fireTargets1: Designation[];
   windTargets1: Designation[];
   fireTargets2: Designation[];
@@ -69,7 +69,7 @@ type AfterDpsMove = {
   supportBeacon: Designation;
   dpsBeacon: Designation;
   explodingBeacon: "Support" | "DPS";
-  autoProgress: true;
+  autoProgress: 0;
   fireTargets1: Designation[];
   windTargets1: Designation[];
   fireTargets2: Designation[];
@@ -105,7 +105,7 @@ type StackExplosions2 = {
   supportBeacon: Designation;
   dpsBeacon: Designation;
   explodingBeacon: "Support" | "DPS";
-  autoProgress: true;
+  autoProgress: 1500;
   fireTargets1: Designation[];
   windTargets1: Designation[];
   fireTargets2: Designation[];
@@ -239,7 +239,7 @@ export const nextStep = (
     return {
       ...state,
       stage: "Beacon",
-      autoProgress: true,
+      autoProgress: 1500,
     };
   }
   if (state.stage === "Beacon") {
@@ -263,7 +263,7 @@ export const nextStep = (
     return {
       ...state,
       stage: "AfterDpsMove",
-      autoProgress: true,
+      autoProgress: 0,
     };
   }
   if (state.stage === "AfterDpsMove") {
@@ -283,7 +283,7 @@ export const nextStep = (
     return {
       ...state,
       stage: "StackExplosions2",
-      autoProgress: true,
+      autoProgress: 1500,
     };
   }
   if (state.stage === "StackExplosions2") {

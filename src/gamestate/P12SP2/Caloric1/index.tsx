@@ -23,7 +23,7 @@ import beaconSrc from "../assets/beacon.png";
 import fireSrc from "../assets/fire.png";
 
 const autoProgress = (state: Caloric1GameState): false | number =>
-  state.autoProgress ? 1500 : false;
+  state.autoProgress;
 
 const hasFinished = (s: Caloric1GameState): boolean => s.stage === "Final";
 export const CaloricConcepts1 = () => {
