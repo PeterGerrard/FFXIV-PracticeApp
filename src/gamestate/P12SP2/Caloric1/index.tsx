@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import {
   Caloric1GameState,
+  CaloricStack5Debuff,
   createInitialState,
   getDangerPuddles,
   getDebuffs,
@@ -31,7 +32,11 @@ export const CaloricConcepts1 = () => {
     Caloric1GameState
   >(
     (s, p) => {
-      return survivePuddles(getDangerPuddles(s, p), p);
+      return p.some((p1) =>
+        p1.debuffs.some((d) => d.name === CaloricStack5Debuff.name)
+      )
+        ? []
+        : survivePuddles(getDangerPuddles(s, p), p);
     },
     hasFinished,
     () =>

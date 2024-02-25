@@ -148,7 +148,7 @@ const CaloricStack4Debuff: Debuff = {
   name: "Caloric Stack 4",
   src: caloricStack4,
 };
-const CaloricStack5Debuff: Debuff = {
+export const CaloricStack5Debuff: Debuff = {
   name: "Caloric Stack 5",
   src: caloricStack5,
 };
