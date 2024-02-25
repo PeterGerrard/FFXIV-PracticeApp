@@ -29,7 +29,7 @@ import squareSrc from "../assets/Square.png";
 import cubeSrc from "../assets/cube.png";
 import pyramidSrc from "../assets/pyramid.png";
 import octahedronSrc from "../assets/octahedron.png";
-import { Point, point } from "@flatten-js/core";
+import { Point } from "@flatten-js/core";
 
 const autoProgress = (state: Classical1GameState) =>
   state.stage === "TetherMove" || state.stage === "Bait" ? 0 : false;
@@ -136,16 +136,13 @@ export const ClassicalConcepts1 = () => {
           marker: ["Initial", "TetherMove", "TetherAttach"].includes(
             state.stage
           )
-            ? {
-                src: state.circlePair.includes(p.designation)
-                  ? circleSrc
-                  : state.crossPair.includes(p.designation)
-                    ? crossSrc
-                    : state.squarePair.includes(p.designation)
-                      ? squareSrc
-                      : triangleSrc,
-                offset: point(0, -0.05),
-              }
+            ? state.circlePair.includes(p.designation)
+              ? circleSrc
+              : state.crossPair.includes(p.designation)
+                ? crossSrc
+                : state.squarePair.includes(p.designation)
+                  ? squareSrc
+                  : triangleSrc
             : undefined,
         }))}
         dangerPuddles={dangerPuddles}

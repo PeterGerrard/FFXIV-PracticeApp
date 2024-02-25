@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from "react";
+import React, { PropsWithChildren, useContext } from "react";
 import { Player, PlayerComponent } from "../gamestate/Player";
 import {
   DangerPuddle,
@@ -7,22 +7,24 @@ import {
 import { Point } from "@flatten-js/core";
 import { getPosition } from "../gamestate/htmlHelpers";
 import { PartyList } from "../gamestate/PartyList/PartyList";
+import { SetupContext } from "../gamestate/Setup/Setup";
 
 export type PlayerWithMarker = Player & {
-  marker: {
-    src: string;
-    offset: Point;
-  };
+  marker?: string;
 };
 
 export const Arena = (
   props: PropsWithChildren<{
-    players: (Player | PlayerWithMarker)[];
+    players: PlayerWithMarker[];
     moveTo: (p: Point) => void;
     dangerPuddles: DangerPuddle[];
     showPartyList: boolean;
   }>
 ) => {
+  const {
+    state: { playerIconSize },
+  } = useContext(SetupContext);
+
   return (
     <div
       style={{
@@ -60,11 +62,13 @@ export const Arena = (
             <PlayerComponent player={p} />
             {"marker" in p && p.marker && (
               <img
-                src={p.marker.src}
+                src={p.marker}
                 style={{
                   position: "absolute",
-                  left: `${(p.position.x + p.marker.offset.x) * 100}%`,
-                  top: `${(p.position.y + p.marker.offset.y) * 100}%`,
+                  left: `${p.position.x * 100}%`,
+                  top: `${(p.position.y - playerIconSize) * 100}%`,
+                  height: `${playerIconSize * 100}%`,
+                  width: `${playerIconSize * 100}%`,
                   transform: "translate(-50%, -50%)",
                   opacity: p.controlled ? 1 : 0.5,
                 }}

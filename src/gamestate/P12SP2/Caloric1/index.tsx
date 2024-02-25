@@ -17,10 +17,11 @@ import { useGame } from "../../gameHooks";
 import { Overlay } from "../../Overlay";
 import { useTitle } from "../../../components/useTitle";
 import { P12P2Arena } from "../P12SP2Arena";
+import beaconSrc from "../assets/beacon.png";
 
 const autoProgress = (_state: Caloric1GameState): false | number => false;
 
-const hasFinished = (s: Caloric1GameState): boolean => s.stage === "Initial";
+const hasFinished = (_s: Caloric1GameState): boolean => false;
 export const CaloricConcepts1 = () => {
   const setup = useContext(SetupContext);
   useTitle("Caloric Concepts 1");
@@ -61,7 +62,14 @@ export const CaloricConcepts1 = () => {
         </Button>
       </div>
       <P12P2Arena
-        players={players}
+        players={players.map((p) => ({
+          ...p,
+          marker:
+            state.stage === "Initial" &&
+            [state.supportBeacon, state.dpsBeacon].includes(p.designation)
+              ? beaconSrc
+              : undefined,
+        }))}
         dangerPuddles={dangerPuddles}
         moveTo={onMove}
         showCaloricGrid
