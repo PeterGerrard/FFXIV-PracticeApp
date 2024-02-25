@@ -303,6 +303,7 @@ export const getDebuffs = (state: Classical1GameState, player: Player) => [
 
 export const getTargetSpot = (
   state: Classical1GameState,
+  _players: Player[],
   player: Player
 ): Point => {
   if (state.stage === "Initial" || state.stage === "TetherMove") {

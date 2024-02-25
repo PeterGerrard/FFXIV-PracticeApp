@@ -197,7 +197,7 @@ export const nextStep = (state: SuperchainTheory2aGameState): SuperchainTheory2a
     return state;
 }
 
-export const getTargetSpot = (state: SuperchainTheory2aGameState, player: Player): Point => {
+export const getTargetSpot = (state: SuperchainTheory2aGameState, _players: Player[], player: Player): Point => {
     if (state.stage === "Initial") {
         const ys = state.short.north === "Circle" ? [0.7, 0.73, 0.76, 0.8] : [0.3, 0.27, 0.24, 0.2];
         switch (player.designation) {

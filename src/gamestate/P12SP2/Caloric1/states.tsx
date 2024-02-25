@@ -112,6 +112,18 @@ type StackExplosions2 = {
   startingDistances: { [p in Designation]: number };
 };
 
+type Final = {
+  stage: "Final";
+  supportBeacon: Designation;
+  dpsBeacon: Designation;
+  explodingBeacon: "Support" | "DPS";
+  autoProgress: false;
+  fireTargets1: Designation[];
+  windTargets1: Designation[];
+  fireTargets2: Designation[];
+  startingDistances: { [p in Designation]: number };
+};
+
 export type Caloric1GameState =
   | InitialState
   | BeaconExplosion
@@ -120,7 +132,8 @@ export type Caloric1GameState =
   | AfterDpsMove
   | StackExplosions1
   | AeroOut
-  | StackExplosions2;
+  | StackExplosions2
+  | Final;
 
 export const createInitialState = (): Caloric1GameState => {
   const supportBeacon = pickOne<Designation>(["MT", "OT", "H1", "H2"]);
@@ -273,6 +286,13 @@ export const nextStep = (
       autoProgress: true,
     };
   }
+  if (state.stage === "StackExplosions2") {
+    return {
+      ...state,
+      stage: "Final",
+      autoProgress: false,
+    };
+  }
   return state;
 };
 
@@ -327,16 +347,33 @@ const getPartner = (d: Designation): Designation => {
   }
 };
 
+const inState = (
+  state: Caloric1GameState,
+  stages: Caloric1GameState["stage"][]
+) => stages.includes(state.stage);
+
 export const getDebuffs = (state: Caloric1GameState, player: Player) => {
   if (state.stage === "Initial") return [];
 
   const debuffs: Debuff[] = [];
   let stackCount = 1;
 
-  if (state.fireTargets1.includes(player.designation)) {
-    debuffs.push(CaloricFireDebuff);
+  if (
+    inState(state, ["Beacon", "PostBeacon", "AfterSupportMove", "AfterDpsMove"])
+  ) {
+    if (state.fireTargets1.includes(player.designation)) {
+      debuffs.push(CaloricFireDebuff);
+    }
   }
-  if (state.windTargets1.includes(player.designation)) {
+  if (inState(state, ["StackExplosions1", "AeroOut"])) {
+    if (state.fireTargets2.includes(player.designation)) {
+      debuffs.push(CaloricFireDebuff);
+    }
+  }
+  if (
+    state.stage !== "Final" &&
+    state.windTargets1.includes(player.designation)
+  ) {
     debuffs.push(CaloricWindDebuff);
     stackCount++;
   }
@@ -346,17 +383,20 @@ export const getDebuffs = (state: Caloric1GameState, player: Player) => {
       player.distanceTravelled - state.startingDistances[player.designation] >
       0.12
     ) {
-      stackCount++;
+      stackCount += Math.floor(
+        (player.distanceTravelled -
+          state.startingDistances[player.designation]) /
+          0.12
+      );
     }
   }
-  if (state.stage === "StackExplosions1") {
+
+  if (
+    inState(state, ["StackExplosions1", "AeroOut", "StackExplosions2", "Final"])
+  ) {
     stackCount++;
   }
-  if (state.stage === "AeroOut") {
-    stackCount++;
-  }
-  if (state.stage === "StackExplosions2") {
-    stackCount++;
+  if (inState(state, ["StackExplosions2", "Final"])) {
     if (!state.windTargets1.includes(player.designation)) {
       stackCount++;
     }
@@ -374,7 +414,7 @@ export const getDebuffs = (state: Caloric1GameState, player: Player) => {
   if (stackCount === 4) {
     debuffs.unshift(CaloricStack4Debuff);
   }
-  if (stackCount === 5) {
+  if (stackCount >= 5) {
     debuffs.unshift(CaloricStack5Debuff);
   }
 
@@ -383,6 +423,7 @@ export const getDebuffs = (state: Caloric1GameState, player: Player) => {
 
 export const getTargetSpot = (
   state: Caloric1GameState,
+  allPlayers: Player[],
   player: Player
 ): Point => {
   if (state.stage === "Initial") {
@@ -547,10 +588,50 @@ export const getTargetSpot = (
       return player.position;
     }
   }
-  if (state.stage === "StackExplosions2") {
-    // TODO, rotate north and south
-    // If clock match then clock, else anti
-    // everyone else still
+  if (state.stage === "AeroOut") {
+    if (state.windTargets1.includes(player.designation)) {
+      return player.position;
+    }
+    if (distanceTo(player.position, P12SP2Waymarks["Waymark B"]) < 0.1) {
+      return player.position;
+    }
+    if (distanceTo(player.position, P12SP2Waymarks["Waymark D"]) < 0.1) {
+      return player.position;
+    }
+    if (distanceTo(player.position, P12SP2Waymarks["Waymark A"]) < 0.1) {
+      const [[targetPlayer]] = allPlayers
+        .map(
+          (p) =>
+            [p, distanceTo(p.position, P12SP2Waymarks["Waymark B"])] as const
+        )
+        .sort(([, d1], [, d2]) => d1 - d2);
+      console.log({ from: "A", targetPlayer });
+      if (
+        state.fireTargets2.includes(player.designation) ===
+        state.fireTargets2.includes(targetPlayer.designation)
+      ) {
+        return P12SP2Waymarks["Waymark D"].translate(0.02, 0);
+      } else {
+        return P12SP2Waymarks["Waymark B"].translate(-0.02, 0);
+      }
+    }
+    if (distanceTo(player.position, P12SP2Waymarks["Waymark C"]) < 0.1) {
+      const [[targetPlayer]] = allPlayers
+        .map(
+          (p) =>
+            [p, distanceTo(p.position, P12SP2Waymarks["Waymark D"])] as const
+        )
+        .sort(([, d1], [, d2]) => d1 - d2);
+      console.log({ from: "C", targetPlayer });
+      if (
+        state.fireTargets2.includes(player.designation) ===
+        state.fireTargets2.includes(targetPlayer.designation)
+      ) {
+        return P12SP2Waymarks["Waymark B"].translate(-0.02, 0);
+      } else {
+        return P12SP2Waymarks["Waymark D"].translate(0.02, 0);
+      }
+    }
   }
   return player.position;
 };

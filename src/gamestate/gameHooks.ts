@@ -10,7 +10,11 @@ export const useGame = <
   getSurvivors: (state: TState, players: TPlayer[]) => Designation[],
   hasFinished: (state: TState) => boolean,
   createPlayers: () => TPlayer[],
-  getTargetLocation: (state: TState, player: TPlayer) => Point,
+  getTargetLocation: (
+    state: TState,
+    allPlayers: TPlayer[],
+    player: TPlayer
+  ) => Point,
   createState: () => TState,
   autoProgress: (state: TState) => false | number,
   progress: (state: TState, players: TPlayer[]) => TState,
@@ -47,7 +51,9 @@ export const useGame = <
     }
     setPlayers((ps) =>
       ps.map((p) => {
-        const target = p.controlled ? moveTo : getTargetLocation(state, p);
+        const target = p.controlled
+          ? moveTo
+          : getTargetLocation(state, players, p);
         return {
           ...p,
           position: target,
@@ -57,7 +63,7 @@ export const useGame = <
       })
     );
     setSafeLocation(
-      getTargetLocation(state, players.filter((p) => p.controlled)[0])
+      getTargetLocation(state, players, players.filter((p) => p.controlled)[0])
     );
   };
   const preventMovement = useCallback(() => {

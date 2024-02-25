@@ -23,7 +23,7 @@ import beaconSrc from "../assets/beacon.png";
 const autoProgress = (state: Caloric1GameState): false | number =>
   state.autoProgress ? 1500 : false;
 
-const hasFinished = (_s: Caloric1GameState): boolean => false;
+const hasFinished = (s: Caloric1GameState): boolean => s.stage === "Final";
 export const CaloricConcepts1 = () => {
   const setup = useContext(SetupContext);
   useTitle("Caloric Concepts 1");

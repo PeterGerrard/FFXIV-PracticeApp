@@ -148,7 +148,7 @@ export const nextStep = (state: SuperchainTheory2bGameState): SuperchainTheory2b
     return state;
 }
 
-export const getTargetSpot = (state: SuperchainTheory2bGameState, player: Player): Point => {
+export const getTargetSpot = (state: SuperchainTheory2bGameState, _players: Player[], player: Player): Point => {
     if (state.stage === "Initial" || state.stage === "Paradeigma") {
         return point(0.5, state.first.north ? 0.625 : 0.375);
     }
