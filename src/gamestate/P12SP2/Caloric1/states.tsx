@@ -93,6 +93,18 @@ type AeroOut = {
   supportBeacon: Designation;
   dpsBeacon: Designation;
   explodingBeacon: "Support" | "DPS";
+  autoProgress: false;
+  fireTargets1: Designation[];
+  windTargets1: Designation[];
+  fireTargets2: Designation[];
+  startingDistances: { [p in Designation]: number };
+};
+
+type StackExplosions2 = {
+  stage: "StackExplosions2";
+  supportBeacon: Designation;
+  dpsBeacon: Designation;
+  explodingBeacon: "Support" | "DPS";
   autoProgress: true;
   fireTargets1: Designation[];
   windTargets1: Designation[];
@@ -107,7 +119,8 @@ export type Caloric1GameState =
   | AfterSupportMove
   | AfterDpsMove
   | StackExplosions1
-  | AeroOut;
+  | AeroOut
+  | StackExplosions2;
 
 export const createInitialState = (): Caloric1GameState => {
   const supportBeacon = pickOne<Designation>(["MT", "OT", "H1", "H2"]);
@@ -173,6 +186,35 @@ export const getDangerPuddles = (
       split: true,
     }));
   }
+  if (state.stage === "StackExplosions2") {
+    return state.fireTargets2
+      .map(getPlayer)
+      .map<DangerPuddle>((p) => ({
+        type: "circle",
+        damage: 1.5,
+        debuffRequirement: null,
+        instaKill: null,
+        onAnimationEnd: () => {},
+        radius: 0.05,
+        roleRequirement: null,
+        source: p.position,
+        split: true,
+      }))
+      .concat(
+        state.windTargets1.map(getPlayer).map<DangerPuddle>((p) => ({
+          type: "circle",
+          damage: 0.8,
+          debuffRequirement: CaloricWindDebuff,
+          instaKill: null,
+          onAnimationEnd: () => {},
+          radius: 0.15,
+          roleRequirement: null,
+          source: p.position,
+          split: false,
+          colour: "lightgreen",
+        }))
+      );
+  }
   return [];
 };
 
@@ -222,6 +264,12 @@ export const nextStep = (
     return {
       ...state,
       stage: "AeroOut",
+    };
+  }
+  if (state.stage === "AeroOut") {
+    return {
+      ...state,
+      stage: "StackExplosions2",
       autoProgress: true,
     };
   }
@@ -306,6 +354,12 @@ export const getDebuffs = (state: Caloric1GameState, player: Player) => {
   }
   if (state.stage === "AeroOut") {
     stackCount++;
+  }
+  if (state.stage === "StackExplosions2") {
+    stackCount++;
+    if (!state.windTargets1.includes(player.designation)) {
+      stackCount++;
+    }
   }
 
   if (stackCount === 1) {
@@ -492,6 +546,11 @@ export const getTargetSpot = (
     } else {
       return player.position;
     }
+  }
+  if (state.stage === "StackExplosions2") {
+    // TODO, rotate north and south
+    // If clock match then clock, else anti
+    // everyone else still
   }
   return player.position;
 };
