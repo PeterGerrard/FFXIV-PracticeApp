@@ -20,7 +20,8 @@ import { useTitle } from "../../../components/useTitle";
 import { P12P2Arena } from "../P12SP2Arena";
 import beaconSrc from "../assets/beacon.png";
 
-const autoProgress = (_state: Caloric1GameState): false | number => false;
+const autoProgress = (state: Caloric1GameState): false | number =>
+  state.autoProgress ? 1500 : false;
 
 const hasFinished = (_s: Caloric1GameState): boolean => false;
 export const CaloricConcepts1 = () => {
