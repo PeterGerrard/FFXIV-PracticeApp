@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import {
   Caloric1GameState,
+  CaloricFireDebuff,
   CaloricStack5Debuff,
   createInitialState,
   getDangerPuddles,
@@ -19,6 +20,7 @@ import { Overlay } from "../../Overlay";
 import { useTitle } from "../../../components/useTitle";
 import { P12P2Arena } from "../P12SP2Arena";
 import beaconSrc from "../assets/beacon.png";
+import fireSrc from "../assets/fire.png";
 
 const autoProgress = (state: Caloric1GameState): false | number =>
   state.autoProgress ? 1500 : false;
@@ -74,7 +76,9 @@ export const CaloricConcepts1 = () => {
             state.stage === "Initial" &&
             [state.supportBeacon, state.dpsBeacon].includes(p.designation)
               ? beaconSrc
-              : undefined,
+              : p.debuffs.some((d) => d.name === CaloricFireDebuff.name)
+                ? fireSrc
+                : undefined,
         }))}
         dangerPuddles={dangerPuddles}
         moveTo={onMove}

@@ -296,7 +296,7 @@ export const nextStep = (
   return state;
 };
 
-const CaloricFireDebuff: Debuff = {
+export const CaloricFireDebuff: Debuff = {
   name: "Caloric Fire",
   src: caloricFire,
 };
