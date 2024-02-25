@@ -145,7 +145,7 @@ export const createInitialState = (): Caloric1GameState => {
     stage: "Initial",
     supportBeacon: supportBeacon,
     dpsBeacon: dpsBeacon,
-    explodingBeacon: pickOne(["Support", "DPS"] as const),
+    explodingBeacon: pickOne<"Support" | "DPS">(["Support", "DPS"]),
     autoProgress: false,
     fireTargets1: shuffledDesignations.slice(0, 4),
     windTargets1: [
