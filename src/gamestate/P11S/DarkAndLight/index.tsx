@@ -1,21 +1,32 @@
+import { Point } from "@flatten-js/core";
 import { IterateGames3 } from "../..";
-import { Designations, Setup, getRole } from "../../gameState";
+import { Designation, Designations, Setup, getRole } from "../../gameState";
 import { pickOne, shuffle } from "../../helpers";
 import {
   DivisiveOverrulingGameState,
-  DivisiveOverrulingState,
   initialDivisiveState,
+  applyDamage as divisiveApplyDamage,
+  getTargetSpot as divisiveGetTargetSpot,
+  progress as divisiveProgress,
+  getDangerPuddles as divisiveGetDangerPuddles,
 } from "./DivisiveOverruling/divisiveOverrulingState";
 import {
+  applyDamage as juryApplyDamage,
+  getTargetSpot as juryGetTargetSpot,
+  progress as juryProgress,
   JuryOverrulingGameState,
-  JuryOverrulingState,
   initialJuryOverrullingState,
+  getDangerPuddles as juryGetDangerPuddles,
 } from "./JuryOverruling/juryOverrulingState";
 import {
+  applyDamage as revelationsApplyDamage,
+  getTargetSpot as revelationsGetTargetSpot,
+  progress as revelationsProgress,
+  getDangerPuddles as revelationsGetDangerPuddles,
   RevelationGameState,
-  RevelationState,
 } from "./Revelation/revelationsState";
 import { DarkAndLightPlayer, createPlayer } from "./gameState";
+import { DangerPuddle } from "../../Mechanics/DangerPuddles";
 
 export type DarkAndLightState = IterateGames3<
   DarkAndLightPlayer,
@@ -24,7 +35,61 @@ export type DarkAndLightState = IterateGames3<
   DivisiveOverrulingGameState
 >;
 
-export const startDarkAndLight = (setup: Setup): DarkAndLightState => {
+export type NewDarkAndLightState =
+  | ({ outer: "Revelation" } & RevelationGameState)
+  | ({ outer: "Jury" } & JuryOverrulingGameState)
+  | ({ outer: "Divisive" } & DivisiveOverrulingGameState);
+
+export const getSurvivors = (
+  state: NewDarkAndLightState,
+  players: DarkAndLightPlayer[]
+): Designation[] => {
+  switch (state.outer) {
+    case "Revelation":
+      return revelationsApplyDamage(state, players)
+        .filter((p) => p.alive)
+        .map((p) => p.designation);
+    case "Jury":
+      return juryApplyDamage(state, players)
+        .filter((p) => p.alive)
+        .map((p) => p.designation);
+    case "Divisive":
+      return divisiveApplyDamage(state, players)
+        .filter((p) => p.alive)
+        .map((p) => p.designation);
+  }
+};
+
+export const getDangerPuddles = (
+  state: NewDarkAndLightState,
+  players: DarkAndLightPlayer[]
+): DangerPuddle[] => {
+  switch (state.outer) {
+    case "Revelation":
+      return revelationsGetDangerPuddles(state);
+    case "Jury":
+      return juryGetDangerPuddles(state, players);
+    case "Divisive":
+      return divisiveGetDangerPuddles(state);
+  }
+};
+
+export const getTargetSpot = (
+  state: NewDarkAndLightState,
+  players: DarkAndLightPlayer[],
+  player: DarkAndLightPlayer
+): Point => {
+  switch (state.outer) {
+    case "Revelation":
+      return revelationsGetTargetSpot(state, players, player);
+    case "Jury":
+      return juryGetTargetSpot(state, player);
+    case "Divisive":
+      return divisiveGetTargetSpot(state, player);
+  }
+};
+
+export const createPlayers = (setup: Setup) => {
   let dps = Designations.filter((d) => getRole(d) === "DPS");
   let tanks = Designations.filter((d) => getRole(d) === "Tank");
   let healers = Designations.filter((d) => getRole(d) === "Healer");
@@ -43,7 +108,7 @@ export const startDarkAndLight = (setup: Setup): DarkAndLightState => {
     prio === "Tank" ? [tanks[i], healers[i]] : [healers[i], tanks[i]]
   );
 
-  const players = [0, 1, 2, 3].flatMap((i) => {
+  return [0, 1, 2, 3].flatMap((i) => {
     const d = dps[i];
     const s = soups[i];
     return [
@@ -63,20 +128,36 @@ export const startDarkAndLight = (setup: Setup): DarkAndLightState => {
       ),
     ];
   });
+};
 
-  return {
-    game: RevelationState,
-    gameState: {
-      hasFinished: false,
-      bossColour: Math.random() < 0.5 ? "Dark" : "Light",
-      topBomb: Math.random() < 0.5 ? "Dark" : "Light",
-      cast: null,
-      players: players,
-    },
-    next: [
-      [JuryOverrulingState, (s) => initialJuryOverrullingState(s.players)],
-      [DivisiveOverrulingState, (s) => initialDivisiveState(s.players)],
-    ],
-    loop: 3,
-  };
+export const autoProgress = (state: NewDarkAndLightState): false | number => {
+  if (state.outer === "Revelation") {
+    if (state.stage === "Explosion") return 1500;
+  }
+  if (state.outer === "Jury") {
+    if (state.stage === "Lines") return 1500;
+    if (state.stage === "AOE") return 1500;
+  }
+  return false;
+};
+export const progress = (
+  state: NewDarkAndLightState,
+  _players: DarkAndLightPlayer[]
+): NewDarkAndLightState => {
+  switch (state.outer) {
+    case "Revelation":
+      if (state.hasFinished) {
+        return { outer: "Jury", ...initialJuryOverrullingState() };
+      }
+      const s1 = revelationsProgress(state);
+      return { outer: "Revelation", ...s1 };
+    case "Jury":
+      if (state.hasFinished) {
+        return { outer: "Divisive", ...initialDivisiveState() };
+      }
+      const s2 = juryProgress(state);
+      return { outer: "Jury", ...s2 };
+    case "Divisive":
+      return { outer: "Divisive", ...divisiveProgress(state) };
+  }
 };

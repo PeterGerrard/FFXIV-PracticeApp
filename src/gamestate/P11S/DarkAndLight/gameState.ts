@@ -1,8 +1,8 @@
 import { Point } from "@flatten-js/core";
 import { Player } from "../../Player";
 import {
+  Cast,
   Designation,
-  GameState,
   distanceTo,
   getRandomPos,
   getRole,
@@ -24,7 +24,9 @@ export type DarkAndLightPlayer = Player & {
   tetheredDesignation: Designation;
 };
 
-export type DarkAndLightGameState = GameState<DarkAndLightPlayer> & {
+export type DarkAndLightGameState = {
+  hasFinished: boolean;
+  cast: Cast | null;
   bossColour: "Dark" | "Light" | null;
 };
 

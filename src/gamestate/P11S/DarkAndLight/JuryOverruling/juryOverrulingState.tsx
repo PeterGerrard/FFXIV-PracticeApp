@@ -1,6 +1,6 @@
 import { Point, point, vector } from "@flatten-js/core";
 import { DangerPuddle, survivePuddles } from "../../../Mechanics/DangerPuddles";
-import { GameLoop, getRole } from "../../../gameState";
+import { getRole } from "../../../gameState";
 import {
   MarkerC,
   MarkerA,
@@ -11,7 +11,6 @@ import {
   MarkerB,
   MarkerD,
 } from "../../p11sMarkers";
-import { Arena } from "../Arena";
 import {
   DarkAndLightPlayer,
   DarkAndLightGameState,
@@ -69,30 +68,27 @@ const getSafeSpot = (
 };
 
 export type JuryOverrulingGameState = DarkAndLightGameState & {
-  explosions: "Before" | "Lines" | "Move" | "AOE";
+  stage: "Before" | "Lines" | "Move" | "AOE";
 };
 
-export const initialJuryOverrullingState = (
-  players: DarkAndLightPlayer[]
-): JuryOverrulingGameState => ({
+export const initialJuryOverrullingState = (): JuryOverrulingGameState => ({
   bossColour: null,
   cast: null,
-  players: players,
-  explosions: "Before",
+  stage: "Before",
   hasFinished: false,
 });
 
-const getDangerPuddles = (
+export const getDangerPuddles = (
   gameState: JuryOverrulingGameState,
-  animationEnd?: () => void
+  players: DarkAndLightPlayer[]
 ): DangerPuddle[] => {
-  if (gameState.bossColour && gameState.explosions === "Lines") {
-    return gameState.players.map<DangerPuddle>((p, i) => ({
+  if (gameState.bossColour && gameState.stage === "Lines") {
+    return players.map<DangerPuddle>((p) => ({
       type: "line",
       angle: vector(point(0.5, 0.5), point(0.5, 1)).angleTo(
         vector(point(0.5, 0.5), p.position)
       ),
-      onAnimationEnd: animationEnd && i == 0 ? animationEnd : () => {},
+      onAnimationEnd: () => {},
       source: new Point(0.5, 0.5),
       width: 0.2,
       colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
@@ -103,7 +99,7 @@ const getDangerPuddles = (
       instaKill: null,
     }));
   }
-  if (gameState.bossColour && gameState.explosions === "AOE") {
+  if (gameState.bossColour && gameState.stage === "AOE") {
     return [
       Marker1,
       Marker2,
@@ -113,7 +109,7 @@ const getDangerPuddles = (
       MarkerB,
       MarkerC,
       MarkerD,
-    ].map<DangerPuddle>((m, i) =>
+    ].map<DangerPuddle>((m) =>
       gameState.bossColour === "Dark"
         ? {
             type: "donut",
@@ -121,7 +117,7 @@ const getDangerPuddles = (
             outerRadius: 0.2,
             source: m,
             colour: "purple",
-            onAnimationEnd: animationEnd && i == 0 ? animationEnd : () => {},
+            onAnimationEnd: () => {},
             split: false,
             damage: 1,
             roleRequirement: null,
@@ -133,7 +129,7 @@ const getDangerPuddles = (
             source: m,
             radius: 0.125,
             colour: "yellow",
-            onAnimationEnd: animationEnd && i == 0 ? animationEnd : () => {},
+            onAnimationEnd: () => {},
             split: false,
             damage: 1,
             roleRequirement: null,
@@ -145,82 +141,62 @@ const getDangerPuddles = (
   return [];
 };
 
-export const JuryOverrulingState: GameLoop<
-  DarkAndLightPlayer,
-  JuryOverrulingGameState
-> = {
-  arena: (
-    gameState: JuryOverrulingGameState,
-    moveTo: (p: Point) => void,
-    animationEnd: () => void
-  ) => (
-    <Arena
-      players={gameState.players}
-      bossColour={gameState.bossColour}
-      dangerPuddles={getDangerPuddles(gameState, animationEnd)}
-      moveTo={moveTo}
-    />
-  ),
-  nextState: (gameState: JuryOverrulingGameState): JuryOverrulingGameState => {
-    if (gameState.cast === null) {
-      return {
-        bossColour: Math.random() < 0.5 ? "Dark" : "Light",
-        cast: {
-          name: "Jury Overruling",
-          value: 100,
-        },
-        players: gameState.players,
-        explosions: "Lines",
-        hasFinished: false,
-      };
-    }
-    if (gameState.explosions === "Lines") {
-      return {
-        ...gameState,
-        explosions: "Move",
-      };
-    }
-    if (gameState.explosions === "Move") {
-      return {
-        ...gameState,
-        explosions: "AOE",
-        hasFinished: true,
-      };
-    }
+export const applyDamage = (
+  gameState: JuryOverrulingGameState,
+  players: DarkAndLightPlayer[]
+): DarkAndLightPlayer[] => {
+  const survivingPlayers = survivePuddles(
+    getDangerPuddles(gameState, players),
+    players
+  );
+  return players.map((p) => ({
+    ...p,
+    alive:
+      survivingPlayers.includes(p.designation) &&
+      isTetherSafe(
+        p,
+        players.filter((o) => o.designation === p.tetheredDesignation)[0]
+      ),
+  }));
+};
+export const getTargetSpot = (
+  gameState: JuryOverrulingGameState,
+  player: DarkAndLightPlayer
+): Point => {
+  if (!gameState.bossColour) return getDefaultPos(player);
+  if (gameState.stage === "Move")
+    return getSafeSpot(player, gameState.bossColour);
+  return getDefaultPos(player);
+};
+export const progress = (
+  gameState: JuryOverrulingGameState
+): JuryOverrulingGameState => {
+  if (gameState.cast === null) {
+    return {
+      bossColour: Math.random() < 0.5 ? "Dark" : "Light",
+      cast: {
+        name: "Jury Overruling",
+        value: 100,
+      },
+      stage: "Lines",
+      hasFinished: false,
+    };
+  }
+  if (gameState.stage === "Lines") {
     return {
       ...gameState,
+      stage: "Move",
+    };
+  }
+  if (gameState.stage === "Move") {
+    return {
+      ...gameState,
+      stage: "AOE",
       hasFinished: true,
     };
-  },
-  applyDamage: (
-    gameState: JuryOverrulingGameState
-  ): JuryOverrulingGameState => {
-    const survivingPlayers = survivePuddles(
-      getDangerPuddles(gameState),
-      gameState.players
-    );
-    return {
-      ...gameState,
-      players: gameState.players.map((p) => ({
-        ...p,
-        alive:
-          survivingPlayers.includes(p.designation) &&
-          isTetherSafe(
-            p,
-            gameState.players.filter(
-              (o) => o.designation === p.tetheredDesignation
-            )[0]
-          ),
-      })),
-    };
-  },
-  getSafeSpot: (
-    gameState: JuryOverrulingGameState,
-    player: DarkAndLightPlayer
-  ): Point => {
-    if (!gameState.bossColour) return getDefaultPos(player);
-    if (gameState.explosions === "AOE")
-      return getSafeSpot(player, gameState.bossColour);
-    return getDefaultPos(player);
-  },
+  }
+  return {
+    ...gameState,
+    hasFinished: true,
+  };
 };

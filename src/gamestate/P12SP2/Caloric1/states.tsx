@@ -605,7 +605,6 @@ export const getTargetSpot = (
             [p, distanceTo(p.position, P12SP2Waymarks["Waymark B"])] as const
         )
         .sort(([, d1], [, d2]) => d1 - d2);
-      console.log({ from: "A", targetPlayer });
       if (
         state.fireTargets2.includes(player.designation) ===
         state.fireTargets2.includes(targetPlayer.designation)
@@ -622,7 +621,6 @@ export const getTargetSpot = (
             [p, distanceTo(p.position, P12SP2Waymarks["Waymark D"])] as const
         )
         .sort(([, d1], [, d2]) => d1 - d2);
-      console.log({ from: "C", targetPlayer });
       if (
         state.fireTargets2.includes(player.designation) ===
         state.fireTargets2.includes(targetPlayer.designation)

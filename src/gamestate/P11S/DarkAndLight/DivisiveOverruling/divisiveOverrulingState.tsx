@@ -1,7 +1,6 @@
 import { Point } from "@flatten-js/core";
 import { DangerPuddle, survivePuddles } from "../../../Mechanics/DangerPuddles";
-import { GameLoop, getRole } from "../../../gameState";
-import { Arena } from "../Arena";
+import { getRole } from "../../../gameState";
 import {
   DarkAndLightPlayer,
   DarkAndLightGameState,
@@ -97,17 +96,14 @@ export type DivisiveOverrulingGameState = DarkAndLightGameState & {
   stage: "Before" | "Explosion1" | "Explosion2";
 };
 
-export const initialDivisiveState = (
-  players: DarkAndLightPlayer[]
-): DivisiveOverrulingGameState => ({
+export const initialDivisiveState = (): DivisiveOverrulingGameState => ({
   bossColour: null,
   cast: null,
-  players: players,
   hasFinished: false,
   stage: "Before",
 });
 
-const getDangerPuddles = (
+export const getDangerPuddles = (
   gameState: DivisiveOverrulingGameState
 ): DangerPuddle[] => {
   if (gameState.stage === "Explosion1") {
@@ -115,7 +111,7 @@ const getDangerPuddles = (
       {
         type: "line",
         angle: Math.PI,
-        onAnimationEnd: () => { },
+        onAnimationEnd: () => {},
         source: new Point(0.5, 1),
         width: 0.4,
         colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
@@ -133,7 +129,7 @@ const getDangerPuddles = (
         {
           type: "line",
           angle: Math.PI,
-          onAnimationEnd: () => { },
+          onAnimationEnd: () => {},
           source: new Point(0.15, 1),
           width: 0.3,
           colour: "purple",
@@ -146,7 +142,7 @@ const getDangerPuddles = (
         {
           type: "line",
           angle: Math.PI,
-          onAnimationEnd: () => { },
+          onAnimationEnd: () => {},
           source: new Point(0.85, 1),
           width: 0.3,
           colour: "purple",
@@ -162,7 +158,7 @@ const getDangerPuddles = (
         {
           type: "line",
           angle: Math.PI,
-          onAnimationEnd: () => { },
+          onAnimationEnd: () => {},
           source: new Point(0.5, 1),
           width: 0.6,
           colour: "yellow",
@@ -178,90 +174,65 @@ const getDangerPuddles = (
   return [];
 };
 
-export const DivisiveOverrulingState: GameLoop<
-  DarkAndLightPlayer,
-  DivisiveOverrulingGameState
-> = {
-  arena: (
-    gameState: DivisiveOverrulingGameState,
-    moveTo: (p: Point) => void
-  ) => (
-    <Arena
-      players={gameState.players}
-      bossColour={gameState.bossColour}
-      dangerPuddles={getDangerPuddles(gameState)}
-      moveTo={moveTo}
-    >
-    </Arena>
-  ),
-  nextState: (
-    gameState: DivisiveOverrulingGameState
-  ): DivisiveOverrulingGameState => {
-    if (gameState.cast === null) {
-      return {
-        bossColour: Math.random() < 0.5 ? "Dark" : "Light",
-        cast: {
-          name: "Divisive Overruling",
-          value: 50,
-        },
-        players: gameState.players,
-        stage: "Before",
-        hasFinished: false,
-      };
-    }
-    if (gameState.stage === "Before") {
-      return {
-        ...gameState,
-        cast: {
-          name: "Divisive Overruling",
-          value: 100,
-        },
-        stage: "Explosion1",
-      };
-    }
-    if (gameState.stage === "Explosion1") {
-      return {
-        ...gameState,
-        stage: "Explosion2",
-        hasFinished: true,
-      };
-    }
+export const applyDamage = (
+  gameState: DivisiveOverrulingGameState,
+  players: DarkAndLightPlayer[]
+): DarkAndLightPlayer[] => {
+  const survivingPlayers = survivePuddles(getDangerPuddles(gameState), players);
+  return players.map((p) => ({
+    ...p,
+    alive:
+      survivingPlayers.includes(p.designation) &&
+      isTetherSafe(
+        p,
+        players.filter((o) => o.designation === p.tetheredDesignation)[0]
+      ),
+  }));
+};
+export const getTargetSpot = (
+  gameState: DivisiveOverrulingGameState,
+  player: DarkAndLightPlayer
+): Point => {
+  if (!gameState.bossColour) return getDefaultPos(player);
+  if (gameState.stage === "Before")
+    return getSafeSpot1(player, gameState.bossColour);
+  if (gameState.stage === "Explosion1")
+    return getSafeSpot2(player, gameState.bossColour);
+  return getDefaultPos(player);
+};
+export const progress = (
+  gameState: DivisiveOverrulingGameState
+): DivisiveOverrulingGameState => {
+  if (gameState.cast === null) {
+    return {
+      bossColour: Math.random() < 0.5 ? "Dark" : "Light",
+      cast: {
+        name: "Divisive Overruling",
+        value: 50,
+      },
+      stage: "Before",
+      hasFinished: false,
+    };
+  }
+  if (gameState.stage === "Before") {
     return {
       ...gameState,
+      cast: {
+        name: "Divisive Overruling",
+        value: 100,
+      },
+      stage: "Explosion1",
+    };
+  }
+  if (gameState.stage === "Explosion1") {
+    return {
+      ...gameState,
+      stage: "Explosion2",
       hasFinished: true,
     };
-  },
-  applyDamage: (
-    gameState: DivisiveOverrulingGameState
-  ): DivisiveOverrulingGameState => {
-    const survivingPlayers = survivePuddles(
-      getDangerPuddles(gameState),
-      gameState.players
-    );
-    return {
-      ...gameState,
-      players: gameState.players.map((p) => ({
-        ...p,
-        alive:
-          survivingPlayers.includes(p.designation) &&
-          isTetherSafe(
-            p,
-            gameState.players.filter(
-              (o) => o.designation === p.tetheredDesignation
-            )[0]
-          ),
-      })),
-    };
-  },
-  getSafeSpot: (
-    gameState: DivisiveOverrulingGameState,
-    player: DarkAndLightPlayer
-  ): Point => {
-    if (!gameState.bossColour) return getDefaultPos(player);
-    if (gameState.stage === "Explosion1")
-      return getSafeSpot1(player, gameState.bossColour);
-    if (gameState.stage === "Explosion2")
-      return getSafeSpot2(player, gameState.bossColour);
-    return getDefaultPos(player);
-  },
+  }
+  return {
+    ...gameState,
+    hasFinished: true,
+  };
 };

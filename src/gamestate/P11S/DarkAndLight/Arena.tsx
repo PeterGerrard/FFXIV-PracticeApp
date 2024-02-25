@@ -34,8 +34,8 @@ const Tether = (props: {
     player.tetherLength === "Long"
       ? tetheredTo.position
       : tetheredTo.position
-        .translate(0, 0.05)
-        .rotate(Math.PI + angle, tetheredTo.position);
+          .translate(0, 0.05)
+          .rotate(Math.PI + angle, tetheredTo.position);
   const s1 = tetheredSource
     .translate(0, 0.05)
     .rotate(Math.PI + angle2 + 0.5, tetheredSource);
@@ -134,9 +134,10 @@ export const Arena = (
   }>
 ) => {
   const p = props.players.filter((x) => x.controlled)[0];
-  const o = props.players.filter(
-    (x) => x.tetheredDesignation === p.designation
-  )[0];
+  const o =
+    p === undefined
+      ? undefined
+      : props.players.filter((x) => x.tetheredDesignation === p.designation)[0];
 
   return (
     <P11SArena
@@ -145,7 +146,7 @@ export const Arena = (
       dangerPuddles={props.dangerPuddles}
       bossColour={props.bossColour}
     >
-      <Tether player={p} tetheredTo={o} />
+      {p && o && <Tether player={p} tetheredTo={o} />}
       {props.children}
     </P11SArena>
   );
