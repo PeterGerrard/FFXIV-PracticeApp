@@ -1,20 +1,15 @@
 import { Add, addPosition } from "../Add";
-import { P11SArena } from "../../P11SArena";
 import { LetterOfTheLawPlayer } from "../gameState";
 import { TwofoldRevelationState, towerPos } from ".";
-import { DangerPuddle } from "../../../Mechanics/DangerPuddles";
 import { Tower } from "../../Tower";
-import { Point } from "@flatten-js/core";
 import { useTimeout } from "../../../../components/useTimeout";
 
 export const TwofoldArena = (props: {
   players: LetterOfTheLawPlayer[];
-  moveTo: (p: Point) => void;
   gameState: TwofoldRevelationState;
-  dangerPuddles: DangerPuddle[];
   animationEnd: () => void;
 }) => {
-  const { animationEnd, gameState, moveTo, players } = props;
+  const { animationEnd, gameState, players } = props;
 
   useTimeout(() => {
     if (
@@ -27,14 +22,7 @@ export const TwofoldArena = (props: {
   }, 1500);
 
   return (
-    <P11SArena
-      players={players}
-      moveTo={(p) => {
-        moveTo(p);
-      }}
-      dangerPuddles={props.dangerPuddles}
-      bossColour={gameState.bossColour}
-    >
+    <>
       <Tower position={towerPos("North East")} />
       <Tower position={towerPos("South East")} />
       <Tower position={towerPos("North West")} />
@@ -46,7 +34,7 @@ export const TwofoldArena = (props: {
         </>
       )}
       {!gameState.cast &&
-        gameState.players
+        players
           .filter((x) => x.isTethered)
           .map((p) => {
             const addPos = addPosition(
@@ -76,120 +64,6 @@ export const TwofoldArena = (props: {
               </svg>
             );
           })}
-
-      {gameState.cast &&
-        gameState.stage === "Jump" &&
-        gameState.cast.value >= 100 && (
-          <>
-            <svg
-              height="55%"
-              width="55%"
-              style={{
-                position: "absolute",
-                left: `${
-                  gameState.players.filter(
-                    (p) => p.isTethered && p.role === "Tank"
-                  )[0].position.x * 100
-                }%`,
-                top: `${
-                  gameState.players.filter(
-                    (p) => p.isTethered && p.role === "Tank"
-                  )[0].position.y * 100
-                }%`,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              <circle cx="50%" cy="50%" r="50%" fill="purple" opacity={0.4}>
-                <animate
-                  attributeName="opacity"
-                  values="0;0.4"
-                  dur="1s"
-                  repeatCount={0}
-                />
-              </circle>
-            </svg>
-            <svg
-              height="25%"
-              width="25%"
-              style={{
-                position: "absolute",
-                left: `${
-                  gameState.players.filter(
-                    (p) => p.isTethered && p.role !== "Tank"
-                  )[0].position.x * 100
-                }%`,
-                top: `${
-                  gameState.players.filter(
-                    (p) => p.isTethered && p.role !== "Tank"
-                  )[0].position.y * 100
-                }%`,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              <circle cx="50%" cy="50%" r="50%" fill="yellow" opacity={0.4}>
-                <animate
-                  attributeName="opacity"
-                  values="0;0.4"
-                  dur="1s"
-                  repeatCount={0}
-                />
-              </circle>
-            </svg>
-          </>
-        )}
-
-      {gameState.cast &&
-        gameState.stage === "Outer" &&
-        gameState.cast.value >= 100 && (
-          <>
-            <svg
-              height="100%"
-              width="100%"
-              style={{
-                position: "absolute",
-                left: `${gameState.tankPosition.x * 100}%`,
-                top: `${gameState.tankPosition.y * 100}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              <circle
-                cx="50%"
-                cy="50%"
-                r="35%"
-                stroke="purple"
-                fill="transparent"
-                strokeWidth="35%"
-                opacity={0.4}
-              >
-                <animate
-                  attributeName="opacity"
-                  values="0;0.4"
-                  dur="1s"
-                  repeatCount={0}
-                />
-              </circle>
-            </svg>
-            <svg
-              height="45%"
-              width="45%"
-              style={{
-                position: "absolute",
-                left: `${gameState.nonTankPosition.x * 100}%`,
-                top: `${gameState.nonTankPosition.y * 100}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              <circle cx="50%" cy="50%" r="50%" fill="yellow" opacity={0.4}>
-                <animate
-                  attributeName="opacity"
-                  values="0;0.4"
-                  dur="1s"
-                  repeatCount={0}
-                />
-              </circle>
-            </svg>
-          </>
-        )}
-    </P11SArena>
+    </>
   );
 };

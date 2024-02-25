@@ -1,17 +1,12 @@
 import { Add, addPosition } from "../Add";
-import { P11SArena } from "../../P11SArena";
 import { LetterOfTheLawPlayer } from "../gameState";
 import { rotation } from "../../../gameState";
 import { HeartOfJudgementState } from ".";
-import { DangerPuddle } from "../../../Mechanics/DangerPuddles";
 import { Bombs } from "../../Bombs";
-import { Point } from "@flatten-js/core";
 
 export const HeartArena = (props: {
   players: LetterOfTheLawPlayer[];
-  moveTo: (p: Point) => void;
   gameState: HeartOfJudgementState;
-  dangerPuddles: DangerPuddle[];
 }) => {
   const innerBox =
     props.gameState.bossColour === "Dark"
@@ -23,12 +18,7 @@ export const HeartArena = (props: {
       : props.gameState.darkBoxLocation;
 
   return (
-    <P11SArena
-      players={props.players}
-      moveTo={props.moveTo}
-      dangerPuddles={props.dangerPuddles}
-      bossColour={props.gameState.bossColour}
-    >
+    <>
       <Add inter={props.gameState.darkAddLocation} colour="Dark" />
       <Add inter={props.gameState.lightAddLocation} colour="Light" />
       {props.players
@@ -151,6 +141,6 @@ export const HeartArena = (props: {
           </svg>
         </>
       )}
-    </P11SArena>
+    </>
   );
 };

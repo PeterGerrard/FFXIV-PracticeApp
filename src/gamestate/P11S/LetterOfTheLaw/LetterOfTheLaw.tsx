@@ -1,12 +1,13 @@
-import { useGameState3 } from "../..";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import { startLetterOfTheLaw } from ".";
 import { useTitle } from "../../../components/useTitle";
+import { hasFinished, useLetterOfTheLaw } from "./gameState";
+import { LetterOfTheLawArena } from "./LetterOfTheLawArena";
+import { Overlay } from "../../Overlay";
 
 export const LetterOfTheLaw = () => {
-  const [state, restart, arena] = useGameState3(startLetterOfTheLaw);
+  const { restart, onMove, players, safeLocation, state } = useLetterOfTheLaw();
   useTitle("Letter of the Law");
 
   return (
@@ -25,7 +26,12 @@ export const LetterOfTheLaw = () => {
           position: "relative",
         }}
       >
-        {arena()}
+        <LetterOfTheLawArena onMove={onMove} players={players} state={state} />
+        <Overlay
+          finished={hasFinished(state)}
+          players={players}
+          safeLocation={safeLocation}
+        />
       </div>
       <div
         style={{
@@ -33,10 +39,10 @@ export const LetterOfTheLaw = () => {
           paddingBottom: "50px",
         }}
       >
-        {state.gameState.cast && (
+        {state.cast && (
           <>
-            <h1>{state.gameState.cast.name}</h1>
-            <Progress value={state.gameState.cast.value} />
+            <h1>{state.cast.name}</h1>
+            <Progress value={state.cast.value} />
           </>
         )}
       </div>

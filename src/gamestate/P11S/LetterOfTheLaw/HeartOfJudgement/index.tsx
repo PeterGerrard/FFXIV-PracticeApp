@@ -1,6 +1,5 @@
-import { InterCardinal, GameLoop, rotation } from "../../../gameState";
+import { InterCardinal, rotation } from "../../../gameState";
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
-import { HeartArena } from "./HeartArena";
 import { DangerPuddle, survivePuddles } from "../../../Mechanics/DangerPuddles";
 import { Point } from "@flatten-js/core";
 import { Marker3, MarkerA } from "../../p11sMarkers";
@@ -31,7 +30,7 @@ export const getDangerPuddles = (
     state.bossColour === "Dark"
       ? state.lightBoxLocation
       : state.darkBoxLocation;
-  if (state.cast && state.cast.value >= 100) {
+  if (state.stage === "Final") {
     const bombLocations: Point[] =
       state.bossColour === state.topBomb
         ? [new Point(0.5, 0.2), new Point(0.5, 0.8)]
@@ -102,91 +101,80 @@ export type HeartOfJudgementState = LetterOfTheLawState & {
   lightAddLocation: InterCardinal;
   darkBoxLocation: InterCardinal;
   lightBoxLocation: InterCardinal;
+  stage: "Initial" | "Mid" | "Final";
 };
-export const heartOfJudgement: GameLoop<
-  LetterOfTheLawPlayer,
-  HeartOfJudgementState
-> = {
-  arena: (gameState, moveTo, animationEnd) => {
-    return (
-      <HeartArena
-        gameState={gameState}
-        moveTo={moveTo}
-        dangerPuddles={getDangerPuddles(gameState, animationEnd)}
-        players={gameState.players}
-      />
-    );
-  },
-  getSafeSpot: (
-    gameState: HeartOfJudgementState,
-    player: LetterOfTheLawPlayer
-  ) => {
-    if (gameState.cast === null || gameState.cast.value < 100) {
-      return player.isTethered && player.role === "Tank" ? MarkerA : Marker3;
-    }
-    const innerBox =
-      gameState.bossColour === "Dark"
-        ? gameState.darkBoxLocation
-        : gameState.lightBoxLocation;
-    if (gameState.topBomb === gameState.bossColour) {
-      if (player.isTethered && player.role === "Tank") {
-        return new Point(
-          0.85,
-          innerBox === "North West" || innerBox === "South East" ? 0.45 : 0.55
-        );
-      } else {
-        return new Point(
-          0.15,
-          innerBox === "North West" || innerBox === "South East" ? 0.55 : 0.45
-        );
-      }
+
+export const getTargetSpot = (
+  gameState: HeartOfJudgementState,
+  player: LetterOfTheLawPlayer
+) => {
+  if (gameState.stage === "Initial") {
+    return player.isTethered && player.role === "Tank" ? MarkerA : Marker3;
+  }
+  const innerBox =
+    gameState.bossColour === "Dark"
+      ? gameState.darkBoxLocation
+      : gameState.lightBoxLocation;
+  if (gameState.topBomb === gameState.bossColour) {
+    if (player.isTethered && player.role === "Tank") {
+      return new Point(
+        0.85,
+        innerBox === "North West" || innerBox === "South East" ? 0.45 : 0.55
+      );
     } else {
-      if (player.isTethered && player.role === "Tank") {
-        return new Point(
-          innerBox === "North West" || innerBox === "South East" ? 0.55 : 0.45,
-          0.15
-        );
-      } else {
-        return new Point(
-          innerBox === "North West" || innerBox === "South East" ? 0.45 : 0.55,
-          0.85
-        );
-      }
+      return new Point(
+        0.15,
+        innerBox === "North West" || innerBox === "South East" ? 0.55 : 0.45
+      );
     }
-  },
-  applyDamage: (gameState: HeartOfJudgementState): HeartOfJudgementState => {
-    const survivingPlayers = survivePuddles(
-      getDangerPuddles(gameState, () => {}),
-      gameState.players
-    );
+  } else {
+    if (player.isTethered && player.role === "Tank") {
+      return new Point(
+        innerBox === "North West" || innerBox === "South East" ? 0.55 : 0.45,
+        0.15
+      );
+    } else {
+      return new Point(
+        innerBox === "North West" || innerBox === "South East" ? 0.45 : 0.55,
+        0.85
+      );
+    }
+  }
+};
+export const applyDamage = (
+  gameState: HeartOfJudgementState,
+  players: LetterOfTheLawPlayer[]
+): LetterOfTheLawPlayer[] => {
+  const survivingPlayers = survivePuddles(
+    getDangerPuddles(gameState, () => {}),
+    players
+  );
+  return players.map((p) => ({
+    ...p,
+    alive: survivingPlayers.includes(p.designation),
+  }));
+};
+export const progress = (s: HeartOfJudgementState): HeartOfJudgementState => {
+  if (s.stage === "Initial") {
     return {
-      ...gameState,
-      players: gameState.players.map((p) => ({
-        ...p,
-        alive: survivingPlayers.includes(p.designation),
-      })),
+      ...s,
+      cast: {
+        name: "Heart of Judgment",
+        value: 50,
+      },
+      stage: "Mid",
     };
-  },
-  nextState: (s) => {
-    if (s.cast === null) {
-      return {
-        ...s,
-        cast: {
-          name: "Heart of Judgment",
-          value: 50,
-        },
-      };
-    }
-    if (s.cast.value < 100) {
-      return {
-        ...s,
-        cast: {
-          ...s.cast,
-          value: 100,
-        },
-        hasFinished: true,
-      };
-    }
-    return s;
-  },
+  }
+  if (s.stage === "Mid") {
+    return {
+      ...s,
+      cast: {
+        name: "Heart of Judgment",
+        value: 100,
+      },
+      hasFinished: true,
+      stage: "Final",
+    };
+  }
+  return s;
 };

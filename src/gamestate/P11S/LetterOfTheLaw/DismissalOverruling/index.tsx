@@ -1,13 +1,11 @@
 import {
   InterCardinal,
-  GameLoop,
   rotation,
   getGroup,
   distanceTo,
 } from "../../../gameState";
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
 import { pickOne } from "../../../helpers";
-import { DismissalArena } from "./DismissalArena";
 import { DangerPuddle, survivePuddles } from "../../../Mechanics/DangerPuddles";
 import { Point } from "@flatten-js/core";
 
@@ -177,36 +175,35 @@ export const getDangerPuddles = (
   return [];
 };
 
-export const dismissalOverruling: GameLoop<
-  LetterOfTheLawPlayer,
-  DismissalOverrulingState
-> = {
-  arena: (gameState, moveTo, animationEnd) => {
-    return (
-      <DismissalArena
-        animationEnd={animationEnd}
-        gameState={gameState}
-        moveTo={moveTo}
-        dangerPuddles={getDangerPuddles(gameState, animationEnd)}
-        players={gameState.players}
-      />
-    );
-  },
-  getSafeSpot: (
-    gameState: DismissalOverrulingState,
-    player: LetterOfTheLawPlayer
-  ) => {
-    if (gameState.stage === "Tower") {
-      return getTowerPosition(player);
+export const getTargetSpot = (
+  gameState: DismissalOverrulingState,
+  player: LetterOfTheLawPlayer
+) => {
+  if (gameState.stage === "Initial") {
+    return getTowerPosition(player);
+  }
+  if (gameState.stage === "Tower" || gameState.stage === "CrossLine") {
+    if (getGroup(player.designation) === "Group1") {
+      return new Point(0.1, 0.5);
+    } else {
+      return new Point(0.9, 0.5);
     }
-    if (gameState.stage === "CrossLine" || gameState.stage === "Gap1") {
-      if (getGroup(player.designation) === "Group1") {
-        return new Point(0.1, 0.5);
-      } else {
-        return new Point(0.9, 0.5);
-      }
+  }
+  if (gameState.stage === "Gap1" || gameState.stage === "CrossLine2") {
+    if (getGroup(player.designation) === "Group1") {
+      return gameState.darkLocation === "North West" ||
+        gameState.darkLocation === "South East"
+        ? new Point(0.25, 0.25)
+        : new Point(0.25, 0.75);
+    } else {
+      return gameState.darkLocation === "North West" ||
+        gameState.darkLocation === "South East"
+        ? new Point(0.75, 0.75)
+        : new Point(0.75, 0.25);
     }
-    if (gameState.stage === "CrossLine2" || gameState.stage === "Raidwide") {
+  }
+  if (gameState.stage === "Raidwide") {
+    if (gameState.bossColour === "Light") {
       if (getGroup(player.designation) === "Group1") {
         return gameState.darkLocation === "North West" ||
           gameState.darkLocation === "South East"
@@ -218,164 +215,140 @@ export const dismissalOverruling: GameLoop<
           ? new Point(0.75, 0.75)
           : new Point(0.75, 0.25);
       }
-    }
-    if (gameState.stage === "InOut") {
-      if (gameState.bossColour === "Light") {
-        if (getGroup(player.designation) === "Group1") {
+    } else {
+      switch (player.designation) {
+        case "H2":
+        case "R2":
           return gameState.darkLocation === "North West" ||
             gameState.darkLocation === "South East"
-            ? new Point(0.25, 0.25)
-            : new Point(0.25, 0.75);
-        } else {
+            ? new Point(0.6, 0.5)
+            : new Point(0.5, 0.4);
+        case "M2":
+        case "OT":
           return gameState.darkLocation === "North West" ||
             gameState.darkLocation === "South East"
-            ? new Point(0.75, 0.75)
-            : new Point(0.75, 0.25);
-        }
-      } else {
-        switch (player.designation) {
-          case "H2":
-          case "R2":
-            return gameState.darkLocation === "North West" ||
-              gameState.darkLocation === "South East"
-              ? new Point(0.6, 0.5)
-              : new Point(0.5, 0.4);
-          case "M2":
-          case "OT":
-            return gameState.darkLocation === "North West" ||
-              gameState.darkLocation === "South East"
-              ? new Point(0.5, 0.6)
-              : new Point(0.6, 0.5);
-          case "H1":
-          case "M1":
-            return gameState.darkLocation === "North West" ||
-              gameState.darkLocation === "South East"
-              ? new Point(0.4, 0.5)
-              : new Point(0.5, 0.6);
-          case "MT":
-          case "R1":
-            return gameState.darkLocation === "North West" ||
-              gameState.darkLocation === "South East"
-              ? new Point(0.5, 0.4)
-              : new Point(0.4, 0.5);
-        }
+            ? new Point(0.5, 0.6)
+            : new Point(0.6, 0.5);
+        case "H1":
+        case "M1":
+          return gameState.darkLocation === "North West" ||
+            gameState.darkLocation === "South East"
+            ? new Point(0.4, 0.5)
+            : new Point(0.5, 0.6);
+        case "MT":
+        case "R1":
+          return gameState.darkLocation === "North West" ||
+            gameState.darkLocation === "South East"
+            ? new Point(0.5, 0.4)
+            : new Point(0.4, 0.5);
       }
     }
+  }
 
-    return new Point(0, 0);
-  },
-  applyDamage: (
-    gameState: DismissalOverrulingState
-  ): DismissalOverrulingState => {
-    const dangerPuddles = getDangerPuddles(gameState);
-    const survivingPlayers = survivePuddles(dangerPuddles, gameState.players);
+  return new Point(0, 0);
+};
+export const applyDamage = (
+  gameState: DismissalOverrulingState,
+  players: LetterOfTheLawPlayer[]
+): LetterOfTheLawPlayer[] => {
+  const dangerPuddles = getDangerPuddles(gameState);
+  const survivingPlayers = survivePuddles(dangerPuddles, players);
 
-    if (gameState.stage === "Tower") {
+  if (gameState.stage === "Tower") {
+    return players.map((p) => ({
+      ...p,
+      alive:
+        survivingPlayers.includes(p.designation) &&
+        distanceTo(getTowerPosition(p), p.position) < 0.1,
+    }));
+  }
+  if (gameState.stage === "CrossLine") {
+    return players.map((p) => ({
+      ...p,
+      alive:
+        survivingPlayers.includes(p.designation) &&
+        getGroup(p.designation) === "Group1"
+          ? p.position.x < 0.5
+          : p.position.x > 0.5,
+    }));
+  }
+  if (gameState.stage === "CrossLine2") {
+    return players.map((p) => {
+      const hitByInner =
+        gameState.lightLocation === "North West" ||
+        gameState.lightLocation === "South East"
+          ? p.position.x + p.position.y < 0.668 ||
+            p.position.x + p.position.y > 1.332
+          : p.position.y - p.position.x < -0.332 ||
+            p.position.y - p.position.x > 0.332;
+      const hitByOuter =
+        gameState.darkLocation === "North West" ||
+        gameState.darkLocation === "South East"
+          ? p.position.x + p.position.y > 0.668 &&
+            p.position.x + p.position.y < 1.332
+          : p.position.y - p.position.x > -0.332 &&
+            p.position.y - p.position.x < 0.332;
       return {
-        ...gameState,
-        players: gameState.players.map((p) => ({
-          ...p,
-          alive:
-            survivingPlayers.includes(p.designation) &&
-            distanceTo(getTowerPosition(p), p.position) < 0.1,
-        })),
+        ...p,
+        alive:
+          survivingPlayers.includes(p.designation) &&
+          !hitByInner &&
+          !hitByOuter,
       };
-    }
-    if (gameState.stage === "CrossLine") {
-      return {
-        ...gameState,
-        players: gameState.players.map((p) => ({
-          ...p,
-          alive:
-            survivingPlayers.includes(p.designation) &&
-            getGroup(p.designation) === "Group1"
-              ? p.position.x < 0.5
-              : p.position.x > 0.5,
-        })),
-      };
-    }
-    if (gameState.stage === "CrossLine2") {
-      return {
-        ...gameState,
-        players: gameState.players.map((p) => {
-          const hitByInner =
-            gameState.lightLocation === "North West" ||
-            gameState.lightLocation === "South East"
-              ? p.position.x + p.position.y < 0.668 ||
-                p.position.x + p.position.y > 1.332
-              : p.position.y - p.position.x < -0.332 ||
-                p.position.y - p.position.x > 0.332;
-          const hitByOuter =
-            gameState.darkLocation === "North West" ||
-            gameState.darkLocation === "South East"
-              ? p.position.x + p.position.y > 0.668 &&
-                p.position.x + p.position.y < 1.332
-              : p.position.y - p.position.x > -0.332 &&
-                p.position.y - p.position.x < 0.332;
-          return {
-            ...p,
-            alive:
-              survivingPlayers.includes(p.designation) &&
-              !hitByInner &&
-              !hitByOuter,
-          };
-        }),
-      };
-    }
+    });
+  }
+  return players.map((p) => {
     return {
-      ...gameState,
-      players: gameState.players.map((p) => {
-        return {
-          ...p,
-          alive: survivingPlayers.includes(p.designation),
-        };
-      }),
+      ...p,
+      alive: survivingPlayers.includes(p.designation),
     };
-  },
-  nextState: (s): DismissalOverrulingState => {
-    switch (s.stage) {
-      case "Initial":
-        return {
-          ...s,
-          stage: "Tower",
-        };
-      case "Tower":
-        return {
-          ...s,
-          stage: "CrossLine",
-          cast: { name: "Dismissal Overruling", value: 25 },
-          darkLocation: s.darkAddLocation,
-          lightLocation: s.lightAddLocation,
-          bossColour: pickOne(["Dark", "Light"]),
-        };
-      case "CrossLine":
-        return {
-          ...s,
-          stage: "Gap1",
-          cast: { ...s.cast, value: 25 },
-        };
-      case "Gap1":
-        return {
-          ...s,
-          stage: "CrossLine2",
-          cast: { ...s.cast, value: 50 },
-        };
-      case "CrossLine2":
-        return {
-          ...s,
-          stage: "Raidwide",
-          cast: { ...s.cast, value: 100 },
-        };
-      case "Raidwide":
-        return {
-          ...s,
-          stage: "InOut",
-          hasFinished: true,
-        };
-      case "InOut":
-        return s;
-    }
-  },
+  });
+};
+export const progress = (
+  s: DismissalOverrulingState
+): DismissalOverrulingState => {
+  switch (s.stage) {
+    case "Initial":
+      return {
+        ...s,
+        stage: "Tower",
+      };
+    case "Tower":
+      return {
+        ...s,
+        stage: "CrossLine",
+        cast: { name: "Dismissal Overruling", value: 25 },
+        darkLocation: s.darkAddLocation,
+        lightLocation: s.lightAddLocation,
+        bossColour: pickOne(["Dark", "Light"]),
+      };
+    case "CrossLine":
+      return {
+        ...s,
+        stage: "Gap1",
+        cast: { ...s.cast, value: 25 },
+      };
+    case "Gap1":
+      return {
+        ...s,
+        stage: "CrossLine2",
+        cast: { ...s.cast, value: 50 },
+      };
+    case "CrossLine2":
+      return {
+        ...s,
+        stage: "Raidwide",
+        cast: { ...s.cast, value: 100 },
+      };
+    case "Raidwide":
+      return {
+        ...s,
+        stage: "InOut",
+        hasFinished: true,
+      };
+    case "InOut":
+      return s;
+  }
 };
 
 function getTowerPosition(player: LetterOfTheLawPlayer) {
