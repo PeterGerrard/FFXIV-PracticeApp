@@ -61,20 +61,20 @@ export const createInitialState = (): SuperchainTheory2bGameState => {
 export const getDangerPuddles = (state: SuperchainTheory2bGameState, players: Player[]): DangerPuddle[] => {
     if (state.stage === "Explosion1") {
         return [
-            ...getSuperChainDangerPuddles(["Circle"], point(0.5, state.first.north ? 0.375 : 0.625), players, () => { }),
-            ...getSuperChainDangerPuddles(["Donut"], point(0.5, state.first.north ? 0.625 : 0.375), players, () => { })
+            ...getSuperChainDangerPuddles(["Circle"], point(0.5, state.first.north ? 0.375 : 0.625), players),
+            ...getSuperChainDangerPuddles(["Donut"], point(0.5, state.first.north ? 0.625 : 0.375), players)
         ]
     }
     if (state.stage === "Explosion2") {
         return [
-            ...getSuperChainDangerPuddles(["Circle"], point(state.second.side === "East" ? 0.625 : 0.375, 0.5), players, () => { }),
-            ...getSuperChainDangerPuddles([state.second.type], point(state.second.side === "East" ? 0.375 : 0.625, 0.5), players, () => { })
+            ...getSuperChainDangerPuddles(["Circle"], point(state.second.side === "East" ? 0.625 : 0.375, 0.5), players),
+            ...getSuperChainDangerPuddles([state.second.type], point(state.second.side === "East" ? 0.375 : 0.625, 0.5), players)
         ]
     }
     if (state.stage === "Explosion3") {
         return [
-            ...getSuperChainDangerPuddles(["Circle"], point(0.5, state.third.north ? 0.25 : 0.75), players, () => { }),
-            ...getSuperChainDangerPuddles(["Circle", "Protean"], point(0.5, state.third.north ? 0.75 : 0.25), players, () => { })
+            ...getSuperChainDangerPuddles(["Circle"], point(0.5, state.third.north ? 0.25 : 0.75), players),
+            ...getSuperChainDangerPuddles(["Circle", "Protean"], point(0.5, state.third.north ? 0.75 : 0.25), players)
         ]
     }
     if (state.stage === "Parthenos") {
