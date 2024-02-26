@@ -84,7 +84,6 @@ export const getDangerPuddles = (
       source: b,
       colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
       radius: 0.4,
-      onAnimationEnd: () => {},
       split: false,
       damage: 1,
       roleRequirement: null,

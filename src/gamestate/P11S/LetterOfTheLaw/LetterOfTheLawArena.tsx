@@ -21,13 +21,13 @@ export const LetterOfTheLawArena = (props: {
       bossColour={props.state.bossColour}
     >
       {props.state.outer === "Dismissal" && (
-        <DismissalArena animationEnd={() => {}} gameState={props.state} />
+        <DismissalArena gameState={props.state} />
       )}
       {props.state.outer === "Heart" && (
         <HeartArena gameState={props.state} players={props.players} />
       )}
       {props.state.outer === "Dismissal" && (
-        <DismissalArena animationEnd={() => {}} gameState={props.state} />
+        <DismissalArena gameState={props.state} />
       )}
     </P11SArena>
   );

@@ -2,24 +2,12 @@ import { Add, addPosition } from "../Add";
 import { LetterOfTheLawPlayer } from "../gameState";
 import { TwofoldRevelationState, towerPos } from ".";
 import { Tower } from "../../Tower";
-import { useTimeout } from "../../../../components/useTimeout";
 
 export const TwofoldArena = (props: {
   players: LetterOfTheLawPlayer[];
   gameState: TwofoldRevelationState;
-  animationEnd: () => void;
 }) => {
-  const { animationEnd, gameState, players } = props;
-
-  useTimeout(() => {
-    if (
-      gameState.cast &&
-      gameState.cast.value >= 100 &&
-      gameState.stage !== "Space1"
-    ) {
-      animationEnd();
-    }
-  }, 1500);
+  const { gameState, players } = props;
 
   return (
     <>

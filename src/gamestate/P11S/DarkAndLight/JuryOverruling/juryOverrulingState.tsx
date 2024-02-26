@@ -88,7 +88,6 @@ export const getDangerPuddles = (
       angle: vector(point(0.5, 0.5), point(0.5, 1)).angleTo(
         vector(point(0.5, 0.5), p.position)
       ),
-      onAnimationEnd: () => {},
       source: new Point(0.5, 0.5),
       width: 0.2,
       colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
@@ -117,7 +116,6 @@ export const getDangerPuddles = (
             outerRadius: 0.2,
             source: m,
             colour: "purple",
-            onAnimationEnd: () => {},
             split: false,
             damage: 1,
             roleRequirement: null,
@@ -129,7 +127,6 @@ export const getDangerPuddles = (
             source: m,
             radius: 0.125,
             colour: "yellow",
-            onAnimationEnd: () => {},
             split: false,
             damage: 1,
             roleRequirement: null,

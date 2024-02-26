@@ -21,9 +21,8 @@ const addLoc = (inter: InterCardinal, offset?: number): Point => {
 
 export const DismissalArena = (props: {
   gameState: DismissalOverrulingState;
-  animationEnd: () => void;
 }) => {
-  const { animationEnd, gameState } = props;
+  const { gameState } = props;
   return (
     <>
       {(gameState.stage === "Initial" || gameState.stage === "Tower") && (
@@ -41,21 +40,18 @@ export const DismissalArena = (props: {
         <>
           <LineAoE
             angle={rotation(gameState.darkLocation)}
-            onAnimationEnd={animationEnd}
             source={addLoc(gameState.darkLocation, -0.3675)}
             width={0.265}
             colour="purple"
           />
           <LineAoE
             angle={rotation(gameState.darkLocation)}
-            onAnimationEnd={() => {}}
             source={addLoc(gameState.darkLocation, 0.3675)}
             width={0.265}
             colour="purple"
           />
           <LineAoE
             angle={rotation(gameState.lightLocation)}
-            onAnimationEnd={() => {}}
             source={addLoc(gameState.lightLocation)}
             width={0.475}
             colour="yellow"

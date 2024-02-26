@@ -1,5 +1,4 @@
 import { Point } from "@flatten-js/core";
-import { IterateGames3 } from "../..";
 import { Designation, Designations, Setup, getRole } from "../../gameState";
 import { pickOne, shuffle } from "../../helpers";
 import {
@@ -27,13 +26,6 @@ import {
 } from "./Revelation/revelationsState";
 import { DarkAndLightPlayer, createPlayer } from "./gameState";
 import { DangerPuddle } from "../../Mechanics/DangerPuddles";
-
-export type DarkAndLightState = IterateGames3<
-  DarkAndLightPlayer,
-  RevelationGameState,
-  JuryOverrulingGameState,
-  DivisiveOverrulingGameState
->;
 
 export type NewDarkAndLightState =
   | ({ outer: "Revelation" } & RevelationGameState)

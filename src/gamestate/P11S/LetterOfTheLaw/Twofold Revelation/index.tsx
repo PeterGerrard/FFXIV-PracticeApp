@@ -73,7 +73,6 @@ export const getDangerPuddles = (
         damage: 0.9,
         debuffRequirement: null,
         instaKill: null,
-        onAnimationEnd: () => {},
         radius: 0.275,
         roleRequirement: null,
         source: players.filter((p) => p.isTethered && p.role === "Tank")[0]
@@ -86,7 +85,6 @@ export const getDangerPuddles = (
         damage: 5,
         debuffRequirement: null,
         instaKill: null,
-        onAnimationEnd: () => {},
         radius: 0.125,
         roleRequirement: null,
         source: players.filter((p) => p.isTethered && p.role !== "Tank")[0]
@@ -104,7 +102,6 @@ export const getDangerPuddles = (
         damage: 2,
         debuffRequirement: null,
         instaKill: null,
-        onAnimationEnd: () => {},
         innerRadius: 0.2,
         outerRadius: 0.6,
         roleRequirement: null,
@@ -117,7 +114,6 @@ export const getDangerPuddles = (
         damage: 2,
         debuffRequirement: null,
         instaKill: null,
-        onAnimationEnd: () => {},
         radius: 0.225,
         roleRequirement: null,
         source: state.nonTankPosition,

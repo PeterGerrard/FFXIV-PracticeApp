@@ -1,17 +1,13 @@
 import { Point } from "@flatten-js/core";
-import { useTimeout } from "../../components/useTimeout";
 
 export type LineAoEProps = {
   source: Point;
   angle: number;
   width: number;
   colour?: string;
-  onAnimationEnd: () => void;
 };
 
 export const LineAoE = (props: LineAoEProps) => {
-  const { onAnimationEnd } = props;
-  useTimeout(onAnimationEnd, 1500);
   return (
     <svg
       height="100%"

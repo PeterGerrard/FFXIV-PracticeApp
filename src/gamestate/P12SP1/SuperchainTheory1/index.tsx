@@ -477,7 +477,6 @@ export const getDangerPuddles = (
             : vector(point(0.5, 0.5), point(0.5, 1)).angleTo(
                 vector(point(0.5, 0.5), redLaserTarget.position)
               ),
-        onAnimationEnd: () => {},
         roleRequirement: null,
         source: point(0.5, 0.5),
         split: true,
@@ -494,7 +493,6 @@ export const getDangerPuddles = (
             : vector(point(0.5, 0.5), point(0.5, 1)).angleTo(
                 vector(point(0.5, 0.5), lightLaserTarget.position)
               ),
-        onAnimationEnd: () => {},
         roleRequirement: null,
         source: point(0.5, 0.5),
         split: true,
@@ -532,7 +530,6 @@ export const getDangerPuddles = (
         instaKill: null,
         split: false,
         damage: 0.6,
-        onAnimationEnd: () => {},
         roleRequirement: null,
         source: gameState.darkTowerLocation,
       },
@@ -544,7 +541,6 @@ export const getDangerPuddles = (
         instaKill: null,
         split: false,
         damage: 0.6,
-        onAnimationEnd: () => {},
         roleRequirement: null,
         source: gameState.lightTowerLocation,
       },
@@ -560,7 +556,6 @@ export const getDangerPuddles = (
         instaKill: null,
         split: false,
         damage: 0.6,
-        onAnimationEnd: () => {},
         roleRequirement: null,
         source: gameState.darkTowerLocation,
       },
@@ -572,7 +567,6 @@ export const getDangerPuddles = (
         instaKill: null,
         split: false,
         damage: 0.6,
-        onAnimationEnd: () => {},
         roleRequirement: null,
         source: gameState.lightTowerLocation,
       },
@@ -584,7 +578,6 @@ export const getDangerPuddles = (
         damage: 0.8,
         debuffRequirement: null,
         instaKill: null,
-        onAnimationEnd: () => {},
         radius: 0.15,
         roleRequirement: null,
         split: false,

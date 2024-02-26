@@ -1,20 +1,16 @@
 import { useEffect, useId, useState } from "react";
 import { Point, Polygon } from "@flatten-js/core";
-import { useTimeout } from "../..//components/useTimeout";
 
 export type ConeAoEProps = {
   source: Point;
   angle: number;
   width: number;
   colour?: string;
-  onAnimationEnd: () => void;
 };
 
 export const ConeAoE = (props: ConeAoEProps) => {
   const id = useId();
   const [height, setHeight] = useState(0.01);
-  const { onAnimationEnd } = props;
-  useTimeout(onAnimationEnd, 1500);
   useEffect(() => {
     setHeight(5);
   }, []);

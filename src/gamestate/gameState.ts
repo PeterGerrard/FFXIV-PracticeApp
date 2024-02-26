@@ -1,6 +1,4 @@
 import { Point } from "@flatten-js/core";
-import React from "react";
-import { Player } from "./Player";
 
 export type Role = "Tank" | "Healer" | "DPS";
 export type Designation = "MT" | "OT" | "H1" | "H2" | "M1" | "M2" | "R1" | "R2";
@@ -78,23 +76,6 @@ export type Setup = {
 export type Cast = {
   name: string;
   value: number;
-};
-
-export type GameState<TPlayer extends Player> = {
-  hasFinished: boolean;
-  players: TPlayer[];
-  cast: Cast | null;
-};
-
-export type GameLoop<TPlayer, T> = {
-  arena: (
-    gameState: T,
-    moveTo: (p: Point) => void,
-    animationEnd: () => void
-  ) => React.ReactElement;
-  getSafeSpot: (gameState: T, player: TPlayer) => Point;
-  applyDamage: (gameState: T) => T;
-  nextState: (gameState: T) => T;
 };
 
 export const distanceTo = (source: Point, target: Point) =>

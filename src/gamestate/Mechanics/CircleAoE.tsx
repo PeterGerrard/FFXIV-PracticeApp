@@ -1,18 +1,12 @@
 import { Circle, Point } from "@flatten-js/core";
-import { useTimeout } from "../../components/useTimeout";
 
 export type CircleAoEProps = {
   source: Point;
   radius: number;
   colour?: string;
-  onAnimationEnd: () => void;
 };
 
 export const CircleAoE = (props: CircleAoEProps) => {
-  const { onAnimationEnd } = props;
-  useTimeout(() => {
-    onAnimationEnd();
-  }, 1500);
   return (
     <svg
       height="100%"

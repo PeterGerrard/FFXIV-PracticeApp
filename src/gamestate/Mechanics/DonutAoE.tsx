@@ -1,20 +1,16 @@
 import { useId } from "react";
 import { distanceTo } from "../gameState";
 import { Point } from "@flatten-js/core";
-import { useTimeout } from "../../components/useTimeout";
 
 export type DonutAoEProps = {
   source: Point;
   innerRadius: number;
   outerRadius: number;
   colour?: string;
-  onAnimationEnd: () => void;
 };
 
 export const DonutAoE = (props: DonutAoEProps) => {
   const id = useId();
-  const { onAnimationEnd } = props;
-  useTimeout(onAnimationEnd, 1500);
   return (
     <svg
       height="100%"

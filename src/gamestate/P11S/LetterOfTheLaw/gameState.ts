@@ -58,9 +58,9 @@ export const getDangerPuddles = (
 ): DangerPuddle[] => {
   switch (state.outer) {
     case "Dismissal":
-      return dismissalGetPuddles(state, () => {});
+      return dismissalGetPuddles(state);
     case "Heart":
-      return heartGetPuddles(state, () => {});
+      return heartGetPuddles(state);
     case "Twofold":
       return twofoldGetPuddles(state, players);
   }

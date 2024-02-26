@@ -20,7 +20,6 @@ const addLoc = (inter: InterCardinal, offset?: number): Point => {
 
 export const getDangerPuddles = (
   state: HeartOfJudgementState,
-  animationEnd: () => void
 ): DangerPuddle[] => {
   const innerBox =
     state.bossColour === "Dark"
@@ -39,7 +38,6 @@ export const getDangerPuddles = (
       {
         type: "line",
         angle: rotation(innerBox),
-        onAnimationEnd: animationEnd,
         source: addLoc(innerBox),
         width: 0.475,
         colour: state.bossColour === "Dark" ? "purple" : "yellow",
@@ -52,7 +50,6 @@ export const getDangerPuddles = (
       {
         type: "line",
         angle: rotation(outerBox),
-        onAnimationEnd: () => {},
         source: addLoc(outerBox, -0.36875),
         width: 0.2625,
         colour: state.bossColour === "Dark" ? "purple" : "yellow",
@@ -65,7 +62,6 @@ export const getDangerPuddles = (
       {
         type: "line",
         angle: rotation(outerBox),
-        onAnimationEnd: () => {},
         source: addLoc(outerBox, 0.36875),
         width: 0.2625,
         colour: state.bossColour === "Dark" ? "purple" : "yellow",
@@ -82,7 +78,6 @@ export const getDangerPuddles = (
         source: b,
         colour: state.bossColour === "Dark" ? "purple" : "yellow",
         radius: 0.4,
-        onAnimationEnd: () => {},
         split: false,
         damage: 1,
         roleRequirement: null,
@@ -146,7 +141,7 @@ export const applyDamage = (
   players: LetterOfTheLawPlayer[]
 ): LetterOfTheLawPlayer[] => {
   const survivingPlayers = survivePuddles(
-    getDangerPuddles(gameState, () => {}),
+    getDangerPuddles(gameState),
     players
   );
   return players.map((p) => ({

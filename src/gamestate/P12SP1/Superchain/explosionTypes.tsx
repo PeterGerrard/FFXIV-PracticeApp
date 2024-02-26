@@ -37,8 +37,7 @@ export const getChainColour = (e: SuperchainExplosion): string => {
 const getDangerInfo = (
   explosion: SuperchainExplosion,
   position: Point,
-  players: Player[],
-  animationEnd: () => void
+  players: Player[]
 ): DangerPuddle[] => {
   switch (explosion) {
     case "Circle":
@@ -46,7 +45,6 @@ const getDangerInfo = (
         {
           type: "circle",
           source: position,
-          onAnimationEnd: animationEnd,
           radius: 0.2,
           split: false,
           damage: 1,
@@ -60,7 +58,6 @@ const getDangerInfo = (
         {
           type: "donut",
           source: position,
-          onAnimationEnd: animationEnd,
           innerRadius: 0.2,
           outerRadius: 5,
           split: false,
@@ -71,10 +68,9 @@ const getDangerInfo = (
         },
       ];
     case "Protean":
-      return players.map((a, i) => ({
+      return players.map((a) => ({
         type: "cone",
         source: position,
-        onAnimationEnd: i == 0 ? animationEnd : () => {},
         angle: vector(position, point(position.x, position.y - 1)).angleTo(
           vector(position, a.position)
         ),
@@ -88,10 +84,9 @@ const getDangerInfo = (
     case "Pair":
       return players
         .filter((x) => x.role !== "DPS")
-        .map((a, i) => ({
+        .map((a) => ({
           type: "cone",
           source: position,
-          onAnimationEnd: i == 0 ? animationEnd : () => {},
           angle: vector(position, point(position.x, position.y - 1)).angleTo(
             vector(position, a.position)
           ),
@@ -110,8 +105,6 @@ export const getSuperChainDangerPuddles = (
   position: Point,
   players: Player[]
 ): DangerPuddle[] => {
-  const xs = explosions.flatMap((e) =>
-    getDangerInfo(e, position, players, () => {})
-  );
+  const xs = explosions.flatMap((e) => getDangerInfo(e, position, players));
   return xs;
 };

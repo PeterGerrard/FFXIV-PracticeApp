@@ -3,9 +3,8 @@ import { CircleAoE, CircleAoEProps, isCircleSafe } from "./CircleAoE";
 import { ConeAoE, ConeAoEProps, isConeSafe } from "./ConeAoE";
 import { DonutAoE, DonutAoEProps, isDonutSafe } from "./DonutAoE";
 import { LineAoE, LineAoEProps, isLineSafe } from "./LineAoE";
-import { Role } from "..";
 import { Debuff, Player } from "../Player";
-import { Designation } from "../gameState";
+import { Designation, Role } from "../gameState";
 
 export type DangerPuddle = {
   split: boolean;

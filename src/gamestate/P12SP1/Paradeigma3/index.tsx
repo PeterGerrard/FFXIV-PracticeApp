@@ -537,7 +537,6 @@ const getDangerPuddles = (
         ),
         debuffRequirement: null,
         instaKill: null,
-        onAnimationEnd: () => {},
         roleRequirement: null,
         source: nwAdd,
         split: false,
@@ -551,7 +550,6 @@ const getDangerPuddles = (
         ),
         debuffRequirement: null,
         instaKill: null,
-        onAnimationEnd: () => {},
         roleRequirement: null,
         source: swAdd,
         split: false,
@@ -565,7 +563,6 @@ const getDangerPuddles = (
         ),
         debuffRequirement: null,
         instaKill: null,
-        onAnimationEnd: () => {},
         roleRequirement: null,
         source: neAdd,
         split: false,
@@ -579,7 +576,6 @@ const getDangerPuddles = (
         ),
         debuffRequirement: null,
         instaKill: null,
-        onAnimationEnd: () => {},
         roleRequirement: null,
         source: seAdd,
         split: false,
@@ -604,7 +600,6 @@ const getDangerPuddles = (
           damage: 0.8,
           debuffRequirement: null,
           instaKill: null,
-          onAnimationEnd: () => {},
           roleRequirement: null,
           source: a,
           split: false,
@@ -627,7 +622,6 @@ const getDangerPuddles = (
       instaKill: null,
       roleRequirement: null,
       radius: 0.08,
-      onAnimationEnd: () => {},
     }));
 
     return addLasers.concat(towerPuddles).concat([
@@ -637,7 +631,6 @@ const getDangerPuddles = (
         angle: Math.PI / 2,
         debuffRequirement: null,
         instaKill: null,
-        onAnimationEnd: () => {},
         roleRequirement: null,
         source: gameState.plusLocation.translate(2, 0),
         split: false,
@@ -649,7 +642,6 @@ const getDangerPuddles = (
         angle: 0,
         debuffRequirement: null,
         instaKill: null,
-        onAnimationEnd: () => {},
         roleRequirement: null,
         source: gameState.plusLocation.translate(0, -2),
         split: false,
@@ -661,7 +653,6 @@ const getDangerPuddles = (
         angle: (3 * Math.PI) / 4,
         debuffRequirement: null,
         instaKill: null,
-        onAnimationEnd: () => {},
         roleRequirement: null,
         source: gameState.crossLocation.translate(2, 2),
         split: false,
@@ -673,7 +664,6 @@ const getDangerPuddles = (
         angle: (5 * Math.PI) / 4,
         debuffRequirement: null,
         instaKill: null,
-        onAnimationEnd: () => {},
         roleRequirement: null,
         source: gameState.crossLocation.translate(-2, 2),
         split: false,
@@ -691,7 +681,6 @@ const getDangerPuddles = (
       instaKill: null,
       roleRequirement: null,
       radius: 0.08,
-      onAnimationEnd: () => {},
     }));
   }
   return [];

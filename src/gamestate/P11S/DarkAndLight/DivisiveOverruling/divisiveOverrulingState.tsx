@@ -111,7 +111,6 @@ export const getDangerPuddles = (
       {
         type: "line",
         angle: Math.PI,
-        onAnimationEnd: () => {},
         source: new Point(0.5, 1),
         width: 0.4,
         colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
@@ -129,7 +128,6 @@ export const getDangerPuddles = (
         {
           type: "line",
           angle: Math.PI,
-          onAnimationEnd: () => {},
           source: new Point(0.15, 1),
           width: 0.3,
           colour: "purple",
@@ -142,7 +140,6 @@ export const getDangerPuddles = (
         {
           type: "line",
           angle: Math.PI,
-          onAnimationEnd: () => {},
           source: new Point(0.85, 1),
           width: 0.3,
           colour: "purple",
@@ -158,7 +155,6 @@ export const getDangerPuddles = (
         {
           type: "line",
           angle: Math.PI,
-          onAnimationEnd: () => {},
           source: new Point(0.5, 1),
           width: 0.6,
           colour: "yellow",

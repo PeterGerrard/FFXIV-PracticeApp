@@ -106,14 +106,12 @@ export const towerPos = (inter: InterCardinal): Point => {
 
 export const getDangerPuddles = (
   state: DismissalOverrulingState,
-  animationEnd?: () => void
 ): DangerPuddle[] => {
   if (state.stage === "CrossLine") {
     return [
       {
         type: "line",
         angle: rotation(state.darkLocation),
-        onAnimationEnd: animationEnd ? animationEnd : () => {},
         source: addLoc(state.darkLocation),
         width: 0.475,
         colour: "purple",
@@ -126,7 +124,6 @@ export const getDangerPuddles = (
       {
         type: "line",
         angle: rotation(state.lightLocation),
-        onAnimationEnd: () => {},
         source: addLoc(state.lightLocation),
         width: 0.475,
         colour: "yellow",
@@ -145,7 +142,6 @@ export const getDangerPuddles = (
           type: "donut",
           innerRadius: 0.2,
           outerRadius: 0.5,
-          onAnimationEnd: animationEnd ? animationEnd : () => {},
           source: new Point(0.5, 0.5),
           colour: "purple",
           split: false,
@@ -160,7 +156,6 @@ export const getDangerPuddles = (
         {
           type: "circle",
           radius: 0.3,
-          onAnimationEnd: animationEnd ? animationEnd : () => {},
           source: new Point(0.5, 0.5),
           colour: "yellow",
           split: false,
