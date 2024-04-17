@@ -1149,6 +1149,9 @@ const createState = (): Paradeigma3GameState => {
   const [dps, soup] = split(Designations, (d) => getRole(d) === "DPS");
   const shuffledSoup = shuffle(soup);
   const shuffledDps = shuffle(dps);
+  const [leftSoup, rightSoup] = (["H1", "MT", "OT", "H2"] as const).filter(
+    (d) => d !== shuffledSoup[0] && d !== shuffledSoup[3]
+  );
   return {
     cast: {
       name: "Engravement of Souls",
@@ -1160,12 +1163,8 @@ const createState = (): Paradeigma3GameState => {
     darkTowers: darkTowers,
     topFall: topFallSide,
     row1Support: shuffledSoup[0],
-    row2Support: (["H1", "MT", "OT", "H2"] as const).filter(
-      (d) => d !== shuffledSoup[0] && d !== shuffledSoup[3]
-    )[0],
-    row3Support: (["H1", "MT", "OT", "H2"] as const).filter(
-      (d) => d !== shuffledSoup[0] && d !== shuffledSoup[3]
-    )[1],
+    row2Support: topFallSide === "East" ? rightSoup : leftSoup,
+    row3Support: topFallSide === "East" ? leftSoup : rightSoup,
     row4Support: shuffledSoup[3],
     row2Straight: shuffledDps[0],
     row2Cross: shuffledDps[1],
