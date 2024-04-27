@@ -4,14 +4,13 @@ import {
   CaloricFireDebuff,
   CaloricStack5Debuff,
   createInitialState,
-  getDangerPuddles,
+  getMechanic,
   getDebuffs,
   getTargetSpot,
   nextStep,
 } from "./states";
 import { Player } from "../../Player";
 import { Designations, getRandomPos, getRole } from "../../gameState";
-import { survivePuddles } from "../../Mechanics/DangerPuddles";
 import { SetupContext } from "../../Setup/Setup";
 import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
@@ -35,11 +34,12 @@ export const CaloricConcepts1 = () => {
     Caloric1GameState
   >(
     (s, p) => {
+      const damageMap = getMechanic(s, p).applyDamage(players);
       return p.some((p1) =>
         p1.debuffs.some((d) => d.name === CaloricStack5Debuff.name)
       )
         ? []
-        : survivePuddles(getDangerPuddles(s, p), p);
+        : Designations.filter((d) => damageMap[d] < 1);
     },
     hasFinished,
     () =>
@@ -59,7 +59,7 @@ export const CaloricConcepts1 = () => {
     getDebuffs
   );
 
-  const dangerPuddles = getDangerPuddles(state, players);
+  const mechanic = getMechanic(state, players);
 
   return (
     <div className="flex flex-col">
@@ -80,7 +80,7 @@ export const CaloricConcepts1 = () => {
                 ? fireSrc
                 : undefined,
         }))}
-        dangerPuddles={dangerPuddles}
+        mechanic={mechanic}
         moveTo={onMove}
         showCaloricGrid
       >

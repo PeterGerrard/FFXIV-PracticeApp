@@ -2,9 +2,16 @@ import circlePng from "./assets/circle.png";
 import donutPng from "./assets/donut.png";
 import proteanPng from "./assets/protean.png";
 import pairPng from "./assets/pair.png";
-import { DangerPuddle } from "../../Mechanics/DangerPuddles";
 import { Player } from "../../Player";
 import { Point, point, vector } from "@flatten-js/core";
+import { Mechanic, composeMechanics } from "../../mechanics";
+import { circleMechanic } from "../../Mechanics/CircleAoE";
+import {
+  SimpleHeavyDamageProfile,
+  SimpleKillProfile,
+} from "../../Mechanics/DangerPuddles";
+import { donutMechanic } from "../../Mechanics/DonutAoE";
+import { coneMechanic } from "../../Mechanics/ConeAoE";
 
 export type SuperchainExplosion = SuperchainExplosionInOut | "Protean" | "Pair";
 export type SuperchainExplosionInOut = "Circle" | "Donut";
@@ -38,65 +45,46 @@ const getDangerInfo = (
   explosion: SuperchainExplosion,
   position: Point,
   players: Player[]
-): DangerPuddle[] => {
+): Mechanic<Player> => {
   switch (explosion) {
     case "Circle":
-      return [
-        {
-          type: "circle",
-          source: position,
-          radius: 0.2,
-          split: false,
-          damage: 1,
-          roleRequirement: null,
-          debuffRequirement: null,
-          instaKill: null,
-        },
-      ];
+      return circleMechanic(position, 0.2, SimpleKillProfile);
     case "Donut":
-      return [
-        {
-          type: "donut",
-          source: position,
-          innerRadius: 0.2,
-          outerRadius: 5,
-          split: false,
-          damage: 1,
-          roleRequirement: null,
-          debuffRequirement: null,
-          instaKill: null,
-        },
-      ];
+      return donutMechanic(position, 0.2, 5, SimpleKillProfile);
     case "Protean":
-      return players.map((a) => ({
-        type: "cone",
-        source: position,
-        angle: vector(position, point(position.x, position.y - 1)).angleTo(
-          vector(position, a.position)
-        ),
-        width: Math.PI / 6,
-        split: false,
-        damage: 0.8,
-        roleRequirement: null,
-        debuffRequirement: null,
-        instaKill: null,
-      }));
+      return composeMechanics(
+        players.map((a) =>
+          coneMechanic(
+            position,
+            vector(position, point(position.x, position.y - 1)).angleTo(
+              vector(position, a.position)
+            ),
+            Math.PI / 6,
+            SimpleHeavyDamageProfile
+          )
+        )
+      );
     case "Pair":
-      return players
-        .filter((x) => x.role !== "DPS")
-        .map((a) => ({
-          type: "cone",
-          source: position,
-          angle: vector(position, point(position.x, position.y - 1)).angleTo(
-            vector(position, a.position)
-          ),
-          width: Math.PI / 3,
-          split: true,
-          damage: 1.6,
-          roleRequirement: null,
-          debuffRequirement: null,
-          instaKill: null,
-        }));
+      return composeMechanics(
+        players
+          .filter((x) => x.role !== "DPS")
+          .map((a) =>
+            coneMechanic(
+              position,
+              vector(position, point(position.x, position.y - 1)).angleTo(
+                vector(position, a.position)
+              ),
+              Math.PI / 3,
+              {
+                split: true,
+                damage: 1.6,
+                roleRequirement: null,
+                debuffRequirement: null,
+                instaKill: null,
+              }
+            )
+          )
+      );
   }
 };
 
@@ -104,7 +92,7 @@ export const getSuperChainDangerPuddles = (
   explosions: SuperchainExplosion[],
   position: Point,
   players: Player[]
-): DangerPuddle[] => {
+): Mechanic<Player> => {
   const xs = explosions.flatMap((e) => getDangerInfo(e, position, players));
-  return xs;
+  return composeMechanics(xs);
 };

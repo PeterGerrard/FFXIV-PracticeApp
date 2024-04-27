@@ -3,7 +3,7 @@ import { P11SArena } from "../P11SArena";
 import {
   LetterOfTheLawPlayer,
   NewLetterOfTheLawState,
-  getDangerPuddles,
+  getMechanic,
 } from "./gameState";
 import { DismissalArena } from "./DismissalOverruling/DismissalArena";
 import { HeartArena } from "./HeartOfJudgement/HeartArena";
@@ -17,7 +17,7 @@ export const LetterOfTheLawArena = (props: {
     <P11SArena
       players={props.players}
       moveTo={props.onMove}
-      dangerPuddles={getDangerPuddles(props.state, props.players)}
+      mechanic={getMechanic(props.state, props.players)}
       bossColour={props.state.bossColour}
     >
       {props.state.outer === "Dismissal" && (

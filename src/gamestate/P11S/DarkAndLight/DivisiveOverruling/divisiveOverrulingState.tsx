@@ -1,5 +1,4 @@
-import { Point } from "@flatten-js/core";
-import { DangerPuddle, survivePuddles } from "../../../Mechanics/DangerPuddles";
+import { Point, point } from "@flatten-js/core";
 import { getRole } from "../../../gameState";
 import {
   DarkAndLightPlayer,
@@ -8,6 +7,9 @@ import {
   isTetherSafe,
 } from "../gameState";
 import { Marker3, Marker1, MarkerB, MarkerD } from "../../p11sMarkers";
+import { EmptyMechanic, Mechanic, composeMechanics } from "../../../mechanics";
+import { lineMechanic } from "../../../Mechanics/LineAoE";
+import { SimpleKillProfile } from "../../../Mechanics/DangerPuddles";
 
 const getSafeSpot1 = (
   player: DarkAndLightPlayer,
@@ -103,82 +105,42 @@ export const initialDivisiveState = (): DivisiveOverrulingGameState => ({
   stage: "Before",
 });
 
-export const getDangerPuddles = (
+export const getMechanic = (
   gameState: DivisiveOverrulingGameState
-): DangerPuddle[] => {
+): Mechanic<DarkAndLightPlayer> => {
   if (gameState.stage === "Explosion1") {
-    return [
-      {
-        type: "line",
-        angle: Math.PI,
-        source: new Point(0.5, 1),
-        width: 0.4,
-        colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
-        split: false,
-        damage: 1,
-        roleRequirement: null,
-        debuffRequirement: null,
-        instaKill: null,
-      },
-    ];
+    return lineMechanic(point(0.5, 1), Math.PI, 0.4, SimpleKillProfile, {
+      color: gameState.bossColour === "Dark" ? "purple" : "yellow",
+    });
   }
   if (gameState.stage === "Explosion2") {
     if (gameState.bossColour === "Dark") {
-      return [
-        {
-          type: "line",
-          angle: Math.PI,
-          source: new Point(0.15, 1),
-          width: 0.3,
-          colour: "purple",
-          split: false,
-          damage: 1,
-          roleRequirement: null,
-          debuffRequirement: null,
-          instaKill: null,
-        },
-        {
-          type: "line",
-          angle: Math.PI,
-          source: new Point(0.85, 1),
-          width: 0.3,
-          colour: "purple",
-          split: false,
-          damage: 1,
-          roleRequirement: null,
-          debuffRequirement: null,
-          instaKill: null,
-        },
-      ];
+      return composeMechanics([
+        lineMechanic(point(0.15, 1), Math.PI, 0.3, SimpleKillProfile, {
+          color: "purple",
+        }),
+        lineMechanic(point(0.85, 1), Math.PI, 0.3, SimpleKillProfile, {
+          color: "purple",
+        }),
+      ]);
     } else {
-      return [
-        {
-          type: "line",
-          angle: Math.PI,
-          source: new Point(0.5, 1),
-          width: 0.6,
-          colour: "yellow",
-          split: false,
-          damage: 1,
-          roleRequirement: null,
-          debuffRequirement: null,
-          instaKill: null,
-        },
-      ];
+      return lineMechanic(point(0.5, 1), Math.PI, 0.6, SimpleKillProfile, {
+        color: "yellow",
+      });
     }
   }
-  return [];
+  return EmptyMechanic;
 };
 
 export const applyDamage = (
   gameState: DivisiveOverrulingGameState,
   players: DarkAndLightPlayer[]
 ): DarkAndLightPlayer[] => {
-  const survivingPlayers = survivePuddles(getDangerPuddles(gameState), players);
+  const damageMap = getMechanic(gameState).applyDamage(players);
   return players.map((p) => ({
     ...p,
     alive:
-      survivingPlayers.includes(p.designation) &&
+      damageMap[p.designation] < 1 &&
       isTetherSafe(
         p,
         players.filter((o) => o.designation === p.tetheredDesignation)[0]

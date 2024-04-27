@@ -1,5 +1,5 @@
 import { Point, point, vector } from "@flatten-js/core";
-import { DangerPuddle } from "../../Mechanics/DangerPuddles";
+import { SimpleKillProfile } from "../../Mechanics/DangerPuddles";
 import {
   SuperchainExplosion,
   SuperchainExplosionInOut,
@@ -7,6 +7,8 @@ import {
 } from "../Superchain/explosionTypes";
 import { Player } from "../../Player";
 import { pickOne } from "../../helpers";
+import { EmptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
+import { lineMechanic } from "../../Mechanics/LineAoE";
 
 type TrinitySide = "Left" | "Right";
 
@@ -108,94 +110,71 @@ export const createInitialState = (): SuperchainTheory2aGameState => {
   };
 };
 
-export const getDangerPuddles = (
+export const getMechanic = (
   state: SuperchainTheory2aGameState,
   players: Player[]
-): DangerPuddle[] => {
+): Mechanic<Player> => {
   if (state.stage === "Explosion1") {
-    return [
-      {
-        type: "line",
-        angle: state.trinity[0] === "Left" ? Math.PI / 2 : (3 * Math.PI) / 2,
-        damage: 2,
-        debuffRequirement: null,
-        instaKill: null,
-        roleRequirement: null,
-        source: point(0.5, 0.5),
-        split: false,
-        width: 2,
-        colour: "blue",
-      },
-      ...getSuperChainDangerPuddles(
+    return composeMechanics([
+      lineMechanic(
+        point(0.5, 0.5),
+        state.trinity[0] === "Left" ? Math.PI / 2 : (3 * Math.PI) / 2,
+        2,
+        SimpleKillProfile,
+        {
+          color: "blue",
+        }
+      ),
+      getSuperChainDangerPuddles(
         [state.short.north],
         point(0.5, 0.25),
         players
       ),
-      ...getSuperChainDangerPuddles(
+      getSuperChainDangerPuddles(
         [state.short.middle],
         point(0.5, 0.5),
         players
       ),
-      ...getSuperChainDangerPuddles(
+      getSuperChainDangerPuddles(
         [state.short.south],
         point(0.5, 0.75),
         players
       ),
-    ];
+    ]);
   }
   if (state.stage === "Explosion2") {
-    return [
-      {
-        type: "line",
-        angle: state.trinity[1] === "Left" ? (3 * Math.PI) / 2 : Math.PI / 2,
-        damage: 2,
-        debuffRequirement: null,
-        instaKill: null,
-        roleRequirement: null,
-        source: point(0.5, 0.5),
-        split: false,
-        width: 2,
-        colour: "blue",
-      },
-      ...getSuperChainDangerPuddles(["Donut"], point(0.5, 0.5), players),
-    ];
+    return composeMechanics([
+      lineMechanic(
+        point(0.5, 0.5),
+        state.trinity[1] === "Left" ? (3 * Math.PI) / 2 : Math.PI / 2,
+        2,
+        SimpleKillProfile,
+        {
+          color: "blue",
+        }
+      ),
+      getSuperChainDangerPuddles(["Donut"], point(0.5, 0.5), players),
+    ]);
   }
   if (state.stage === "Explosion3") {
-    return [
+    return lineMechanic(
+      point(0.5, 0.5),
+      state.trinity[2] === "Left" ? Math.PI / 2 : (3 * Math.PI) / 2,
+      2,
+      SimpleKillProfile,
       {
-        type: "line",
-        angle: state.trinity[2] === "Left" ? Math.PI / 2 : (3 * Math.PI) / 2,
-        damage: 2,
-        debuffRequirement: null,
-        instaKill: null,
-        roleRequirement: null,
-        source: point(0.5, 0.5),
-        split: false,
-        width: 2,
-        colour: "blue",
-      },
-    ];
+        color: "blue",
+      }
+    );
   }
   if (state.stage === "Explosion4") {
-    return [
-      ...getSuperChainDangerPuddles(
-        [state.long.north],
-        point(0.5, 0.25),
-        players
-      ),
-      ...getSuperChainDangerPuddles(
-        [state.long.middle],
-        point(0.5, 0.5),
-        players
-      ),
-      ...getSuperChainDangerPuddles(
-        [state.long.south],
-        point(0.5, 0.75),
-        players
-      ),
-    ];
+    return composeMechanics([
+      getSuperChainDangerPuddles([state.long.north], point(0.5, 0.25), players),
+      getSuperChainDangerPuddles([state.long.middle], point(0.5, 0.5), players),
+      getSuperChainDangerPuddles([state.long.south], point(0.5, 0.75), players),
+    ]);
   }
-  return [];
+  return EmptyMechanic;
 };
 
 const addOne = (n: 0 | 1 | 2): 1 | 2 | 3 => {

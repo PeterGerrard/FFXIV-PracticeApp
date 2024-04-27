@@ -1,8 +1,11 @@
 import { InterCardinal, rotation } from "../../../gameState";
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
-import { DangerPuddle, survivePuddles } from "../../../Mechanics/DangerPuddles";
 import { Point } from "@flatten-js/core";
 import { Marker3, MarkerA } from "../../p11sMarkers";
+import { EmptyMechanic, Mechanic, composeMechanics } from "../../../mechanics";
+import { lineMechanic } from "../../../Mechanics/LineAoE";
+import { SimpleKillProfile } from "../../../Mechanics/DangerPuddles";
+import { circleMechanic } from "../../../Mechanics/CircleAoE";
 
 const addLoc = (inter: InterCardinal, offset?: number): Point => {
   const o = offset ? offset / Math.sqrt(2) : 0;
@@ -18,9 +21,9 @@ const addLoc = (inter: InterCardinal, offset?: number): Point => {
   }
 };
 
-export const getDangerPuddles = (
-  state: HeartOfJudgementState,
-): DangerPuddle[] => {
+export const getMechanic = (
+  state: HeartOfJudgementState
+): Mechanic<LetterOfTheLawPlayer> => {
   const innerBox =
     state.bossColour === "Dark"
       ? state.darkBoxLocation
@@ -34,59 +37,40 @@ export const getDangerPuddles = (
       state.bossColour === state.topBomb
         ? [new Point(0.5, 0.2), new Point(0.5, 0.8)]
         : [new Point(0.2, 0.5), new Point(0.8, 0.5)];
-    const lineAoes: DangerPuddle[] = [
-      {
-        type: "line",
-        angle: rotation(innerBox),
-        source: addLoc(innerBox),
-        width: 0.475,
-        colour: state.bossColour === "Dark" ? "purple" : "yellow",
-        split: false,
-        damage: 1,
-        roleRequirement: null,
-        debuffRequirement: null,
-        instaKill: null,
-      },
-      {
-        type: "line",
-        angle: rotation(outerBox),
-        source: addLoc(outerBox, -0.36875),
-        width: 0.2625,
-        colour: state.bossColour === "Dark" ? "purple" : "yellow",
-        split: false,
-        damage: 1,
-        roleRequirement: null,
-        debuffRequirement: null,
-        instaKill: null,
-      },
-      {
-        type: "line",
-        angle: rotation(outerBox),
-        source: addLoc(outerBox, 0.36875),
-        width: 0.2625,
-        colour: state.bossColour === "Dark" ? "purple" : "yellow",
-        split: false,
-        damage: 1,
-        roleRequirement: null,
-        debuffRequirement: null,
-        instaKill: null,
-      },
+    const lineAoes: Mechanic<LetterOfTheLawPlayer>[] = [
+      lineMechanic(
+        addLoc(innerBox),
+        rotation(innerBox),
+        0.475,
+        SimpleKillProfile,
+        { color: state.bossColour === "Dark" ? "purple" : "yellow" }
+      ),
+      lineMechanic(
+        addLoc(outerBox, -0.36875),
+        rotation(outerBox),
+        0.2625,
+        SimpleKillProfile,
+        { color: state.bossColour === "Dark" ? "purple" : "yellow" }
+      ),
+      lineMechanic(
+        addLoc(outerBox, 0.36875),
+        rotation(outerBox),
+        0.2625,
+        SimpleKillProfile,
+        { color: state.bossColour === "Dark" ? "purple" : "yellow" }
+      ),
     ];
-    return lineAoes.concat(
-      bombLocations.map<DangerPuddle>((b) => ({
-        type: "circle",
-        source: b,
-        colour: state.bossColour === "Dark" ? "purple" : "yellow",
-        radius: 0.4,
-        split: false,
-        damage: 1,
-        roleRequirement: null,
-        debuffRequirement: null,
-        instaKill: null,
-      }))
+    return composeMechanics(
+      lineAoes.concat(
+        bombLocations.map<Mechanic<LetterOfTheLawPlayer>>((b) =>
+          circleMechanic(b, 0.4, SimpleKillProfile, {
+            color: state.bossColour === "Dark" ? "purple" : "yellow",
+          })
+        )
+      )
     );
   }
-  return [];
+  return EmptyMechanic;
 };
 
 export type HeartOfJudgementState = LetterOfTheLawState & {
@@ -140,13 +124,10 @@ export const applyDamage = (
   gameState: HeartOfJudgementState,
   players: LetterOfTheLawPlayer[]
 ): LetterOfTheLawPlayer[] => {
-  const survivingPlayers = survivePuddles(
-    getDangerPuddles(gameState),
-    players
-  );
+  const damageMap = getMechanic(gameState).applyDamage(players);
   return players.map((p) => ({
     ...p,
-    alive: survivingPlayers.includes(p.designation),
+    alive: damageMap[p.designation] < 1,
   }));
 };
 export const progress = (s: HeartOfJudgementState): HeartOfJudgementState => {

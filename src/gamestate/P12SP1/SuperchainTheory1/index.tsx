@@ -1,5 +1,4 @@
 import { Point, point, vector } from "@flatten-js/core";
-import { DangerPuddle, survivePuddles } from "../../Mechanics/DangerPuddles";
 import { Debuff, Player } from "../../Player";
 import {
   Designation,
@@ -34,6 +33,10 @@ import { useContext } from "react";
 import { SetupContext } from "../../Setup/Setup";
 import { Overlay } from "../../Overlay";
 import { Progress } from "@/components/ui/progress";
+import { EmptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
+import { lineMechanic } from "../../Mechanics/LineAoE";
+import { circleMechanic } from "../../Mechanics/CircleAoE";
+import { SimpleHeavyDamageProfile } from "../../Mechanics/DangerPuddles";
 
 const getSafeSpot = (
   gameState: SuperchainTheoryGameState,
@@ -233,8 +236,8 @@ function getSurvivors(
   gameState: SuperchainTheoryGameState,
   players: SuperchainTheory1Player[]
 ) {
-  const dangerPuddles = getDangerPuddles(gameState, players);
-  let survivingPlayers = survivePuddles(dangerPuddles, players);
+  const damageMap = getMechanic(gameState, players).applyDamage(players);
+  let survivingPlayers = Designations.filter((d) => damageMap[d] < 1);
   if (gameState.stage === "SoakAndAoes") {
     const soakDark = players.some(
       (p) => p.position.distanceTo(gameState.darkTowerLocation)[0] < 0.1
@@ -450,10 +453,10 @@ export type SuperchainTheoryGameState =
       redTower: Designation;
     };
 
-export const getDangerPuddles = (
+export const getMechanic = (
   gameState: SuperchainTheoryGameState,
   players: SuperchainTheory1Player[]
-): DangerPuddle[] => {
+): Mechanic<SuperchainTheory1Player> => {
   if (gameState.stage === "Explosion1") {
     return getSuperChainDangerPuddles(
       gameState.initialExplosions,
@@ -468,43 +471,45 @@ export const getDangerPuddles = (
     const lightLaserTarget = players.filter((p) =>
       p.debuffs.some((d) => d.name === LightLaserDebuff.name)
     )[0];
-    const lasers: DangerPuddle[] = [
-      {
-        type: "line",
-        angle:
-          redLaserTarget.position.distanceTo(point(0.5, 0.5))[0] < 0.00001
-            ? 0
-            : vector(point(0.5, 0.5), point(0.5, 1)).angleTo(
-                vector(point(0.5, 0.5), redLaserTarget.position)
-              ),
-        roleRequirement: null,
-        source: point(0.5, 0.5),
-        split: true,
-        damage: 3.8,
-        width: 0.1,
-        debuffRequirement: null,
-        instaKill: null,
-      },
-      {
-        type: "line",
-        angle:
-          lightLaserTarget.position.distanceTo(point(0.5, 0.5))[0] < 0.00001
-            ? 0
-            : vector(point(0.5, 0.5), point(0.5, 1)).angleTo(
-                vector(point(0.5, 0.5), lightLaserTarget.position)
-              ),
-        roleRequirement: null,
-        source: point(0.5, 0.5),
-        split: true,
-        damage: 3.8,
-        width: 0.1,
-        debuffRequirement: null,
-        instaKill: null,
-      },
+    const lasers: Mechanic<SuperchainTheory1Player>[] = [
+      lineMechanic(
+        point(0.5, 0.5),
+        redLaserTarget.position.distanceTo(point(0.5, 0.5))[0] < 0.00001
+          ? 0
+          : vector(point(0.5, 0.5), point(0.5, 1)).angleTo(
+              vector(point(0.5, 0.5), redLaserTarget.position)
+            ),
+        0.1,
+        {
+          roleRequirement: null,
+          split: true,
+          damage: 3.8,
+          debuffRequirement: null,
+          instaKill: null,
+        }
+      ),
+      lineMechanic(
+        point(0.5, 0.5),
+        lightLaserTarget.position.distanceTo(point(0.5, 0.5))[0] < 0.00001
+          ? 0
+          : vector(point(0.5, 0.5), point(0.5, 1)).angleTo(
+              vector(point(0.5, 0.5), lightLaserTarget.position)
+            ),
+        0.1,
+        {
+          roleRequirement: null,
+          split: true,
+          damage: 3.8,
+          debuffRequirement: null,
+          instaKill: null,
+        }
+      ),
     ];
-    return gameState.secondCorners
-      .flatMap((x) => getSuperChainDangerPuddles([x[1]], x[0], players))
-      .concat(lasers);
+    return composeMechanics(
+      gameState.secondCorners
+        .map((x) => getSuperChainDangerPuddles([x[1]], x[0], players))
+        .concat(lasers)
+    );
   }
   if (gameState.stage === "InOutPart1") {
     return getSuperChainDangerPuddles(
@@ -521,72 +526,67 @@ export const getDangerPuddles = (
     );
   }
   if (gameState.stage === "DropTower") {
-    return [
-      {
-        type: "circle",
-        debuffRequirement: RedTowerDebuff,
-        radius: 0.05,
-        colour: "black",
-        instaKill: null,
-        split: false,
-        damage: 0.6,
-        roleRequirement: null,
-        source: gameState.darkTowerLocation,
-      },
-      {
-        type: "circle",
-        debuffRequirement: LightTowerDebuff,
-        radius: 0.05,
-        colour: "white",
-        instaKill: null,
-        split: false,
-        damage: 0.6,
-        roleRequirement: null,
-        source: gameState.lightTowerLocation,
-      },
-    ];
+    return composeMechanics([
+      circleMechanic(
+        gameState.darkTowerLocation,
+        0.05,
+        {
+          debuffRequirement: RedTowerDebuff,
+          instaKill: null,
+          split: false,
+          damage: 0.6,
+          roleRequirement: null,
+        },
+        { color: "black" }
+      ),
+      circleMechanic(
+        gameState.lightTowerLocation,
+        0.05,
+        {
+          debuffRequirement: LightTowerDebuff,
+          instaKill: null,
+          split: false,
+          damage: 0.6,
+          roleRequirement: null,
+        },
+        { color: "white" }
+      ),
+    ]);
   }
   if (gameState.stage === "SoakAndAoes") {
-    const soaks: DangerPuddle[] = [
-      {
-        type: "circle",
-        debuffRequirement: LightDebuff,
-        radius: 0.05,
-        colour: "black",
-        instaKill: null,
-        split: false,
-        damage: 0.6,
-        roleRequirement: null,
-        source: gameState.darkTowerLocation,
-      },
-      {
-        type: "circle",
-        debuffRequirement: RedDebuff,
-        radius: 0.05,
-        colour: "white",
-        instaKill: null,
-        split: false,
-        damage: 0.6,
-        roleRequirement: null,
-        source: gameState.lightTowerLocation,
-      },
+    const soaks: Mechanic<SuperchainTheory1Player>[] = [
+      circleMechanic(
+        gameState.darkTowerLocation,
+        0.05,
+        {
+          debuffRequirement: LightDebuff,
+          instaKill: null,
+          split: false,
+          damage: 0.6,
+          roleRequirement: null,
+        },
+        { color: "black" }
+      ),
+      circleMechanic(
+        gameState.lightTowerLocation,
+        0.05,
+        {
+          debuffRequirement: RedDebuff,
+          instaKill: null,
+          split: false,
+          damage: 0.6,
+          roleRequirement: null,
+        },
+        { color: "white" }
+      ),
     ];
-    const aoes: DangerPuddle[] = players
+    const aoes: Mechanic<SuperchainTheory1Player>[] = players
       .filter((p) => p.debuffs.some((d) => d.name === AoeDebuff.name))
-      .map((p) => ({
-        type: "circle",
-        damage: 0.8,
-        debuffRequirement: null,
-        instaKill: null,
-        radius: 0.15,
-        roleRequirement: null,
-        split: false,
-        source: p.position,
-      }));
-    return soaks.concat(aoes);
+      .map((p) => circleMechanic(p.position, 0.15, SimpleHeavyDamageProfile));
+    return composeMechanics(soaks.concat(aoes));
   }
 
-  return [];
+  return EmptyMechanic;
 };
 
 const createState = (): SuperchainTheoryGameState => {

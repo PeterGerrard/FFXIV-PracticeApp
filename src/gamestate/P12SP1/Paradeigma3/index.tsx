@@ -1,5 +1,4 @@
 import { Point, point, vector } from "@flatten-js/core";
-import { DangerPuddle, survivePuddles } from "../../Mechanics/DangerPuddles";
 import { Debuff, Player } from "../../Player";
 import {
   Designation,
@@ -30,6 +29,13 @@ import { useGame } from "../../gameHooks";
 import { PropsWithChildren, useContext } from "react";
 import { SetupContext } from "../../Setup/Setup";
 import { Overlay } from "../../Overlay";
+import { EmptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
+import { lineMechanic } from "../../Mechanics/LineAoE";
+import {
+  SimpleHeavyDamageProfile,
+  SimpleKillProfile,
+} from "../../Mechanics/DangerPuddles";
+import { circleMechanic } from "../../Mechanics/CircleAoE";
 
 const getTetheredPlayer = (
   addPos: InterCardinal,
@@ -59,8 +65,8 @@ const applyDamage = (
   gameState: Paradeigma3GameState,
   players: Paradeigma3Player[]
 ): Paradeigma3Player[] => {
-  const dangerPuddles = getDangerPuddles(gameState, players);
-  let survivingPlayers = survivePuddles(dangerPuddles, players);
+  const damageMap = getMechanic(gameState, players).applyDamage(players);
+  let survivingPlayers = Designations.filter((d) => damageMap[d] < 1);
   if (gameState.stage === "Fall") {
     const towers =
       gameState.topFall === "East"
@@ -512,10 +518,10 @@ type Paradeigma3GameState =
       towerLocations: Point[];
     };
 
-const getDangerPuddles = (
+const getMechanic = (
   gameState: Paradeigma3GameState,
   players: Paradeigma3Player[]
-): DangerPuddle[] => {
+): Mechanic<Paradeigma3Player> => {
   const getPlayer = (d: Designation): Paradeigma3Player => {
     return players.filter((x) => x.designation === d)[0];
   };
@@ -528,60 +534,40 @@ const getDangerPuddles = (
     const nePlayer = getPlayer(getTetheredPlayer("North East", gameState));
     const seAdd = point(1, 0.55);
     const sePlayer = getPlayer(getTetheredPlayer("South East", gameState));
-    return [
-      {
-        type: "line",
-        damage: 0.8,
-        angle: vector(nwAdd, nwAdd.translate(0, 1)).angleTo(
+    return composeMechanics([
+      lineMechanic(
+        nwAdd,
+        vector(nwAdd, nwAdd.translate(0, 1)).angleTo(
           vector(nwAdd, nwPlayer.position)
         ),
-        debuffRequirement: null,
-        instaKill: null,
-        roleRequirement: null,
-        source: nwAdd,
-        split: false,
-        width: 0.1,
-      },
-      {
-        type: "line",
-        damage: 0.8,
-        angle: vector(swAdd, swAdd.translate(0, 1)).angleTo(
+        0.1,
+        SimpleHeavyDamageProfile
+      ),
+      lineMechanic(
+        swAdd,
+        vector(swAdd, swAdd.translate(0, 1)).angleTo(
           vector(swAdd, swPlayer.position)
         ),
-        debuffRequirement: null,
-        instaKill: null,
-        roleRequirement: null,
-        source: swAdd,
-        split: false,
-        width: 0.1,
-      },
-      {
-        type: "line",
-        damage: 0.8,
-        angle: vector(neAdd, neAdd.translate(0, 1)).angleTo(
+        0.1,
+        SimpleHeavyDamageProfile
+      ),
+      lineMechanic(
+        neAdd,
+        vector(neAdd, neAdd.translate(0, 1)).angleTo(
           vector(neAdd, nePlayer.position)
         ),
-        debuffRequirement: null,
-        instaKill: null,
-        roleRequirement: null,
-        source: neAdd,
-        split: false,
-        width: 0.1,
-      },
-      {
-        type: "line",
-        damage: 0.8,
-        angle: vector(seAdd, seAdd.translate(0, 1)).angleTo(
+        0.1,
+        SimpleHeavyDamageProfile
+      ),
+      lineMechanic(
+        seAdd,
+        vector(seAdd, seAdd.translate(0, 1)).angleTo(
           vector(seAdd, sePlayer.position)
         ),
-        debuffRequirement: null,
-        instaKill: null,
-        roleRequirement: null,
-        source: seAdd,
-        split: false,
-        width: 0.1,
-      },
-    ];
+        0.1,
+        SimpleHeavyDamageProfile
+      ),
+    ]);
   }
   if (gameState.stage === "TowerDrop") {
     const addLocs =
@@ -594,96 +580,77 @@ const getDangerPuddles = (
         .map((p) => [p, distanceTo(a, p.position)] as const)
         .sort(([, x], [, y]) => x - y)
         .slice(0, 2)
-        .map<DangerPuddle>(([p]) => ({
-          type: "line",
-          angle: vector(a, a.translate(0, 1)).angleTo(vector(a, p.position)),
-          damage: 0.8,
-          debuffRequirement: null,
-          instaKill: null,
-          roleRequirement: null,
-          source: a,
-          split: false,
-          width: 0.05,
-          colour: "yellow",
-        }))
+        .map<Mechanic<Paradeigma3Player>>(([p]) =>
+          lineMechanic(
+            a,
+            vector(a, a.translate(0, 1)).angleTo(vector(a, p.position)),
+            0.05,
+            SimpleHeavyDamageProfile,
+            { color: "yellow" }
+          )
+        )
     );
 
     const towerPuddles = [
       getPlayer(gameState.row2Support),
       getPlayer(gameState.row3Support),
-    ].map<DangerPuddle>((p) => ({
-      type: "circle",
-      damage: 0.8,
-      debuffRequirement: gameState.darkTowers
-        ? RedTowerDebuff
-        : LightTowerDebuff,
-      source: p.position,
-      split: false,
-      instaKill: null,
-      roleRequirement: null,
-      radius: 0.08,
-    }));
+    ].map<Mechanic<Paradeigma3Player>>((p) =>
+      circleMechanic(p.position, 0.08, {
+        damage: 0.8,
+        debuffRequirement: gameState.darkTowers
+          ? RedTowerDebuff
+          : LightTowerDebuff,
+        split: false,
+        instaKill: null,
+        roleRequirement: null,
+      })
+    );
 
-    return addLasers.concat(towerPuddles).concat([
-      {
-        type: "line",
-        damage: 2,
-        angle: Math.PI / 2,
-        debuffRequirement: null,
-        instaKill: null,
-        roleRequirement: null,
-        source: gameState.plusLocation.translate(2, 0),
-        split: false,
-        width: 0.1,
-      },
-      {
-        type: "line",
-        damage: 2,
-        angle: 0,
-        debuffRequirement: null,
-        instaKill: null,
-        roleRequirement: null,
-        source: gameState.plusLocation.translate(0, -2),
-        split: false,
-        width: 0.1,
-      },
-      {
-        type: "line",
-        damage: 2,
-        angle: (3 * Math.PI) / 4,
-        debuffRequirement: null,
-        instaKill: null,
-        roleRequirement: null,
-        source: gameState.crossLocation.translate(2, 2),
-        split: false,
-        width: 0.1,
-      },
-      {
-        type: "line",
-        damage: 2,
-        angle: (5 * Math.PI) / 4,
-        debuffRequirement: null,
-        instaKill: null,
-        roleRequirement: null,
-        source: gameState.crossLocation.translate(-2, 2),
-        split: false,
-        width: 0.1,
-      },
-    ]);
+    return composeMechanics(
+      addLasers
+        .concat(towerPuddles)
+        .concat([
+          lineMechanic(
+            gameState.plusLocation.translate(2, 0),
+            Math.PI / 2,
+            0.1,
+            SimpleKillProfile
+          ),
+          lineMechanic(
+            gameState.plusLocation.translate(0, -2),
+            0,
+            0.1,
+            SimpleKillProfile
+          ),
+          lineMechanic(
+            gameState.crossLocation.translate(2, 2),
+            (3 * Math.PI) / 4,
+            0.1,
+            SimpleKillProfile
+          ),
+          lineMechanic(
+            gameState.crossLocation.translate(-2, 2),
+            (5 * Math.PI) / 4,
+            0.1,
+            SimpleKillProfile
+          ),
+        ])
+    );
   }
   if (gameState.stage === "TowerSoak") {
-    return gameState.towerLocations.map<DangerPuddle>((p) => ({
-      type: "circle",
-      damage: 0.8,
-      debuffRequirement: gameState.darkTowers ? LightDebuff : RedDebuff,
-      source: p,
-      split: false,
-      instaKill: null,
-      roleRequirement: null,
-      radius: 0.08,
-    }));
+    return composeMechanics(
+      gameState.towerLocations.map((p) =>
+        circleMechanic(p, 0.08, {
+          damage: 0.8,
+          debuffRequirement: gameState.darkTowers ? LightDebuff : RedDebuff,
+          split: false,
+          instaKill: null,
+          roleRequirement: null,
+        })
+      )
+    );
   }
-  return [];
+  return EmptyMechanic;
 };
 
 const Tether = (props: { add: Point; tetheredTo: Point; colour: string }) => {
@@ -724,7 +691,7 @@ const Paradeigma3Arena = (
     <P12P1Arena
       players={props.players}
       moveTo={props.moveTo}
-      dangerPuddles={getDangerPuddles(props.gameState, props.players)}
+      mechanic={getMechanic(props.gameState, props.players)}
     >
       {props.gameState.stage !== "Initial" && (
         <svg

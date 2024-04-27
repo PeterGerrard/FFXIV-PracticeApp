@@ -1,5 +1,6 @@
-import { DangerPuddle, survivePuddles } from "../../../Mechanics/DangerPuddles";
+import { circleMechanic } from "../../../Mechanics/CircleAoE";
 import { Cast, getRole } from "../../../gameState";
+import { EmptyMechanic, Mechanic, composeMechanics } from "../../../mechanics";
 import { DarkAndLightPlayer, getDefaultPos, isTetherSafe } from "../gameState";
 import { Point } from "@flatten-js/core";
 
@@ -71,38 +72,43 @@ export type RevelationGameState =
       topBomb: "Dark" | "Light";
     };
 
-export const getDangerPuddles = (
+export const getMechanic = (
   gameState: RevelationGameState
-): DangerPuddle[] => {
+): Mechanic<DarkAndLightPlayer> => {
   if (gameState.stage === "Explosion") {
     const bombLocations: Point[] =
       gameState.bossColour === gameState.topBomb
         ? [new Point(0.5, 0.2), new Point(0.5, 0.8)]
         : [new Point(0.2, 0.5), new Point(0.8, 0.5)];
-    return bombLocations.map<DangerPuddle>((b) => ({
-      type: "circle",
-      source: b,
-      colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
-      radius: 0.4,
-      split: false,
-      damage: 1,
-      roleRequirement: null,
-      debuffRequirement: null,
-      instaKill: null,
-    }));
+    return composeMechanics(
+      bombLocations.map((b) =>
+        circleMechanic(
+          b,
+          0.4,
+          {
+            split: false,
+            damage: 1,
+            roleRequirement: null,
+            debuffRequirement: null,
+            instaKill: null,
+          },
+          { color: gameState.bossColour === "Dark" ? "purple" : "yellow" }
+        )
+      )
+    );
   }
-  return [];
+  return EmptyMechanic;
 };
 
 export const applyDamage = (
   gameState: RevelationGameState,
   players: DarkAndLightPlayer[]
 ): DarkAndLightPlayer[] => {
-  const survivingPlayers = survivePuddles(getDangerPuddles(gameState), players);
+  const damageMap = getMechanic(gameState).applyDamage(players);
   return players.map((p) => ({
     ...p,
     alive:
-      survivingPlayers.includes(p.designation) &&
+      damageMap[p.designation] < 1 &&
       (gameState.cast === null ||
         isTetherSafe(
           p,

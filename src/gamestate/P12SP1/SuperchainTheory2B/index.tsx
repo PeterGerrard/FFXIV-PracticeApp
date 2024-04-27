@@ -4,14 +4,13 @@ import { SuperchainExplosionDisplay } from "../Superchain/SuperchainExplosionDis
 import {
   SuperchainTheory2bGameState,
   createInitialState,
-  getDangerPuddles,
+  getMechanic,
   getTargetSpot,
   nextStep,
 } from "./states";
 import { point } from "@flatten-js/core";
 import { Player } from "../../Player";
 import { Designations, getRandomPos, getRole } from "../../gameState";
-import { survivePuddles } from "../../Mechanics/DangerPuddles";
 import { SetupContext } from "../../Setup/Setup";
 import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
@@ -46,7 +45,10 @@ export const SuperchainTheory2B = () => {
     Player,
     SuperchainTheory2bGameState
   >(
-    (s, p) => survivePuddles(getDangerPuddles(s, p), p),
+    (s, p) => {
+      const damageMap = getMechanic(s, p).applyDamage(players);
+      return Designations.filter((d) => damageMap[d] < 1);
+    },
     (s) => s.stage === "Explosion3",
     () =>
       Designations.map((d) => ({
@@ -65,7 +67,7 @@ export const SuperchainTheory2B = () => {
     useCallback(() => [], [])
   );
 
-  const dangerPuddles = getDangerPuddles(state, players);
+  const mechanic = getMechanic(state, players);
 
   const shortChainLength =
     state.stage === "Initial" || state.stage === "Paradeigma" ? 1 : 0;
@@ -102,11 +104,7 @@ export const SuperchainTheory2B = () => {
           position: "relative",
         }}
       >
-        <P12P1Arena
-          players={players}
-          dangerPuddles={dangerPuddles}
-          moveTo={onMove}
-        >
+        <P12P1Arena players={players} mechanic={mechanic} moveTo={onMove}>
           {shortChainLength > 0 && (
             <>
               <SuperchainExplosionDisplay

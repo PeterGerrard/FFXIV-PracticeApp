@@ -1,7 +1,13 @@
 import { Point, point } from "@flatten-js/core";
 import { InterCardinal, Cast } from "../../../gameState";
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
-import { DangerPuddle, survivePuddles } from "../../../Mechanics/DangerPuddles";
+import { EmptyMechanic, Mechanic, composeMechanics } from "../../../mechanics";
+import { circleMechanic } from "../../../Mechanics/CircleAoE";
+import {
+  SimpleHeavyDamageProfile,
+  SimpleKillProfile,
+} from "../../../Mechanics/DangerPuddles";
+import { donutMechanic } from "../../../Mechanics/DonutAoE";
 
 export type TwofoldRevelationState = LetterOfTheLawState & {
   bossColour: null;
@@ -62,79 +68,55 @@ export const getTargetSpot = (
   return point();
 };
 
-export const getDangerPuddles = (
+export const getMechanic = (
   state: TwofoldRevelationState,
   players: LetterOfTheLawPlayer[]
-): DangerPuddle[] => {
+): Mechanic<LetterOfTheLawPlayer> => {
   if (state.stage === "Jump") {
-    return [
-      {
-        type: "circle",
-        damage: 0.9,
-        debuffRequirement: null,
-        instaKill: null,
-        radius: 0.275,
-        roleRequirement: null,
-        source: players.filter((p) => p.isTethered && p.role === "Tank")[0]
-          .position,
-        split: false,
-        colour: "purple",
-      },
-      {
-        type: "circle",
-        damage: 5,
-        debuffRequirement: null,
-        instaKill: null,
-        radius: 0.125,
-        roleRequirement: null,
-        source: players.filter((p) => p.isTethered && p.role !== "Tank")[0]
-          .position,
-        split: true,
-        colour: "yellow",
-      },
-    ];
+    return composeMechanics([
+      circleMechanic(
+        players.filter((p) => p.isTethered && p.role === "Tank")[0].position,
+        0.275,
+        SimpleHeavyDamageProfile,
+        { color: "purple" }
+      ),
+      circleMechanic(
+        players.filter((p) => p.isTethered && p.role !== "Tank")[0].position,
+        0.125,
+        {
+          damage: 5,
+          debuffRequirement: null,
+          instaKill: null,
+          roleRequirement: null,
+          split: true,
+        },
+        { color: "yellow" }
+      ),
+    ]);
   }
 
   if (state.stage === "Outer") {
-    return [
-      {
-        type: "donut",
-        damage: 2,
-        debuffRequirement: null,
-        instaKill: null,
-        innerRadius: 0.2,
-        outerRadius: 0.6,
-        roleRequirement: null,
-        source: state.tankPosition,
-        split: false,
-        colour: "purple",
-      },
-      {
-        type: "circle",
-        damage: 2,
-        debuffRequirement: null,
-        instaKill: null,
-        radius: 0.225,
-        roleRequirement: null,
-        source: state.nonTankPosition,
-        split: false,
-        colour: "yellow",
-      },
-    ];
+    return composeMechanics([
+      donutMechanic(state.tankPosition, 0.2, 0.6, SimpleKillProfile, {
+        color: "purple",
+      }),
+      circleMechanic(state.nonTankPosition, 0.225, SimpleKillProfile, {
+        color: "yellow",
+      }),
+    ]);
   }
 
-  return [];
+  return EmptyMechanic;
 };
 
 export const applyDamage = (
   gameState: TwofoldRevelationState,
   players: LetterOfTheLawPlayer[]
 ): LetterOfTheLawPlayer[] => {
-  const dangerPuddles = getDangerPuddles(gameState, players);
-  const surviving = survivePuddles(dangerPuddles, players);
+  const damageMap = getMechanic(gameState, players).applyDamage(players);
   return players.map((p) => ({
     ...p,
-    alive: p.alive && surviving.includes(p.designation),
+    alive: p.alive && damageMap[p.designation] < 1,
   }));
 };
 

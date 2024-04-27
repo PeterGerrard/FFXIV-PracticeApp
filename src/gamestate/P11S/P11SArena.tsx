@@ -4,21 +4,21 @@ import { PropsWithChildren } from "react";
 import arenaPng from "./assets/arena.png";
 import { Themis } from "./Themis";
 import { Player } from "../Player";
-import { DangerPuddle } from "../Mechanics/DangerPuddles";
 import { Point } from "@flatten-js/core";
 import { Arena } from "../../components/Arena";
+import { Mechanic } from "../mechanics";
 
-export const P11SArena = (
+export const P11SArena = <TPlayer extends Player>(
   props: PropsWithChildren<{
-    players: Player[];
+    players: TPlayer[];
     moveTo: (p: Point) => void;
-    dangerPuddles: DangerPuddle[];
+    mechanic: Mechanic<TPlayer>;
     bossColour: "Dark" | "Light" | null;
   }>
 ) => {
   return (
     <Arena
-      dangerPuddles={props.dangerPuddles}
+      mechanic={props.mechanic}
       moveTo={props.moveTo}
       players={props.players}
       showPartyList={false}

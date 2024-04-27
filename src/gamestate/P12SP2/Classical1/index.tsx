@@ -2,7 +2,7 @@ import { useContext } from "react";
 import {
   Classical1GameState,
   createInitialState,
-  getDangerPuddles,
+  getMechanic,
   getDebuffs,
   getTargetSpot,
   nextStep,
@@ -14,7 +14,6 @@ import {
   getRandomPos,
   getRole,
 } from "../../gameState";
-import { survivePuddles } from "../../Mechanics/DangerPuddles";
 import { SetupContext } from "../../Setup/Setup";
 import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
@@ -94,10 +93,9 @@ export const ClassicalConcepts1 = () => {
     Player,
     Classical1GameState
   >(
-    (s, p) => {
-      return survivePuddles(getDangerPuddles(s, p), p).filter((_) =>
-        checkIntercepts(s)
-      );
+    (s) => {
+      const damageMap = getMechanic(s).applyDamage(players);
+      return Designations.filter((d) => damageMap[d] < 1 && checkIntercepts(s));
     },
     hasFinished,
     () =>
@@ -117,7 +115,7 @@ export const ClassicalConcepts1 = () => {
     getDebuffs
   );
 
-  const dangerPuddles = getDangerPuddles(state, players);
+  const mechanic = getMechanic(state);
 
   const getPlayer = (d: Designation) =>
     players.filter((p) => p.designation === d)[0];
@@ -145,7 +143,7 @@ export const ClassicalConcepts1 = () => {
                   : triangleSrc
             : undefined,
         }))}
-        dangerPuddles={dangerPuddles}
+        mechanic={mechanic}
         moveTo={onMove}
       >
         {["Initial", "TetherMove", "TetherAttach"].includes(state.stage) ? (

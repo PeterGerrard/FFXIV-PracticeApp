@@ -1,14 +1,18 @@
 import { useEffect, useId, useState } from "react";
 import { Point, Polygon } from "@flatten-js/core";
+import { Player } from "../Player";
+import { Designation } from "../gameState";
+import { Mechanic } from "../mechanics";
+import { DamageProfile, DisplayOptions, calculateDamageProfile } from "./DangerPuddles";
 
-export type ConeAoEProps = {
+type ConeAoEProps = {
   source: Point;
   angle: number;
   width: number;
   colour?: string;
 };
 
-export const ConeAoE = (props: ConeAoEProps) => {
+const ConeAoE = (props: ConeAoEProps) => {
   const id = useId();
   const [height, setHeight] = useState(0.01);
   useEffect(() => {
@@ -46,7 +50,7 @@ export const ConeAoE = (props: ConeAoEProps) => {
   );
 };
 
-export const isConeSafe = (cone: ConeAoEProps, position: Point): boolean => {
+const isConeSafe = (cone: ConeAoEProps, position: Point): boolean => {
   const c = new Polygon([
     cone.source,
     cone.source.translate(0, -5),
@@ -54,4 +58,43 @@ export const isConeSafe = (cone: ConeAoEProps, position: Point): boolean => {
   ]).rotate(cone.angle - cone.width / 2, cone.source);
 
   return c.intersect(position).length === 0;
+};
+
+export const coneMechanic = <TPlayer extends Player>(
+  source: Point,
+  angle: number,
+  width: number,
+  damageProfile: DamageProfile,
+  displayOptions?: DisplayOptions
+): Mechanic<TPlayer> => {
+  return {
+    applyDamage: (players) => {
+      const hits = players
+        .filter((p) => !isConeSafe({ source, angle, width }, p.position))
+        .map((x) => x.designation);
+
+      return Object.fromEntries(
+        players.map((p) => {
+          if (hits.includes(p.designation)) {
+            return [
+              p.designation,
+              calculateDamageProfile(p, damageProfile, hits.length),
+            ];
+          }
+
+          return [p.designation, 0];
+        })
+      ) as { [designation in Designation]: number };
+    },
+    getSafeSpots: () => [],
+    display: () => (
+      <ConeAoE
+        source={source}
+        angle={angle}
+        width={width}
+        colour={displayOptions?.color ?? "orange"}
+      />
+    ),
+    progress: () => null,
+  };
 };

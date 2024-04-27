@@ -1,9 +1,10 @@
 import { InterCardinal, rotation } from "../../../gameState";
 import { Add } from "../Add";
 import { DismissalOverrulingState, towerPos } from ".";
-import { LineAoE } from "../../../Mechanics/LineAoE";
+import { lineMechanic } from "../../../Mechanics/LineAoE";
 import { Tower } from "../../Tower";
 import { Point } from "@flatten-js/core";
+import { SimpleKillProfile } from "../../../Mechanics/DangerPuddles";
 
 const addLoc = (inter: InterCardinal, offset?: number): Point => {
   const o = offset ? offset / Math.sqrt(2) : 0;
@@ -38,24 +39,27 @@ export const DismissalArena = (props: {
 
       {gameState.stage === "CrossLine2" && (
         <>
-          <LineAoE
-            angle={rotation(gameState.darkLocation)}
-            source={addLoc(gameState.darkLocation, -0.3675)}
-            width={0.265}
-            colour="purple"
-          />
-          <LineAoE
-            angle={rotation(gameState.darkLocation)}
-            source={addLoc(gameState.darkLocation, 0.3675)}
-            width={0.265}
-            colour="purple"
-          />
-          <LineAoE
-            angle={rotation(gameState.lightLocation)}
-            source={addLoc(gameState.lightLocation)}
-            width={0.475}
-            colour="yellow"
-          />
+          {lineMechanic(
+            addLoc(gameState.darkLocation, -0.3675),
+            rotation(gameState.darkLocation),
+            0.265,
+            SimpleKillProfile,
+            { color: "purple" }
+          ).display()}
+          {lineMechanic(
+            addLoc(gameState.darkLocation, 0.3675),
+            rotation(gameState.darkLocation),
+            0.265,
+            SimpleKillProfile,
+            { color: "purple" }
+          ).display()}
+          {lineMechanic(
+            addLoc(gameState.lightLocation),
+            rotation(gameState.lightLocation),
+            0.475,
+            SimpleKillProfile,
+            { color: "yellow" }
+          ).display()}
         </>
       )}
     </>

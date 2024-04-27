@@ -1,5 +1,4 @@
 import { Point } from "@flatten-js/core";
-import { DangerPuddle } from "../../Mechanics/DangerPuddles";
 import { Player } from "../../Player";
 import {
   Cast,
@@ -13,21 +12,21 @@ import {
 } from "../../gameState";
 import {
   DismissalOverrulingState,
-  getDangerPuddles as dismissalGetPuddles,
+  getMechanic as dismissalGetMechanic,
   getTargetSpot as dismissalGetTargetSpot,
   applyDamage as dismissalApplyDamage,
   progress as dismissalProgress,
 } from "./DismissalOverruling";
 import {
   HeartOfJudgementState,
-  getDangerPuddles as heartGetPuddles,
+  getMechanic as heartGetMechanic,
   getTargetSpot as heartGetTargetSpot,
   applyDamage as heartApplyDamage,
   progress as heartProgress,
 } from "./HeartOfJudgement";
 import {
   TwofoldRevelationState,
-  getDangerPuddles as twofoldGetPuddles,
+  getMechanic as twofoldGetMechanic,
   getTargetSpot as twofoldGetTargetSpot,
   applyDamage as twofoldApplyDamage,
   progress as twofoldProgress,
@@ -36,6 +35,7 @@ import { useGame } from "../../gameHooks";
 import { split, pickOne } from "../../helpers";
 import { useContext } from "react";
 import { SetupContext } from "../../Setup/Setup";
+import { Mechanic } from "../../mechanics";
 
 export type LetterOfTheLawPlayer = Player & {
   isTethered: boolean;
@@ -52,17 +52,17 @@ export type NewLetterOfTheLawState =
   | ({ outer: "Heart" } & HeartOfJudgementState)
   | ({ outer: "Twofold" } & TwofoldRevelationState);
 
-export const getDangerPuddles = (
+export const getMechanic = (
   state: NewLetterOfTheLawState,
   players: LetterOfTheLawPlayer[]
-): DangerPuddle[] => {
+): Mechanic<LetterOfTheLawPlayer> => {
   switch (state.outer) {
     case "Dismissal":
-      return dismissalGetPuddles(state);
+      return dismissalGetMechanic(state);
     case "Heart":
-      return heartGetPuddles(state);
+      return heartGetMechanic(state);
     case "Twofold":
-      return twofoldGetPuddles(state, players);
+      return twofoldGetMechanic(state, players);
   }
 };
 

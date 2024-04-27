@@ -1,5 +1,4 @@
 import { Point, point, vector } from "@flatten-js/core";
-import { DangerPuddle } from "../../Mechanics/DangerPuddles";
 import { Debuff, Player } from "../../Player";
 import { Designation, Designations } from "../../gameState";
 import { pickOne, shuffle } from "../../helpers";
@@ -7,6 +6,13 @@ import alphaSrc from "../assets/alpha.png";
 import betaSrc from "../assets/beta.png";
 import { DiePosition, validDiePositions } from "./validDiePositions";
 import { P12SP2Waymarks } from "../P12SP2Arena";
+import { EmptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
+import { circleMechanic } from "../../Mechanics/CircleAoE";
+import {
+  SimpleHeavyDamageProfile,
+  SimpleKillProfile,
+} from "../../Mechanics/DangerPuddles";
+import { coneMechanic } from "../../Mechanics/ConeAoE";
 
 const AlphaDebuff: Debuff = {
   name: "Alpha",
@@ -120,58 +126,41 @@ export const createInitialState = (): Classical1GameState => {
 const bait1Source = P12SP2Waymarks["Waymark 3"];
 const bait2Source = P12SP2Waymarks["Waymark 4"];
 
-export const getDangerPuddles = (
-  state: Classical1GameState,
-  _players: Player[]
-): DangerPuddle[] => {
+export const getMechanic = (state: Classical1GameState): Mechanic<Player> => {
   if (state.stage === "DodgePuddles") {
     const points: Point[] = [0, 1, 2, 3].flatMap((x) =>
       [0, 1, 2].map((y) => toDisplayPos(point(x, y)))
     );
-    return points.map<DangerPuddle>((p) => ({
-      type: "circle",
-      damage: 2,
-      debuffRequirement: null,
-      instaKill: null,
-      radius: 0.1,
-      roleRequirement: null,
-      source: p,
-      split: false,
-    }));
+    return composeMechanics(
+      points.map((p) => circleMechanic(p, 0.1, SimpleKillProfile))
+    );
   }
   if (state.stage === "BaitHit" || state.stage === "FinalDodge") {
-    const damage = state.stage === "BaitHit" ? 0.8 : 2;
-    const puddles1 = state.bait1Targets.map<DangerPuddle>((p) => ({
-      type: "cone",
-      angle: vector(bait1Source, bait1Source.translate(0, -1)).angleTo(
-        vector(bait1Source, p)
-      ),
-      damage: damage,
-      debuffRequirement: null,
-      instaKill: null,
-      roleRequirement: null,
-      source: bait1Source,
-      split: false,
-      width: 0.4,
-      colour: "yellow",
-    }));
-    const puddles2 = state.bait2Targets.map<DangerPuddle>((p) => ({
-      type: "cone",
-      angle: vector(bait2Source, bait2Source.translate(0, -1)).angleTo(
-        vector(bait2Source, p)
-      ),
-      damage: damage,
-      debuffRequirement: null,
-      instaKill: null,
-      roleRequirement: null,
-      source: bait2Source,
-      split: false,
-      width: 0.4,
-      colour: "yellow",
-    }));
-    return puddles1.concat(puddles2);
+    const profile =
+      state.stage === "BaitHit" ? SimpleHeavyDamageProfile : SimpleKillProfile;
+    const puddles1 = state.bait1Targets.map((p) =>
+      coneMechanic(
+        bait1Source,
+        vector(bait1Source, bait1Source.translate(0, -1)).angleTo(
+          vector(bait1Source, p)
+        ),
+        0.4,
+        profile
+      )
+    );
+    const puddles2 = state.bait2Targets.map((p) =>
+      coneMechanic(
+        bait2Source,
+        vector(bait2Source, bait2Source.translate(0, -1)).angleTo(
+          vector(bait2Source, p)
+        ),
+        0.4,
+        profile
+      )
+    );
+    return composeMechanics(puddles1.concat(puddles2));
   }
-  return [];
+  return EmptyMechanic;
 };
 
 const getAttached = (

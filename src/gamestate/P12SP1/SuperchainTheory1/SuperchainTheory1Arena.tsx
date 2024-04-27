@@ -6,7 +6,7 @@ import { SuperchainExplosionDisplay } from "../Superchain/SuperchainExplosionDis
 import {
   SuperchainTheory1Player,
   SuperchainTheoryGameState,
-  getDangerPuddles,
+  getMechanic,
 } from ".";
 import { PropsWithChildren } from "react";
 
@@ -21,7 +21,7 @@ export const SuperchainTheory1Arena = (
     <P12P1Arena
       players={props.players}
       moveTo={props.moveTo}
-      dangerPuddles={getDangerPuddles(props.gameState, props.players)}
+      mechanic={getMechanic(props.gameState, props.players)}
     >
       {props.gameState.stage === "Initial" && (
         <>

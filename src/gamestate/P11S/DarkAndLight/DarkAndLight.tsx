@@ -2,7 +2,7 @@ import {
   NewDarkAndLightState,
   autoProgress,
   createPlayers,
-  getDangerPuddles,
+  getDangerPuddles as getMechanic,
   getSurvivors,
   getTargetSpot,
   progress,
@@ -67,7 +67,7 @@ export const DarkAndLight = () => {
         <Arena
           players={players}
           bossColour={state.bossColour}
-          dangerPuddles={getDangerPuddles(state, players)}
+          mechanic={getMechanic(state, players)}
           moveTo={onMove}
         >
           {state.outer === "Revelation" && state.stage !== "initial" && (

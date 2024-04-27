@@ -6,8 +6,12 @@ import {
 } from "../../../gameState";
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
 import { pickOne } from "../../../helpers";
-import { DangerPuddle, survivePuddles } from "../../../Mechanics/DangerPuddles";
-import { Point } from "@flatten-js/core";
+import { Point, point } from "@flatten-js/core";
+import { EmptyMechanic, Mechanic, composeMechanics } from "../../../mechanics";
+import { lineMechanic } from "../../../Mechanics/LineAoE";
+import { SimpleKillProfile } from "../../../Mechanics/DangerPuddles";
+import { donutMechanic } from "../../../Mechanics/DonutAoE";
+import { circleMechanic } from "../../../Mechanics/CircleAoE";
 
 const addLoc = (inter: InterCardinal, offset?: number): Point => {
   const o = offset ? offset / Math.sqrt(2) : 0;
@@ -104,70 +108,39 @@ export const towerPos = (inter: InterCardinal): Point => {
   }
 };
 
-export const getDangerPuddles = (
-  state: DismissalOverrulingState,
-): DangerPuddle[] => {
+export const getMechanic = (
+  state: DismissalOverrulingState
+): Mechanic<LetterOfTheLawPlayer> => {
   if (state.stage === "CrossLine") {
-    return [
-      {
-        type: "line",
-        angle: rotation(state.darkLocation),
-        source: addLoc(state.darkLocation),
-        width: 0.475,
-        colour: "purple",
-        split: false,
-        damage: 1,
-        roleRequirement: null,
-        debuffRequirement: null,
-        instaKill: null,
-      },
-      {
-        type: "line",
-        angle: rotation(state.lightLocation),
-        source: addLoc(state.lightLocation),
-        width: 0.475,
-        colour: "yellow",
-        split: false,
-        damage: 1,
-        roleRequirement: null,
-        debuffRequirement: null,
-        instaKill: null,
-      },
-    ];
+    return composeMechanics([
+      lineMechanic(
+        addLoc(state.darkLocation),
+        rotation(state.darkLocation),
+        0.475,
+        SimpleKillProfile,
+        { color: "purple" }
+      ),
+      lineMechanic(
+        addLoc(state.lightLocation),
+        rotation(state.lightLocation),
+        0.475,
+        SimpleKillProfile,
+        { color: "yellow" }
+      ),
+    ]);
   }
   if (state.stage === "InOut") {
     if (state.bossColour === "Dark") {
-      return [
-        {
-          type: "donut",
-          innerRadius: 0.2,
-          outerRadius: 0.5,
-          source: new Point(0.5, 0.5),
-          colour: "purple",
-          split: false,
-          damage: 1,
-          roleRequirement: null,
-          debuffRequirement: null,
-          instaKill: null,
-        },
-      ];
+      return donutMechanic(point(0.5, 0.5), 0.2, 0.5, SimpleKillProfile, {
+        color: "purple",
+      });
     } else {
-      return [
-        {
-          type: "circle",
-          radius: 0.3,
-          source: new Point(0.5, 0.5),
-          colour: "yellow",
-          split: false,
-          damage: 1,
-          roleRequirement: null,
-          debuffRequirement: null,
-          instaKill: null,
-        },
-      ];
+      return circleMechanic(point(0.5, 0.5), 0.3, SimpleKillProfile, {
+        color: "yellow",
+      });
     }
   }
-  return [];
+  return EmptyMechanic;
 };
 
 export const getTargetSpot = (
@@ -246,14 +219,13 @@ export const applyDamage = (
   gameState: DismissalOverrulingState,
   players: LetterOfTheLawPlayer[]
 ): LetterOfTheLawPlayer[] => {
-  const dangerPuddles = getDangerPuddles(gameState);
-  const survivingPlayers = survivePuddles(dangerPuddles, players);
+  const damageMap = getMechanic(gameState).applyDamage(players);
 
   if (gameState.stage === "Tower") {
     return players.map((p) => ({
       ...p,
       alive:
-        survivingPlayers.includes(p.designation) &&
+        damageMap[p.designation] < 1 &&
         distanceTo(getTowerPosition(p), p.position) < 0.1,
     }));
   }
@@ -261,8 +233,7 @@ export const applyDamage = (
     return players.map((p) => ({
       ...p,
       alive:
-        survivingPlayers.includes(p.designation) &&
-        getGroup(p.designation) === "Group1"
+        damageMap[p.designation] < 1 && getGroup(p.designation) === "Group1"
           ? p.position.x < 0.5
           : p.position.x > 0.5,
     }));
@@ -285,17 +256,14 @@ export const applyDamage = (
             p.position.y - p.position.x < 0.332;
       return {
         ...p,
-        alive:
-          survivingPlayers.includes(p.designation) &&
-          !hitByInner &&
-          !hitByOuter,
+        alive: damageMap[p.designation] < 1 && !hitByInner && !hitByOuter,
       };
     });
   }
   return players.map((p) => {
     return {
       ...p,
-      alive: survivingPlayers.includes(p.designation),
+      alive: damageMap[p.designation] < 1,
     };
   });
 };

@@ -1,23 +1,20 @@
 import React, { PropsWithChildren, useContext } from "react";
 import { Player, PlayerComponent } from "../gamestate/Player";
-import {
-  DangerPuddle,
-  DangerPuddlesDisplay,
-} from "../gamestate/Mechanics/DangerPuddles";
 import { Point } from "@flatten-js/core";
 import { getPosition } from "../gamestate/htmlHelpers";
 import { PartyList } from "../gamestate/PartyList/PartyList";
 import { SetupContext } from "../gamestate/Setup/Setup";
+import { Mechanic } from "../gamestate/mechanics";
 
 export type PlayerWithMarker = Player & {
   marker?: string;
 };
 
-export const Arena = (
+export const Arena = <TPlayer extends PlayerWithMarker>(
   props: PropsWithChildren<{
-    players: PlayerWithMarker[];
+    players: TPlayer[];
     moveTo: (p: Point) => void;
-    dangerPuddles: DangerPuddle[];
+    mechanic: Mechanic<TPlayer>;
     showPartyList: boolean;
   }>
 ) => {
@@ -76,7 +73,7 @@ export const Arena = (
             )}
           </React.Fragment>
         ))}
-        <DangerPuddlesDisplay puddles={props.dangerPuddles} />
+        {props.mechanic.display()}
       </div>
       {props.showPartyList && (
         <div

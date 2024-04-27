@@ -7,7 +7,7 @@ import {
   applyDamage as divisiveApplyDamage,
   getTargetSpot as divisiveGetTargetSpot,
   progress as divisiveProgress,
-  getDangerPuddles as divisiveGetDangerPuddles,
+  getMechanic as divisiveGetMechanic,
 } from "./DivisiveOverruling/divisiveOverrulingState";
 import {
   applyDamage as juryApplyDamage,
@@ -15,17 +15,17 @@ import {
   progress as juryProgress,
   JuryOverrulingGameState,
   initialJuryOverrullingState,
-  getDangerPuddles as juryGetDangerPuddles,
+  getMechanic as juryGetMechanic,
 } from "./JuryOverruling/juryOverrulingState";
 import {
   applyDamage as revelationsApplyDamage,
   getTargetSpot as revelationsGetTargetSpot,
   progress as revelationsProgress,
-  getDangerPuddles as revelationsGetDangerPuddles,
+  getMechanic as revelationsGetMechanic,
   RevelationGameState,
 } from "./Revelation/revelationsState";
 import { DarkAndLightPlayer, createPlayer } from "./gameState";
-import { DangerPuddle } from "../../Mechanics/DangerPuddles";
+import { Mechanic } from "../../mechanics";
 
 export type NewDarkAndLightState =
   | ({ outer: "Revelation" } & RevelationGameState)
@@ -55,14 +55,14 @@ export const getSurvivors = (
 export const getDangerPuddles = (
   state: NewDarkAndLightState,
   players: DarkAndLightPlayer[]
-): DangerPuddle[] => {
+): Mechanic<DarkAndLightPlayer> => {
   switch (state.outer) {
     case "Revelation":
-      return revelationsGetDangerPuddles(state);
+      return revelationsGetMechanic(state);
     case "Jury":
-      return juryGetDangerPuddles(state, players);
+      return juryGetMechanic(state, players);
     case "Divisive":
-      return divisiveGetDangerPuddles(state);
+      return divisiveGetMechanic(state);
   }
 };
 

@@ -2,12 +2,10 @@
 
 import { PropsWithChildren } from "react";
 import { P11SArena as P11SArena } from "../P11SArena";
-// import { ReactComponent as ForwardArrowSvg } from "./assets/forward-arrow.svg";
-// import { ReactComponent as BackwardArrowSvg } from "./assets/backward-arrow.svg";
 
 import { DarkAndLightPlayer, isTetherSafe } from "./gameState";
-import { DangerPuddle } from "../../Mechanics/DangerPuddles";
 import { Point, vector } from "@flatten-js/core";
+import { Mechanic } from "../../mechanics";
 
 const Tether = (props: {
   player: DarkAndLightPlayer;
@@ -129,7 +127,7 @@ export const Arena = (
   props: PropsWithChildren<{
     players: DarkAndLightPlayer[];
     bossColour: "Dark" | "Light" | null;
-    dangerPuddles: DangerPuddle[];
+    mechanic: Mechanic<DarkAndLightPlayer>;
     moveTo: (p: Point) => void;
   }>
 ) => {
@@ -143,7 +141,7 @@ export const Arena = (
     <P11SArena
       players={props.players}
       moveTo={props.moveTo}
-      dangerPuddles={props.dangerPuddles}
+      mechanic={props.mechanic}
       bossColour={props.bossColour}
     >
       {p && o && <Tether player={p} tetheredTo={o} />}

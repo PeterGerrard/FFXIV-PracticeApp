@@ -1,5 +1,4 @@
 import { Point, point, vector } from "@flatten-js/core";
-import { DangerPuddle, survivePuddles } from "../../../Mechanics/DangerPuddles";
 import { getRole } from "../../../gameState";
 import {
   MarkerC,
@@ -17,6 +16,11 @@ import {
   getDefaultPos,
   isTetherSafe,
 } from "../gameState";
+import { EmptyMechanic, Mechanic, composeMechanics } from "../../../mechanics";
+import { lineMechanic } from "../../../Mechanics/LineAoE";
+import { SimpleHeavyDamageProfile, SimpleKillProfile } from "../../../Mechanics/DangerPuddles";
+import { donutMechanic } from "../../../Mechanics/DonutAoE";
+import { circleMechanic } from "../../../Mechanics/CircleAoE";
 
 const getSafeSpot = (
   player: DarkAndLightPlayer,
@@ -78,28 +82,29 @@ export const initialJuryOverrullingState = (): JuryOverrulingGameState => ({
   hasFinished: false,
 });
 
-export const getDangerPuddles = (
+export const getMechanic = (
   gameState: JuryOverrulingGameState,
   players: DarkAndLightPlayer[]
-): DangerPuddle[] => {
+): Mechanic<DarkAndLightPlayer> => {
   if (gameState.bossColour && gameState.stage === "Lines") {
-    return players.map<DangerPuddle>((p) => ({
-      type: "line",
-      angle: vector(point(0.5, 0.5), point(0.5, 1)).angleTo(
-        vector(point(0.5, 0.5), p.position)
-      ),
-      source: new Point(0.5, 0.5),
-      width: 0.2,
-      colour: gameState.bossColour === "Dark" ? "purple" : "yellow",
-      split: false,
-      damage: 0.8,
-      roleRequirement: null,
-      debuffRequirement: null,
-      instaKill: null,
-    }));
+    return composeMechanics(
+      players.map((p) =>
+        lineMechanic(
+          point(0.5, 0.5),
+          vector(point(0.5, 0.5), point(0.5, 1)).angleTo(
+            vector(point(0.5, 0.5), p.position)
+          ),
+          0.2,
+          SimpleHeavyDamageProfile,
+          {
+            color: gameState.bossColour === "Dark" ? "purple" : "yellow",
+          }
+        )
+      )
+    );
   }
   if (gameState.bossColour && gameState.stage === "AOE") {
-    return [
+    return composeMechanics([
       Marker1,
       Marker2,
       Marker3,
@@ -108,48 +113,24 @@ export const getDangerPuddles = (
       MarkerB,
       MarkerC,
       MarkerD,
-    ].map<DangerPuddle>((m) =>
+    ].map((m) =>
       gameState.bossColour === "Dark"
-        ? {
-            type: "donut",
-            innerRadius: 0.05,
-            outerRadius: 0.2,
-            source: m,
-            colour: "purple",
-            split: false,
-            damage: 1,
-            roleRequirement: null,
-            debuffRequirement: null,
-            instaKill: null,
-          }
-        : {
-            type: "circle",
-            source: m,
-            radius: 0.125,
-            colour: "yellow",
-            split: false,
-            damage: 1,
-            roleRequirement: null,
-            debuffRequirement: null,
-            instaKill: null,
-          }
-    );
+        ? donutMechanic(m, 0.05, 0.2, SimpleKillProfile, {color: "purple"})
+        : circleMechanic(m, 0.125, SimpleKillProfile, { color: "yellow"})
+    ));
   }
-  return [];
+  return EmptyMechanic;
 };
 
 export const applyDamage = (
   gameState: JuryOverrulingGameState,
   players: DarkAndLightPlayer[]
 ): DarkAndLightPlayer[] => {
-  const survivingPlayers = survivePuddles(
-    getDangerPuddles(gameState, players),
-    players
-  );
+  const damageMap = getMechanic(gameState, players).applyDamage(players);
   return players.map((p) => ({
     ...p,
     alive:
-      survivingPlayers.includes(p.designation) &&
+      damageMap[p.designation] < 1 &&
       isTetherSafe(
         p,
         players.filter((o) => o.designation === p.tetheredDesignation)[0]

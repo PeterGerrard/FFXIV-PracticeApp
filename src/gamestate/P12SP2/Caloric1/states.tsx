@@ -1,5 +1,4 @@
 import { Point, point } from "@flatten-js/core";
-import { DangerPuddle } from "../../Mechanics/DangerPuddles";
 import { Debuff, Player } from "../../Player";
 import {
   Designation,
@@ -17,6 +16,8 @@ import caloricStack2 from "../assets/CaloricCount2.png";
 import caloricStack3 from "../assets/CaloricCount3.png";
 import caloricStack4 from "../assets/CaloricCount4.png";
 import caloricStack5 from "../assets/CaloricCount5.png";
+import { EmptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
+import { circleMechanic } from "../../Mechanics/CircleAoE";
 
 type InitialState = {
   stage: "Initial";
@@ -157,10 +158,10 @@ export const createInitialState = (): Caloric1GameState => {
   };
 };
 
-export const getDangerPuddles = (
+export const getMechanic = (
   state: Caloric1GameState,
   players: Player[]
-): DangerPuddle[] => {
+): Mechanic<Player> => {
   const getPlayer = (d: Designation): Player =>
     players.filter((p) => p.designation === d)[0];
 
@@ -172,59 +173,59 @@ export const getDangerPuddles = (
           ? state.supportBeacon
           : state.dpsBeacon)
     )[0].position;
-    return [
-      {
-        type: "circle",
-        damage: 1.5,
-        debuffRequirement: null,
-        instaKill: null,
-        radius: 0.1,
-        roleRequirement: null,
-        source: targetedSpot,
-        split: true,
-      },
-    ];
-  }
-  if (state.stage === "StackExplosions1") {
-    return state.fireTargets1.map(getPlayer).map((p) => ({
-      type: "circle",
+    return circleMechanic(targetedSpot, 0.1, {
       damage: 1.5,
       debuffRequirement: null,
       instaKill: null,
-      radius: 0.05,
       roleRequirement: null,
-      source: p.position,
       split: true,
-    }));
+    });
+  }
+  if (state.stage === "StackExplosions1") {
+    return composeMechanics(
+      state.fireTargets1.map(getPlayer).map((p) =>
+        circleMechanic(p.position, 0.05, {
+          damage: 1.5,
+          debuffRequirement: null,
+          instaKill: null,
+          roleRequirement: null,
+          split: true,
+        })
+      )
+    );
   }
   if (state.stage === "StackExplosions2") {
-    return state.fireTargets2
-      .map(getPlayer)
-      .map<DangerPuddle>((p) => ({
-        type: "circle",
-        damage: 1.5,
-        debuffRequirement: null,
-        instaKill: null,
-        radius: 0.05,
-        roleRequirement: null,
-        source: p.position,
-        split: true,
-      }))
-      .concat(
-        state.windTargets1.map(getPlayer).map<DangerPuddle>((p) => ({
-          type: "circle",
-          damage: 0.8,
-          debuffRequirement: CaloricWindDebuff,
-          instaKill: null,
-          radius: 0.15,
-          roleRequirement: null,
-          source: p.position,
-          split: false,
-          colour: "lightgreen",
-        }))
-      );
+    return composeMechanics(
+      state.fireTargets2
+        .map(getPlayer)
+        .map((p) =>
+          circleMechanic(p.position, 0.05, {
+            damage: 1.5,
+            debuffRequirement: null,
+            instaKill: null,
+            roleRequirement: null,
+            split: true,
+          })
+        )
+        .concat(
+          state.windTargets1.map(getPlayer).map((p) =>
+            circleMechanic(
+              p.position,
+              0.15,
+              {
+                damage: 0.8,
+                debuffRequirement: CaloricWindDebuff,
+                instaKill: null,
+                roleRequirement: null,
+                split: false,
+              },
+              { color: "lightgreen" }
+            )
+          )
+        )
+    );
   }
-  return [];
+  return EmptyMechanic;
 };
 
 export const nextStep = (
