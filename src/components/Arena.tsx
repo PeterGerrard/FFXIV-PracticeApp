@@ -73,7 +73,7 @@ export const Arena = <TPlayer extends PlayerWithMarker>(
             )}
           </React.Fragment>
         ))}
-        {props.mechanic.display()}
+        {props.mechanic.display(false)}
       </div>
       {props.showPartyList && (
         <div

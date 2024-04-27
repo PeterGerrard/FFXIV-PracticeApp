@@ -74,6 +74,16 @@ const mechanics: MechanicGroup[] = [
       },
     ],
   },
+  {
+    name: "Development",
+    children: [
+      {
+        developmentStage: DevelopmentStage.Dev,
+        name: "simple aoe dodge",
+        link: "/dev/simpleaoe"
+      }
+    ]
+  }
 ];
 
 const DisplayMechanic = (props: { mechanic: Mechanic }) => {

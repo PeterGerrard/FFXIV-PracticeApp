@@ -1,11 +1,13 @@
 import { Point, point } from "@flatten-js/core";
 import { Designation } from "./gameState";
+import { Fragment } from "react";
 
 export type Mechanic<TPlayer> = {
   applyDamage: (players: TPlayer[]) => { [designation in Designation]: number };
   getSafeSpots: (players: TPlayer[], player: TPlayer) => Point[];
+  autoProgress?: number;
   progress: () => Mechanic<TPlayer> | null;
-  display: () => React.ReactElement;
+  display: (disableAnimation: boolean) => React.ReactElement;
 };
 
 export const EmptyMechanic: Mechanic<unknown> = {
@@ -23,8 +25,6 @@ export const EmptyMechanic: Mechanic<unknown> = {
   getSafeSpots: () => [point(0.5, 0.5)],
   progress: () => null,
 };
-
-const notNull = <T extends {}>(item: T | null): item is T => item !== null;
 
 export const composeMechanics = <TPlayer extends {}>(
   mechanics: Mechanic<TPlayer>[]
@@ -59,8 +59,13 @@ export const composeMechanics = <TPlayer extends {}>(
       mechanics
         .map((m) => m.getSafeSpots(players, player))
         .reduce((acc, next) => acc.filter((a) => next.includes(a))),
-    progress: () =>
-      composeMechanics(mechanics.map((m) => m.progress()).filter(notNull)),
-    display: () => <>{mechanics.map((m) => m.display())}</>,
+    progress: () => null,
+    display: (disableAnimation) => (
+      <>
+        {mechanics.map((m, i) => (
+          <Fragment key={i}>{m.display(disableAnimation)}</Fragment>
+        ))}
+      </>
+    ),
   };
 };

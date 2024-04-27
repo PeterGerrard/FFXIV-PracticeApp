@@ -2,11 +2,16 @@ import { Circle, Point } from "@flatten-js/core";
 import { Player } from "../Player";
 import { Designation } from "../gameState";
 import { Mechanic } from "../mechanics";
-import { DamageProfile, DisplayOptions, calculateDamageProfile } from "./DangerPuddles";
+import {
+  DamageProfile,
+  DisplayOptions,
+  calculateDamageProfile,
+} from "./DangerPuddles";
 
 type CircleAoEProps = {
   source: Point;
   radius: number;
+  disableAnimation: boolean;
   colour?: string;
 };
 
@@ -28,28 +33,26 @@ const CircleAoE = (props: CircleAoEProps) => {
         r={props.radius}
         fill={props.colour ?? "orange"}
         opacity="0.4"
-        stroke-width="0"
+        strokeWidth="0"
         stroke="black"
       >
-        <animate
-          attributeName="opacity"
-          values="0;0.4"
-          dur="1s"
-          repeatCount={0}
-        />
+        {!props.disableAnimation && (
+          <animate
+            attributeName="opacity"
+            values="0;0.4"
+            dur="1s"
+            repeatCount={0}
+          />
+        )}
       </circle>
     </svg>
   );
 };
 
-const isCircleSafe = (
-  circle: CircleAoEProps,
-  position: Point
-): boolean => {
+const isCircleSafe = (circle: CircleAoEProps, position: Point): boolean => {
   const points = new Circle(circle.source, circle.radius).intersect(position);
   return points.length == 0;
 };
-
 
 export const circleMechanic = <TPlayer extends Player>(
   source: Point,
@@ -60,7 +63,13 @@ export const circleMechanic = <TPlayer extends Player>(
   return {
     applyDamage: (players) => {
       const hits = players
-        .filter((p) => !isCircleSafe({ source, radius }, p.position))
+        .filter(
+          (p) =>
+            !isCircleSafe(
+              { source, radius, disableAnimation: false },
+              p.position
+            )
+        )
         .map((x) => x.designation);
 
       return Object.fromEntries(
@@ -77,7 +86,15 @@ export const circleMechanic = <TPlayer extends Player>(
       ) as { [designation in Designation]: number };
     },
     getSafeSpots: () => [],
-    display: () => <CircleAoE source={source} radius={radius} colour={displayOptions?.color ?? "orange"} />,
+    autoProgress: 1000,
+    display: (disableAnimation) => (
+      <CircleAoE
+        source={source}
+        radius={radius}
+        disableAnimation={disableAnimation}
+        colour={displayOptions?.color ?? "orange"}
+      />
+    ),
     progress: () => null,
   };
 };

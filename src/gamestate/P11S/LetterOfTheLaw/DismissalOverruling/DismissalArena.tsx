@@ -45,21 +45,21 @@ export const DismissalArena = (props: {
             0.265,
             SimpleKillProfile,
             { color: "purple" }
-          ).display()}
+          ).display(false)}
           {lineMechanic(
             addLoc(gameState.darkLocation, 0.3675),
             rotation(gameState.darkLocation),
             0.265,
             SimpleKillProfile,
             { color: "purple" }
-          ).display()}
+          ).display(false)}
           {lineMechanic(
             addLoc(gameState.lightLocation),
             rotation(gameState.lightLocation),
             0.475,
             SimpleKillProfile,
             { color: "yellow" }
-          ).display()}
+          ).display(false)}
         </>
       )}
     </>
