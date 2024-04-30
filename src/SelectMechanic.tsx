@@ -79,7 +79,6 @@ const mechanics: MechanicGroup[] = [
       },
     ],
   },
-  ,
 ];
 
 if (import.meta.env.DEV) {
