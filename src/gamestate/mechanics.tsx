@@ -2,7 +2,6 @@ import { Point, point } from "@flatten-js/core";
 import { Designation } from "./gameState";
 import { Fragment, useCallback, useEffect, useState } from "react";
 import { Debuff, Player } from "./Player";
-import { autoProgress } from "./P11S/DarkAndLight";
 
 export type Mechanic<TPlayer> = {
   applyDamage: (players: TPlayer[]) => { [designation in Designation]: number };
