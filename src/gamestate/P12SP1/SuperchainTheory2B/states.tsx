@@ -7,7 +7,7 @@ import {
 } from "../Superchain/explosionTypes";
 import { Player } from "../../Player";
 import { pickOne } from "../../helpers";
-import { EmptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
+import { emptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
 import { lineMechanic } from "../../Mechanics/LineAoE";
 
 type InitialState = {
@@ -132,7 +132,7 @@ export const getMechanic = (
       )
     );
   }
-  return EmptyMechanic;
+  return emptyMechanic();
 };
 
 export const nextStep = (

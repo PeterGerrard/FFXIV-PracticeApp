@@ -16,7 +16,7 @@ import caloricStack2 from "../assets/CaloricCount2.png";
 import caloricStack3 from "../assets/CaloricCount3.png";
 import caloricStack4 from "../assets/CaloricCount4.png";
 import caloricStack5 from "../assets/CaloricCount5.png";
-import { EmptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
+import { emptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
 import { circleMechanic } from "../../Mechanics/CircleAoE";
 
 type InitialState = {
@@ -225,7 +225,7 @@ export const getMechanic = (
         )
     );
   }
-  return EmptyMechanic;
+  return emptyMechanic();
 };
 
 export const nextStep = (

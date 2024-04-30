@@ -1,6 +1,6 @@
 import { circleMechanic } from "../../../Mechanics/CircleAoE";
 import { Cast, getRole } from "../../../gameState";
-import { EmptyMechanic, Mechanic, composeMechanics } from "../../../mechanics";
+import { emptyMechanic, Mechanic, composeMechanics } from "../../../mechanics";
 import { DarkAndLightPlayer, getDefaultPos, isTetherSafe } from "../gameState";
 import { Point } from "@flatten-js/core";
 
@@ -97,7 +97,7 @@ export const getMechanic = (
       )
     );
   }
-  return EmptyMechanic;
+  return emptyMechanic();
 };
 
 export const applyDamage = (

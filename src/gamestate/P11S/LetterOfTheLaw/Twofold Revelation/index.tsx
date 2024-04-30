@@ -1,7 +1,7 @@
 import { Point, point } from "@flatten-js/core";
 import { InterCardinal, Cast } from "../../../gameState";
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
-import { EmptyMechanic, Mechanic, composeMechanics } from "../../../mechanics";
+import { emptyMechanic, Mechanic, composeMechanics } from "../../../mechanics";
 import { circleMechanic } from "../../../Mechanics/CircleAoE";
 import {
   SimpleHeavyDamageProfile,
@@ -106,7 +106,7 @@ export const getMechanic = (
     ]);
   }
 
-  return EmptyMechanic;
+  return emptyMechanic();
 };
 
 export const applyDamage = (

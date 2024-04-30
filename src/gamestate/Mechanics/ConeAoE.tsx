@@ -3,13 +3,18 @@ import { Point, Polygon } from "@flatten-js/core";
 import { Player } from "../Player";
 import { Designation } from "../gameState";
 import { Mechanic } from "../mechanics";
-import { DamageProfile, DisplayOptions, calculateDamageProfile } from "./DangerPuddles";
+import {
+  DamageProfile,
+  DisplayOptions,
+  calculateDamageProfile,
+} from "./DangerPuddles";
 
 type ConeAoEProps = {
   source: Point;
   angle: number;
   width: number;
   colour?: string;
+  disableAnimation: boolean;
 };
 
 const ConeAoE = (props: ConeAoEProps) => {
@@ -39,12 +44,14 @@ const ConeAoE = (props: ConeAoEProps) => {
         opacity="0.4"
         mask={`url(#${id})`}
       >
-        <animate
-          attributeName="points"
-          values={`${props.source.x},${props.source.y} ${props.source.x},${props.source.y} ${props.source.x},${props.source.y};${props.source.x},${props.source.y} ${p2.x},${p2.y} ${p3.x},${p3.y};`}
-          dur="1s"
-          repeatCount={0}
-        />
+        {!props.disableAnimation && (
+          <animate
+            attributeName="points"
+            values={`${props.source.x},${props.source.y} ${props.source.x},${props.source.y} ${props.source.x},${props.source.y};${props.source.x},${props.source.y} ${p2.x},${p2.y} ${p3.x},${p3.y};`}
+            dur="1s"
+            repeatCount={0}
+          />
+        )}
       </polygon>
     </svg>
   );
@@ -70,7 +77,13 @@ export const coneMechanic = <TPlayer extends Player>(
   return {
     applyDamage: (players) => {
       const hits = players
-        .filter((p) => !isConeSafe({ source, angle, width }, p.position))
+        .filter(
+          (p) =>
+            !isConeSafe(
+              { source, angle, width, disableAnimation: false },
+              p.position
+            )
+        )
         .map((x) => x.designation);
 
       return Object.fromEntries(
@@ -86,15 +99,16 @@ export const coneMechanic = <TPlayer extends Player>(
         })
       ) as { [designation in Designation]: number };
     },
-    getSafeSpots: () => [],
-    display: () => (
+    getSafeSpot: () => null,
+    display: (_, disableAnimation) => (
       <ConeAoE
         source={source}
         angle={angle}
         width={width}
         colour={displayOptions?.color ?? "orange"}
+        disableAnimation={disableAnimation}
       />
     ),
-    progress: () => null,
+    progress: (ps) => [null, ps],
   };
 };

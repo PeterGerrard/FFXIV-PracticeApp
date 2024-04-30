@@ -33,7 +33,7 @@ import { useContext } from "react";
 import { SetupContext } from "../../Setup/Setup";
 import { Overlay } from "../../Overlay";
 import { Progress } from "@/components/ui/progress";
-import { EmptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
+import { emptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
 import { lineMechanic } from "../../Mechanics/LineAoE";
 import { circleMechanic } from "../../Mechanics/CircleAoE";
 import { SimpleHeavyDamageProfile } from "../../Mechanics/DangerPuddles";
@@ -586,7 +586,7 @@ export const getMechanic = (
     return composeMechanics(soaks.concat(aoes));
   }
 
-  return EmptyMechanic;
+  return emptyMechanic();
 };
 
 const createState = (): SuperchainTheoryGameState => {

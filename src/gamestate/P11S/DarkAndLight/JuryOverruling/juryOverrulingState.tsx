@@ -16,7 +16,7 @@ import {
   getDefaultPos,
   isTetherSafe,
 } from "../gameState";
-import { EmptyMechanic, Mechanic, composeMechanics } from "../../../mechanics";
+import { emptyMechanic, Mechanic, composeMechanics } from "../../../mechanics";
 import { lineMechanic } from "../../../Mechanics/LineAoE";
 import { SimpleHeavyDamageProfile, SimpleKillProfile } from "../../../Mechanics/DangerPuddles";
 import { donutMechanic } from "../../../Mechanics/DonutAoE";
@@ -119,7 +119,7 @@ export const getMechanic = (
         : circleMechanic(m, 0.125, SimpleKillProfile, { color: "yellow"})
     ));
   }
-  return EmptyMechanic;
+  return emptyMechanic();
 };
 
 export const applyDamage = (

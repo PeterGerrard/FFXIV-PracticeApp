@@ -85,9 +85,9 @@ export const circleMechanic = <TPlayer extends Player>(
         })
       ) as { [designation in Designation]: number };
     },
-    getSafeSpots: () => [],
+    getSafeSpot: () => null,
     autoProgress: 1000,
-    display: (disableAnimation) => (
+    display: (_, disableAnimation) => (
       <CircleAoE
         source={source}
         radius={radius}
@@ -95,6 +95,6 @@ export const circleMechanic = <TPlayer extends Player>(
         colour={displayOptions?.color ?? "orange"}
       />
     ),
-    progress: () => null,
+    progress: (ps) => [null, ps],
   };
 };

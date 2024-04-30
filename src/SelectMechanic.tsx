@@ -63,14 +63,19 @@ const mechanics: MechanicGroup[] = [
     name: "P12S Phase 2",
     children: [
       {
-        developmentStage: DevelopmentStage.Beta,
+        developmentStage: DevelopmentStage.Prod,
         link: "/p12s/p2/classical1",
         name: "Classical Concepts 1",
       },
       {
-        developmentStage: DevelopmentStage.Beta,
+        developmentStage: DevelopmentStage.Prod,
         link: "/p12s/p2/caloric1",
         name: "Caloric 1",
+      },
+      {
+        developmentStage: DevelopmentStage.Beta,
+        link: "/p12s/p2/classical2",
+        name: "Classical Concepts 2",
       },
     ],
   },
@@ -80,10 +85,10 @@ const mechanics: MechanicGroup[] = [
       {
         developmentStage: DevelopmentStage.Dev,
         name: "simple aoe dodge",
-        link: "/dev/simpleaoe"
-      }
-    ]
-  }
+        link: "/dev/simpleaoe",
+      },
+    ],
+  },
 ];
 
 const DisplayMechanic = (props: { mechanic: Mechanic }) => {

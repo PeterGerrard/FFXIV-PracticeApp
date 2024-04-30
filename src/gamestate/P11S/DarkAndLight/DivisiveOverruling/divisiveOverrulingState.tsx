@@ -7,7 +7,7 @@ import {
   isTetherSafe,
 } from "../gameState";
 import { Marker3, Marker1, MarkerB, MarkerD } from "../../p11sMarkers";
-import { EmptyMechanic, Mechanic, composeMechanics } from "../../../mechanics";
+import { Mechanic, composeMechanics, emptyMechanic } from "../../../mechanics";
 import { lineMechanic } from "../../../Mechanics/LineAoE";
 import { SimpleKillProfile } from "../../../Mechanics/DangerPuddles";
 
@@ -129,7 +129,7 @@ export const getMechanic = (
       });
     }
   }
-  return EmptyMechanic;
+  return emptyMechanic();
 };
 
 export const applyDamage = (

@@ -7,7 +7,7 @@ import {
 } from "../Superchain/explosionTypes";
 import { Player } from "../../Player";
 import { pickOne } from "../../helpers";
-import { EmptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
+import { emptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
 import { lineMechanic } from "../../Mechanics/LineAoE";
 
 type TrinitySide = "Left" | "Right";
@@ -174,7 +174,7 @@ export const getMechanic = (
       getSuperChainDangerPuddles([state.long.south], point(0.5, 0.75), players),
     ]);
   }
-  return EmptyMechanic;
+  return emptyMechanic();
 };
 
 const addOne = (n: 0 | 1 | 2): 1 | 2 | 3 => {

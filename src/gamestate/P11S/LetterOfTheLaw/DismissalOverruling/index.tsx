@@ -7,7 +7,7 @@ import {
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
 import { pickOne } from "../../../helpers";
 import { Point, point } from "@flatten-js/core";
-import { EmptyMechanic, Mechanic, composeMechanics } from "../../../mechanics";
+import { emptyMechanic, Mechanic, composeMechanics } from "../../../mechanics";
 import { lineMechanic } from "../../../Mechanics/LineAoE";
 import { SimpleKillProfile } from "../../../Mechanics/DangerPuddles";
 import { donutMechanic } from "../../../Mechanics/DonutAoE";
@@ -140,7 +140,7 @@ export const getMechanic = (
       });
     }
   }
-  return EmptyMechanic;
+  return emptyMechanic();
 };
 
 export const getTargetSpot = (

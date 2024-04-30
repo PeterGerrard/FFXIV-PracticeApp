@@ -1,11 +1,9 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
 import { Arena } from "../../components/Arena";
-import { useEffect, useState } from "react";
 import { circleMechanic } from "../../gamestate/Mechanics/CircleAoE";
 import { Point, point } from "@flatten-js/core";
 import { SimpleKillProfile } from "../../gamestate/Mechanics/DangerPuddles";
 import {
-  Mechanic,
   afterMove,
   automatic,
   composeMechanics,
@@ -15,24 +13,23 @@ import {
 } from "../../gamestate/mechanics";
 import { getRandomPos } from "../../gamestate/gameState";
 import { Player } from "../../gamestate/Player";
-import { progress } from "../../gamestate/P11S/DarkAndLight";
 
-const sampleSafeSpots = (_players: Player[], player: Player): Point[] => {
+const sampleSafeSpot = (_players: Player[], player: Player): Point => {
   switch (player.role) {
     case "Tank":
-      return [point(0.5, 0.1)];
+      return point(0.5, 0.1);
     case "Healer":
-      return [point(0.5, 0.9)];
+      return point(0.5, 0.9);
     case "DPS":
-      return [point(0.9, 0.5)];
+      return point(0.9, 0.5);
   }
 };
 
-const sampleMechanic = sequence(
+const sampleMechanic = sequence([
   afterMove(
     withSafeSpot(
       circleMechanic(point(0.5, 0.5), 0.25, SimpleKillProfile),
-      sampleSafeSpots
+      sampleSafeSpot
     )
   ),
   afterMove(
@@ -46,15 +43,15 @@ const sampleMechanic = sequence(
         ]),
         1000
       ),
-      sampleSafeSpots
+      sampleSafeSpot
     )
-  )
-);
+  ),
+]);
 
 export const Route = createLazyFileRoute("/dev/simpleaoe")({
   component: () => {
-    const [mechanic, players, restart, move] = useMechanic<Player>(
-      sampleMechanic,
+    const [mechanic, players, _restart, move] = useMechanic<Player>(
+      () => sampleMechanic,
       () => [
         {
           alive: true,

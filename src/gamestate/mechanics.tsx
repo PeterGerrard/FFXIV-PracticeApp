@@ -1,17 +1,21 @@
 import { Point, point } from "@flatten-js/core";
 import { Designation } from "./gameState";
 import { Fragment, useCallback, useEffect, useState } from "react";
-import { Player } from "./Player";
+import { Debuff, Player } from "./Player";
+import { autoProgress } from "./P11S/DarkAndLight";
 
 export type Mechanic<TPlayer> = {
   applyDamage: (players: TPlayer[]) => { [designation in Designation]: number };
-  getSafeSpots: (players: TPlayer[], player: TPlayer) => Point[];
+  getSafeSpot: (players: TPlayer[], player: TPlayer) => Point | null;
   autoProgress?: number;
-  progress: () => Mechanic<TPlayer> | null;
-  display: (disableAnimation: boolean) => React.ReactElement;
+  progress: (players: TPlayer[]) => [Mechanic<TPlayer> | null, TPlayer[]];
+  display: (
+    players: TPlayer[],
+    disableAnimation: boolean
+  ) => React.ReactElement;
 };
 
-export const EmptyMechanic: Mechanic<unknown> = {
+export const emptyMechanic = <TPlayer extends Player>(): Mechanic<TPlayer> => ({
   applyDamage: () => ({
     H1: 0,
     H2: 0,
@@ -23,9 +27,9 @@ export const EmptyMechanic: Mechanic<unknown> = {
     R2: 0,
   }),
   display: () => <></>,
-  getSafeSpots: () => [point(0.5, 0.5)],
-  progress: () => null,
-};
+  getSafeSpot: (_, p) => p.position,
+  progress: (ps) => [null, ps],
+});
 
 export const ZeroDamage: { [d in Designation]: number } = {
   MT: 0,
@@ -38,35 +42,26 @@ export const ZeroDamage: { [d in Designation]: number } = {
   R2: 0,
 };
 
+export const calculateDamage = (f: (d: Designation) => number) => ({
+  MT: f("MT"),
+  OT: f("OT"),
+  H1: f("H1"),
+  H2: f("H2"),
+  M1: f("M1"),
+  M2: f("M2"),
+  R1: f("R1"),
+  R2: f("R2"),
+});
+
 export const afterMove = <TPlayer extends Player>(
   mechanic: Mechanic<TPlayer>
 ): Mechanic<TPlayer> => {
   return {
     applyDamage: () => ZeroDamage,
     display: () => <></>,
-    getSafeSpots: mechanic.getSafeSpots,
+    getSafeSpot: mechanic.getSafeSpot,
     autoProgress: undefined,
-    progress: () => mechanic,
-  };
-};
-
-export const sequence = <TPlayer extends Player>(
-  mechanic1: Mechanic<TPlayer>,
-  mechanic2: Mechanic<TPlayer>
-): Mechanic<TPlayer> => {
-  return {
-    applyDamage: mechanic1.applyDamage,
-    display: mechanic1.display,
-    getSafeSpots: mechanic1.getSafeSpots,
-    autoProgress: mechanic1.autoProgress,
-    progress: () => {
-      const next = mechanic1.progress();
-      if (next === null) {
-        return mechanic2;
-      } else {
-        return sequence(next, mechanic2);
-      }
-    },
+    progress: (ps) => [mechanic, ps],
   };
 };
 
@@ -77,25 +72,102 @@ export const automatic = <TPlayer extends Player>(
   return {
     applyDamage: mechanic.applyDamage,
     display: mechanic.display,
-    getSafeSpots: mechanic.getSafeSpots,
+    getSafeSpot: mechanic.getSafeSpot,
     autoProgress: delay,
     progress: mechanic.progress,
   };
 };
 
+export const delay = <TPlayer extends Player>(
+  mechanic: Mechanic<TPlayer>,
+  amount: number
+): Mechanic<TPlayer> => {
+  if (amount <= 0) {
+    return mechanic;
+  }
+  return {
+    applyDamage: () => ZeroDamage,
+    display: () => <></>,
+    getSafeSpot: () => null,
+    progress: (ps) => [delay(mechanic, amount - 1), ps],
+  };
+};
+
 export const withSafeSpot = <TPlayer extends Player>(
   mechanic: Mechanic<TPlayer>,
-  getSafeSpots: (players: TPlayer[], player: TPlayer) => Point[]
+  getSafeSpot: (players: TPlayer[], player: TPlayer) => Point | null
 ): Mechanic<TPlayer> => {
   return {
     ...mechanic,
-    getSafeSpots,
+    getSafeSpot,
+  };
+};
+
+export const applyDebuff = <TPlayer extends Player>(
+  mechanic: Mechanic<TPlayer>,
+  getDebuff: (player: TPlayer) => Debuff | undefined
+): Mechanic<TPlayer> => {
+  return {
+    ...mechanic,
+    progress: (ps) => {
+      const [next, nps] = mechanic.progress(ps);
+      return [
+        next,
+        nps.map((p) => ({ ...p, debuffs: [...p.debuffs, getDebuff(p)] })),
+      ];
+    },
+  };
+};
+
+export const repeat = <TPlayer extends Player>(
+  mechanic: Mechanic<TPlayer>,
+  times: number
+): Mechanic<TPlayer> => {
+  return {
+    ...mechanic,
+    progress: (ps) => {
+      const [ns, nps] = mechanic.progress(ps);
+      if (ns === null) {
+        if (times <= 1) {
+          return [null, nps];
+        } else {
+          return [repeat(mechanic, times - 1), nps];
+        }
+      }
+      return [ns, nps];
+    },
+  };
+};
+
+export const sequence = <TPlayer extends Player>(
+  mechanics: Mechanic<TPlayer>[]
+): Mechanic<TPlayer> => {
+  const [m, ...ms] = mechanics;
+  return {
+    ...m,
+    progress: (ps) => {
+      const [ns, nps] = m.progress(ps);
+      if (ns === null) {
+        if (ms.length == 1) {
+          return [ms[0], nps];
+        } else {
+          return [sequence(ms), nps];
+        }
+      }
+      return [sequence([ns, ...ms]), nps];
+    },
   };
 };
 
 export const composeMechanics = <TPlayer extends {}>(
   mechanics: Mechanic<TPlayer>[]
 ): Mechanic<TPlayer> => {
+  let value: undefined | number = undefined;
+  for (const m of mechanics) {
+    if (value === undefined) {
+      value = m.autoProgress;
+    }
+  }
   return {
     applyDamage: (players) =>
       mechanics
@@ -122,22 +194,40 @@ export const composeMechanics = <TPlayer extends {}>(
             OT: 0,
           }
         ),
-    getSafeSpots: (players, player) =>
+    getSafeSpot: (players, player) =>
       mechanics
-        .map((m) => m.getSafeSpots(players, player))
-        .reduce((acc, next) => acc.filter((a) => next.includes(a))),
-    progress: () => null,
-    display: (disableAnimation) => (
+        .map((m) => m.getSafeSpot(players, player))
+        .reduce((acc, next) => acc ?? next),
+    autoProgress: value,
+    progress: (ps) => {
+      let players = ps;
+      let subMechanics = [];
+      for (const m of mechanics) {
+        const [nm, nextPs] = m.progress(players);
+        players = nextPs;
+        if (nm !== null) {
+          subMechanics.push(nm);
+        }
+      }
+      if (subMechanics.length == 0) {
+        return [null, players];
+      }
+      if (subMechanics.length == 1) {
+        return [subMechanics[0], players];
+      }
+      return [composeMechanics(subMechanics), players];
+    },
+    display: (ps, disableAnimation) => (
       <>
         {mechanics.map((m, i) => (
-          <Fragment key={i}>{m.display(disableAnimation)}</Fragment>
+          <Fragment key={i}>{m.display(ps, disableAnimation)}</Fragment>
         ))}
       </>
     ),
   };
 };
 
-const FinishedMechanic: Mechanic<Player> = {
+const FinishedMechanic: Mechanic<any> = {
   applyDamage: () => ZeroDamage,
   display: () => (
     <div
@@ -163,8 +253,8 @@ const FinishedMechanic: Mechanic<Player> = {
       </h1>
     </div>
   ),
-  getSafeSpots: (_, p) => [p.position],
-  progress: () => FinishedMechanic,
+  getSafeSpot: (_, p) => p.position,
+  progress: (ps) => [FinishedMechanic, ps],
 };
 
 const progress = <TPlayer extends Player>(
@@ -182,7 +272,8 @@ const progress = <TPlayer extends Player>(
   if (damagedPlayers.some((p) => !p.alive)) {
     return [deathMechanic(mechanic, damagedPlayers), damagedPlayers];
   }
-  return [mechanic.progress() ?? FinishedMechanic, damagedPlayers];
+  const [next, nextPs] = mechanic.progress(damagedPlayers);
+  return [next ?? FinishedMechanic, nextPs];
 };
 
 const onMove = <TPlayer extends Player>(
@@ -203,56 +294,64 @@ const onMove = <TPlayer extends Player>(
         position: targetPos,
       };
     }
-    const targetSpots = mechanic.getSafeSpots(players, p);
+    const targetSpot = mechanic.getSafeSpot(players, p);
     return {
       ...p,
-      position: targetSpots.length > 0 ? targetSpots[0] : p.position,
+      position: targetSpot ?? p.position,
     };
   });
   return progress(mechanic, movedPlayers);
 };
+
+export const disableAnimation = <T extends {}>(
+  mechanic: Mechanic<T>
+): Mechanic<T> => ({
+  ...mechanic,
+  display: (ps) => mechanic.display(ps, true),
+});
 
 const deathMechanic = <TPlayer extends Player>(
   failedMechanic: Mechanic<TPlayer>,
   players: TPlayer[]
 ): Mechanic<TPlayer> => {
   const controlledPlayer = players.filter((p) => p.controlled)[0];
-  const safeSpot = failedMechanic.getSafeSpots(players, controlledPlayer)[0];
+  const safeSpot =
+    failedMechanic.getSafeSpot(players, controlledPlayer) ?? point(0, 0);
   return {
     applyDamage: () => ZeroDamage,
-    display: () => (
+    display: (ps) => (
       <>
-        {failedMechanic.display(true)}
+        {failedMechanic.display(ps, true)}
         <svg
           height="100%"
           width="100%"
           style={{
             position: "absolute",
-            left: `${safeSpot.x * 100}%`,
-            top: `${safeSpot.y * 100}%`,
-            transform: "translate(-50%, -50%)",
+            left: "0",
+            top: "0",
           }}
+          viewBox="0 0 1 1"
           onClick={(e) => e.stopPropagation()}
         >
           <circle
-            cx="50"
-            cy="50"
-            r="40"
+            cx={safeSpot.x}
+            cy={safeSpot.y}
+            r={0.04}
             stroke="black"
-            strokeWidth="3"
+            strokeWidth={0.003}
             fill="green"
             opacity={0.8}
           />
         </svg>
       </>
     ),
-    getSafeSpots: failedMechanic.getSafeSpots,
-    progress: () => deathMechanic(failedMechanic, players),
+    getSafeSpot: failedMechanic.getSafeSpot,
+    progress: () => [deathMechanic(failedMechanic, players), players],
   };
 };
 
 export const useMechanic = <T extends Player>(
-  initialMechanic: Mechanic<T>,
+  initialMechanic: () => Mechanic<T>,
   createPlayers: () => T[]
 ) => {
   const [mechanic, setMechanic] = useState(initialMechanic);

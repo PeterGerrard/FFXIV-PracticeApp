@@ -2,7 +2,7 @@ import { InterCardinal, rotation } from "../../../gameState";
 import { LetterOfTheLawState, LetterOfTheLawPlayer } from "../gameState";
 import { Point } from "@flatten-js/core";
 import { Marker3, MarkerA } from "../../p11sMarkers";
-import { EmptyMechanic, Mechanic, composeMechanics } from "../../../mechanics";
+import { emptyMechanic, Mechanic, composeMechanics } from "../../../mechanics";
 import { lineMechanic } from "../../../Mechanics/LineAoE";
 import { SimpleKillProfile } from "../../../Mechanics/DangerPuddles";
 import { circleMechanic } from "../../../Mechanics/CircleAoE";
@@ -70,7 +70,7 @@ export const getMechanic = (
       )
     );
   }
-  return EmptyMechanic;
+  return emptyMechanic();
 };
 
 export type HeartOfJudgementState = LetterOfTheLawState & {

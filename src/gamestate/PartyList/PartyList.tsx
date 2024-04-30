@@ -9,7 +9,7 @@ export const PartyList = (props: { players: Player[] }) => {
         flexDirection: "row",
         gap: "0.25rem",
         alignItems: "center",
-        height: `${100 / props.players.length}%`
+        height: `${100 / props.players.length}%`,
       }}
       key={p.designation}
     >
@@ -20,9 +20,11 @@ export const PartyList = (props: { players: Player[] }) => {
           height: "100%",
         }}
       />
-      {p.debuffs.map((d) => (
-        <img src={d.src} key={d.name} height="64px" />
-      ))}
+      {p.debuffs
+        .filter((d) => d.src)
+        .map((d) => (
+          <img src={d.src} key={d.name} height="64px" />
+        ))}
     </div>
   ));
 };

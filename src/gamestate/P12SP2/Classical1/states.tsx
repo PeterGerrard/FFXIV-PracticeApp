@@ -6,7 +6,7 @@ import alphaSrc from "../assets/alpha.png";
 import betaSrc from "../assets/beta.png";
 import { DiePosition, validDiePositions } from "./validDiePositions";
 import { P12SP2Waymarks } from "../P12SP2Arena";
-import { EmptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
+import { emptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
 import { circleMechanic } from "../../Mechanics/CircleAoE";
 import {
   SimpleHeavyDamageProfile,
@@ -160,7 +160,7 @@ export const getMechanic = (state: Classical1GameState): Mechanic<Player> => {
     );
     return composeMechanics(puddles1.concat(puddles2));
   }
-  return EmptyMechanic;
+  return emptyMechanic();
 };
 
 const getAttached = (

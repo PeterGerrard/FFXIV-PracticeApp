@@ -86,9 +86,9 @@ export const donutMechanic = <TPlayer extends Player>(
         })
       ) as { [designation in Designation]: number };
     },
-    getSafeSpots: () => [],
+    getSafeSpot: () => null,
     display: () => <DonutAoE source={source} innerRadius={innerRadius} outerRadius={outerRadius} colour={displayOptions?.color ?? "orange"} />,
-    progress: () => null,
+    progress: (ps) => [null, ps],
   };
 };
 

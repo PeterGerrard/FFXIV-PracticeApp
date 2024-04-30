@@ -7,7 +7,8 @@ import { SetupContext } from "./Setup/Setup";
 
 export type Debuff = {
   name: string;
-  src: string;
+  src?: string;
+  markerSrc?: string;
 };
 
 export type Player = {

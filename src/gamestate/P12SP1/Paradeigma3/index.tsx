@@ -29,7 +29,7 @@ import { useGame } from "../../gameHooks";
 import { PropsWithChildren, useContext } from "react";
 import { SetupContext } from "../../Setup/Setup";
 import { Overlay } from "../../Overlay";
-import { EmptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
+import { emptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
 import { lineMechanic } from "../../Mechanics/LineAoE";
 import {
   SimpleHeavyDamageProfile,
@@ -650,7 +650,7 @@ const getMechanic = (
       )
     );
   }
-  return EmptyMechanic;
+  return emptyMechanic();
 };
 
 const Tether = (props: { add: Point; tetheredTo: Point; colour: string }) => {

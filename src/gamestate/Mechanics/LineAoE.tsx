@@ -80,8 +80,8 @@ export const lineMechanic = <TPlayer extends Player>(
         })
       ) as { [designation in Designation]: number };
     },
-    getSafeSpots: () => [],
+    getSafeSpot: () => null,
     display: () => <LineAoE source={source} angle={angle} width={width} colour={displayOptions?.color ?? "orange"} />,
-    progress: () => null,
+    progress: (ps) => [null, ps],
   };
 };
