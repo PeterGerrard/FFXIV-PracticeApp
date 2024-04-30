@@ -79,7 +79,11 @@ const mechanics: MechanicGroup[] = [
       },
     ],
   },
-  {
+  ,
+];
+
+if (import.meta.env.DEV) {
+  mechanics.push({
     name: "Development",
     children: [
       {
@@ -88,8 +92,8 @@ const mechanics: MechanicGroup[] = [
         link: "/dev/simpleaoe",
       },
     ],
-  },
-];
+  });
+}
 
 const DisplayMechanic = (props: { mechanic: Mechanic }) => {
   let suffix: string;
