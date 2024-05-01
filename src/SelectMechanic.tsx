@@ -77,6 +77,11 @@ const mechanics: MechanicGroup[] = [
         link: "/p12s/p2/classical2",
         name: "Classical Concepts 2",
       },
+      {
+        developmentStage: DevelopmentStage.Dev,
+        link: "/p12s/p2/caloric2",
+        name: "Caloric 2",
+      },
     ],
   },
 ];
