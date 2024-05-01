@@ -149,7 +149,7 @@ export const CaloricTheory2 = () => {
                 ? [entropification8Debuff, getCaloricDebuff(2)]
                 : [getCaloricDebuff(p.debuffs.includes(fireDebuff) ? 3 : 2)],
           })),
-        ] as const;
+        ];
       },
     }),
     () =>
