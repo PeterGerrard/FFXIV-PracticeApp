@@ -68,7 +68,7 @@ const caloricStackMechanic = (
       calculateDamage(() => (ps.some((p) => p.caloricStack >= 5) ? 10 : 0)),
     display: () => <></>,
     getSafeSpot: () => null,
-    autoProgress: times === 1 ? 0 : undefined,
+    autoProgress: times % 2 === 1 ? 0 : undefined,
     progress: (newPlayers) => {
       const updatedPlayers = newPlayers.map((p) => {
         const d =
@@ -78,10 +78,11 @@ const caloricStackMechanic = (
               .position,
             p.position
           );
+        const caloricStack = p.caloricStack + Math.trunc(d / 0.2);
         return {
           ...p,
           distance: d % 0.2,
-          caloricStack: p.caloricStack + Math.trunc(d / 0.2),
+          caloricStack: caloricStack,
           debuffs: [
             ...p.debuffs.filter(
               (d) =>
@@ -93,7 +94,7 @@ const caloricStackMechanic = (
                   CaloricStack5Debuff,
                 ].includes(d)
             ),
-            getCaloricDebuff(p.caloricStack),
+            getCaloricDebuff(caloricStack),
           ],
         };
       });
@@ -185,25 +186,36 @@ export const CaloricTheory2 = () => {
   useTitle("Caloric 2");
 
   const [mechanic, players, restart, move] = useMechanic<Caloric2Player>(
-    () => ({
-      applyDamage: () => ZeroDamage,
-      display: () => <></>,
-      getSafeSpot: getStartSpot,
-      progress: (ps) => {
-        const initialTarget = shuffle(
-          ps.filter((p) => p.debuffs.includes(windDebuff))
-        )[0].designation;
-        return [
-          debuffExplosions(ps),
-          ps.map((p) => ({
-            ...p,
-            caloricStack: p.debuffs.includes(fireDebuff) ? 3 : 2,
-            debuffs:
-              initialTarget === p.designation ? [entropification8Debuff] : [],
-          })),
-        ];
-      },
-    }),
+    () =>
+      composeMechanics<Caloric2Player>([
+        {
+          applyDamage: () => ZeroDamage,
+          display: () => <></>,
+          getSafeSpot: getStartSpot,
+          progress: (ps) => {
+            const initialTarget = shuffle(
+              ps.filter((p) => p.debuffs.includes(windDebuff))
+            )[0].designation;
+            return [
+              debuffExplosions(ps),
+              ps.map((p) => ({
+                ...p,
+                caloricStack: p.debuffs.includes(fireDebuff) ? 3 : 2,
+                debuffs:
+                  initialTarget === p.designation
+                    ? [entropification8Debuff]
+                    : [],
+              })),
+            ];
+          },
+        },
+        {
+          applyDamage: () => ZeroDamage,
+          display: () => <></>,
+          getSafeSpot: () => null,
+          progress: (ps) => [caloricStackMechanic(ps, 10), ps],
+        },
+      ]),
     () =>
       Designations.map((d) => ({
         alive: true,
