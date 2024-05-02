@@ -55,15 +55,31 @@ export const Arena = <TPlayer extends PlayerWithMarker>(
       >
         {props.children}
         {props.mechanic.display(props.players, false)}
-        {props.players.map((p) => (
-          <React.Fragment key={p.designation}>
-            <PlayerComponent player={p} />
-            {p.debuffs
-              .filter((d) => d.markerSrc)
-              .map((d) => (
+        {props.players
+          .sort((p1, p2) => (p1.controlled ? 1 : p2.controlled ? -1 : 0))
+          .map((p) => (
+            <React.Fragment key={p.designation}>
+              <PlayerComponent player={p} />
+              {p.debuffs
+                .filter((d) => d.markerSrc)
+                .map((d) => (
+                  <img
+                    key={d.name}
+                    src={d.markerSrc}
+                    style={{
+                      position: "absolute",
+                      left: `${p.position.x * 100}%`,
+                      top: `${(p.position.y - playerIconSize) * 100}%`,
+                      height: `${playerIconSize * 100}%`,
+                      width: `${playerIconSize * 100}%`,
+                      transform: "translate(-50%, -50%)",
+                      opacity: p.controlled ? 1 : 0.5,
+                    }}
+                  />
+                ))}
+              {"marker" in p && p.marker && (
                 <img
-                  key={d.name}
-                  src={d.markerSrc}
+                  src={p.marker}
                   style={{
                     position: "absolute",
                     left: `${p.position.x * 100}%`,
@@ -74,23 +90,9 @@ export const Arena = <TPlayer extends PlayerWithMarker>(
                     opacity: p.controlled ? 1 : 0.5,
                   }}
                 />
-              ))}
-            {"marker" in p && p.marker && (
-              <img
-                src={p.marker}
-                style={{
-                  position: "absolute",
-                  left: `${p.position.x * 100}%`,
-                  top: `${(p.position.y - playerIconSize) * 100}%`,
-                  height: `${playerIconSize * 100}%`,
-                  width: `${playerIconSize * 100}%`,
-                  transform: "translate(-50%, -50%)",
-                  opacity: p.controlled ? 1 : 0.5,
-                }}
-              />
-            )}
-          </React.Fragment>
-        ))}
+              )}
+            </React.Fragment>
+          ))}
       </div>
       {props.showPartyList && (
         <div
