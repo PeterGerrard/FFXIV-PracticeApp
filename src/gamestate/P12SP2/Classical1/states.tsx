@@ -13,6 +13,10 @@ import {
   SimpleKillProfile,
 } from "../../Mechanics/DangerPuddles";
 import { coneMechanic } from "../../Mechanics/ConeAoE";
+import triangleSrc from "../assets/Triangle.png";
+import circleSrc from "../assets/Circle.png";
+import crossSrc from "../assets/Cross.png";
+import squareSrc from "../assets/Square.png";
 
 const AlphaDebuff: Debuff = {
   name: "Alpha",
@@ -21,6 +25,22 @@ const AlphaDebuff: Debuff = {
 const BetaDebuff: Debuff = {
   name: "Beta",
   src: betaSrc,
+};
+const SquareDebuff: Debuff = {
+  name: "Square",
+  markerSrc: squareSrc,
+};
+const TriangleDebuff: Debuff = {
+  name: "Triangle",
+  markerSrc: triangleSrc,
+};
+const CircleDebuff: Debuff = {
+  name: "Circle",
+  markerSrc: circleSrc,
+};
+const CrossDebuff: Debuff = {
+  name: "Cross",
+  markerSrc: crossSrc,
 };
 
 type InitialState = {
@@ -276,16 +296,30 @@ export const nextStep = (
   return state;
 };
 
-export const getDebuffs = (state: Classical1GameState, player: Player) => [
-  [
-    state.crossPair[0],
-    state.squarePair[0],
-    state.circlePair[0],
-    state.trianglePair[0],
-  ].includes(player.designation)
-    ? AlphaDebuff
-    : BetaDebuff,
-];
+export const getDebuffs = (state: Classical1GameState, player: Player) => {
+  const debuffs = [
+    [
+      state.crossPair[0],
+      state.squarePair[0],
+      state.circlePair[0],
+      state.trianglePair[0],
+    ].includes(player.designation)
+      ? AlphaDebuff
+      : BetaDebuff,
+  ];
+  if (["Initial", "TetherMove", "TetherAttach"].includes(state.stage)) {
+    debuffs.push(
+      state.circlePair.includes(player.designation)
+        ? CircleDebuff
+        : state.crossPair.includes(player.designation)
+          ? CrossDebuff
+          : state.squarePair.includes(player.designation)
+            ? SquareDebuff
+            : TriangleDebuff
+    );
+  }
+  return debuffs;
+};
 
 export const getTargetSpot = (
   state: Classical1GameState,

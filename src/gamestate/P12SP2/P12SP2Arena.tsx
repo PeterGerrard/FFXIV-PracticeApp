@@ -3,9 +3,10 @@
 import { PropsWithChildren } from "react";
 import arenaPng from "./assets/arena.png";
 import { Point, point } from "@flatten-js/core";
-import { Arena, PlayerWithMarker } from "../../components/Arena";
+import { Arena } from "../../components/Arena";
 import { Waymark, WaymarkDisplay } from "../Waymark";
 import { Mechanic } from "../mechanics";
+import { Player } from "../Player";
 
 export const P12SP2Waymarks: { [w in Waymark]: Point } = {
   "Waymark A": point((100 - 80) / 40, (89 - 70) / 40),
@@ -18,11 +19,11 @@ export const P12SP2Waymarks: { [w in Waymark]: Point } = {
   "Waymark 4": point((108 - 80) / 40, (92 - 70) / 40),
 };
 
-export const P12P2Arena = (
+export const P12P2Arena = <TPlayer extends Player>(
   props: PropsWithChildren<{
-    players: PlayerWithMarker[];
+    players: TPlayer[];
     moveTo: (p: Point) => void;
-    mechanic: Mechanic<PlayerWithMarker>;
+    mechanic: Mechanic<TPlayer>;
     showCaloricGrid?: boolean;
   }>
 ) => {

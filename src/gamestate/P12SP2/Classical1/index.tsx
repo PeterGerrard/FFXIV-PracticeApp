@@ -21,10 +21,6 @@ import { useGame } from "../../gameHooks";
 import { Overlay } from "../../Overlay";
 import { useTitle } from "../../../components/useTitle";
 import { P12P2Arena } from "../P12SP2Arena";
-import triangleSrc from "../assets/Triangle.png";
-import circleSrc from "../assets/Circle.png";
-import crossSrc from "../assets/Cross.png";
-import squareSrc from "../assets/Square.png";
 import cubeSrc from "../assets/cube.png";
 import pyramidSrc from "../assets/pyramid.png";
 import octahedronSrc from "../assets/octahedron.png";
@@ -129,20 +125,7 @@ export const ClassicalConcepts1 = () => {
         </Button>
       </div>
       <P12P2Arena
-        players={players.map((p) => ({
-          ...p,
-          marker: ["Initial", "TetherMove", "TetherAttach"].includes(
-            state.stage
-          )
-            ? state.circlePair.includes(p.designation)
-              ? circleSrc
-              : state.crossPair.includes(p.designation)
-                ? crossSrc
-                : state.squarePair.includes(p.designation)
-                  ? squareSrc
-                  : triangleSrc
-            : undefined,
-        }))}
+        players={players}
         mechanic={mechanic}
         moveTo={onMove}
       >

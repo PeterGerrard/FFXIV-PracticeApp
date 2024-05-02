@@ -18,6 +18,8 @@ import caloricStack4 from "../assets/CaloricCount4.png";
 import caloricStack5 from "../assets/CaloricCount5.png";
 import { emptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
 import { circleMechanic } from "../../Mechanics/CircleAoE";
+import beaconSrc from "../assets/beacon.png";
+import fireSrc from "../assets/fire.png";
 
 type InitialState = {
   stage: "Initial";
@@ -296,6 +298,7 @@ export const nextStep = (
 export const CaloricFireDebuff: Debuff = {
   name: "Caloric Fire",
   src: caloricFire,
+  markerSrc: fireSrc,
 };
 
 const CaloricWindDebuff: Debuff = {
@@ -321,6 +324,10 @@ const CaloricStack4Debuff: Debuff = {
 export const CaloricStack5Debuff: Debuff = {
   name: "Caloric Stack 5",
   src: caloricStack5,
+};
+export const BeaconDebuff: Debuff = {
+  name: "Beacon",
+  markerSrc: beaconSrc,
 };
 
 const getPartner = (d: Designation): Designation => {
@@ -350,7 +357,10 @@ const inState = (
 ) => stages.includes(state.stage);
 
 export const getDebuffs = (state: Caloric1GameState, player: Player) => {
-  if (state.stage === "Initial") return [];
+  if (state.stage === "Initial")
+    return [state.supportBeacon, state.dpsBeacon].includes(player.designation)
+      ? [BeaconDebuff]
+      : [];
 
   const debuffs: Debuff[] = [];
   let stackCount = 1;

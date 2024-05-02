@@ -6,11 +6,7 @@ import { PartyList } from "../gamestate/PartyList/PartyList";
 import { SetupContext } from "../gamestate/Setup/Setup";
 import { Mechanic } from "../gamestate/mechanics";
 
-export type PlayerWithMarker = Player & {
-  marker?: string;
-};
-
-export const Arena = <TPlayer extends PlayerWithMarker>(
+export const Arena = <TPlayer extends Player>(
   props: PropsWithChildren<{
     players: TPlayer[];
     moveTo: (p: Point) => void;
@@ -55,7 +51,7 @@ export const Arena = <TPlayer extends PlayerWithMarker>(
       >
         {props.children}
         {props.mechanic.display(props.players, false)}
-        {props.players
+        {[...props.players]
           .sort((p1, p2) => (p1.controlled ? 1 : p2.controlled ? -1 : 0))
           .map((p) => (
             <React.Fragment key={p.designation}>
@@ -77,20 +73,6 @@ export const Arena = <TPlayer extends PlayerWithMarker>(
                     }}
                   />
                 ))}
-              {"marker" in p && p.marker && (
-                <img
-                  src={p.marker}
-                  style={{
-                    position: "absolute",
-                    left: `${p.position.x * 100}%`,
-                    top: `${(p.position.y - playerIconSize) * 100}%`,
-                    height: `${playerIconSize * 100}%`,
-                    width: `${playerIconSize * 100}%`,
-                    transform: "translate(-50%, -50%)",
-                    opacity: p.controlled ? 1 : 0.5,
-                  }}
-                />
-              )}
             </React.Fragment>
           ))}
       </div>

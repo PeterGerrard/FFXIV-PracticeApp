@@ -1,7 +1,6 @@
 import { useContext } from "react";
 import {
   Caloric1GameState,
-  CaloricFireDebuff,
   CaloricStack5Debuff,
   createInitialState,
   getMechanic,
@@ -18,8 +17,6 @@ import { useGame } from "../../gameHooks";
 import { Overlay } from "../../Overlay";
 import { useTitle } from "../../../components/useTitle";
 import { P12P2Arena } from "../P12SP2Arena";
-import beaconSrc from "../assets/beacon.png";
-import fireSrc from "../assets/fire.png";
 
 const autoProgress = (state: Caloric1GameState): false | number =>
   state.autoProgress;
@@ -70,16 +67,7 @@ export const CaloricConcepts1 = () => {
         </Button>
       </div>
       <P12P2Arena
-        players={players.map((p) => ({
-          ...p,
-          marker:
-            state.stage === "Initial" &&
-            [state.supportBeacon, state.dpsBeacon].includes(p.designation)
-              ? beaconSrc
-              : p.debuffs.some((d) => d.name === CaloricFireDebuff.name)
-                ? fireSrc
-                : undefined,
-        }))}
+        players={players}
         mechanic={mechanic}
         moveTo={onMove}
         showCaloricGrid

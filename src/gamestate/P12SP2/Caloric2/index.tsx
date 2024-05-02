@@ -7,6 +7,7 @@ import { SetupContext } from "../../Setup/Setup";
 import {
   Designation,
   Designations,
+  distanceTo,
   getRandomPos,
   getRole,
 } from "../../gameState";
@@ -14,6 +15,7 @@ import {
   Mechanic,
   ZeroDamage,
   automatic,
+  calculateDamage,
   composeMechanics,
   useMechanic,
 } from "../../mechanics";
@@ -50,6 +52,57 @@ const CaloricStack4Debuff: Debuff = {
 const CaloricStack5Debuff: Debuff = {
   name: "Caloric Stack 5",
   src: caloricStack5,
+};
+
+type Caloric2Player = Player & {
+  distance: number;
+  caloricStack: number;
+};
+
+const caloricStackMechanic = (
+  priorPlayers: Caloric2Player[],
+  times: number
+): Mechanic<Caloric2Player> => {
+  return {
+    applyDamage: (ps) =>
+      calculateDamage(() => (ps.some((p) => p.caloricStack >= 5) ? 10 : 0)),
+    display: () => <></>,
+    getSafeSpot: () => null,
+    autoProgress: times === 1 ? 0 : undefined,
+    progress: (newPlayers) => {
+      const updatedPlayers = newPlayers.map((p) => {
+        const d =
+          p.distance +
+          distanceTo(
+            priorPlayers.filter((q) => q.designation === p.designation)[0]
+              .position,
+            p.position
+          );
+        return {
+          ...p,
+          distance: d % 0.2,
+          caloricStack: p.caloricStack + Math.trunc(d / 0.2),
+          debuffs: [
+            ...p.debuffs.filter(
+              (d) =>
+                ![
+                  CaloricStack1Debuff,
+                  CaloricStack2Debuff,
+                  CaloricStack3Debuff,
+                  CaloricStack4Debuff,
+                  CaloricStack5Debuff,
+                ].includes(d)
+            ),
+            getCaloricDebuff(p.caloricStack),
+          ],
+        };
+      });
+      return [
+        times <= 1 ? null : caloricStackMechanic(updatedPlayers, times - 1),
+        updatedPlayers,
+      ];
+    },
+  };
 };
 
 const getCaloricDebuff = (stackCount: number) => {
@@ -115,7 +168,7 @@ const getStartSpot = (players: Player[], player: Player): Point => {
   }
 };
 
-const debuffExplosions = (players: Player[]): Mechanic<Player> =>
+const debuffExplosions = (players: Player[]): Mechanic<Caloric2Player> =>
   automatic(
     composeMechanics(
       players.map((p) =>
@@ -131,7 +184,7 @@ export const CaloricTheory2 = () => {
   const setup = useContext(SetupContext);
   useTitle("Caloric 2");
 
-  const [mechanic, players, restart, move] = useMechanic<Player>(
+  const [mechanic, players, restart, move] = useMechanic<Caloric2Player>(
     () => ({
       applyDamage: () => ZeroDamage,
       display: () => <></>,
@@ -144,10 +197,9 @@ export const CaloricTheory2 = () => {
           debuffExplosions(ps),
           ps.map((p) => ({
             ...p,
+            caloricStack: p.debuffs.includes(fireDebuff) ? 3 : 2,
             debuffs:
-              initialTarget === p.designation
-                ? [entropification8Debuff, getCaloricDebuff(2)]
-                : [getCaloricDebuff(p.debuffs.includes(fireDebuff) ? 3 : 2)],
+              initialTarget === p.designation ? [entropification8Debuff] : [],
           })),
         ];
       },
@@ -161,6 +213,8 @@ export const CaloricTheory2 = () => {
         position: getRandomPos((p) => p.y > 0.3),
         role: getRole(d),
         distanceTravelled: 0,
+        distance: 0,
+        caloricStack: 2,
       }))
   );
 
