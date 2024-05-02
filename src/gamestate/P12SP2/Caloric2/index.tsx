@@ -77,8 +77,8 @@ const getNextStackCount = (
       priorPlayers.filter((q) => q.designation === p.designation)[0].position,
       p.position
     );
-  const caloricStack = p.caloricStack + Math.trunc(d / 0.21);
-  return [caloricStack, d % 0.21];
+  const caloricStack = p.caloricStack + Math.trunc(d / 0.2);
+  return [caloricStack, d % 0.2];
 };
 
 const caloricStackMechanic = (
