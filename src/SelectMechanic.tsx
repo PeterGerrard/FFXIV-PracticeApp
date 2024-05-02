@@ -117,10 +117,12 @@ const DisplayMechanic = (props: { mechanic: Mechanic }) => {
   }
   return import.meta.env.DEV ||
     props.mechanic.developmentStage !== DevelopmentStage.Dev ? (
-    <Link to={props.mechanic.link}>
-      {props.mechanic.name}
-      {suffix}
-    </Link>
+    <li>
+      <Link to={props.mechanic.link}>
+        {props.mechanic.name}
+        {suffix}
+      </Link>
+    </li>
   ) : (
     <></>
   );
@@ -132,9 +134,7 @@ const DisplayMechanicGroup = (props: { group: MechanicGroup }) => {
       <h2>{props.group.name}</h2>
       <ul>
         {props.group.children.map((c) => (
-          <li key={c.name}>
-            <DisplayMechanic mechanic={c} />
-          </li>
+          <DisplayMechanic mechanic={c} key={c.name} />
         ))}
       </ul>
     </>
