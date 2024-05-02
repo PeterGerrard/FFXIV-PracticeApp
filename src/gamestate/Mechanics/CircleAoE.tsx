@@ -15,7 +15,7 @@ type CircleAoEProps = {
   colour?: string;
 };
 
-const CircleAoE = (props: CircleAoEProps) => {
+export const CircleAoE = (props: CircleAoEProps) => {
   return (
     <svg
       height="100%"
