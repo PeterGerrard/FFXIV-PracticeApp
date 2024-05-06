@@ -211,12 +211,12 @@ const progress = (
 const getDebuffs = () => [];
 
 export const useLetterOfTheLaw = () => {
-  const setup = useContext(SetupContext);
+  const { setup } = useContext(SetupContext);
 
   return useGame<LetterOfTheLawPlayer, NewLetterOfTheLawState>(
     getSurvivors,
     hasFinished,
-    () => createPlayers(setup.state),
+    () => createPlayers(setup),
     getTargetSpot,
     createState,
     autoProgress,

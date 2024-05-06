@@ -14,7 +14,7 @@ import { P12P2Arena } from "../P12SP2Arena";
 import { useMechanic } from "../../mechanics";
 
 export const ClassicalConcepts2 = () => {
-  const setup = useContext(SetupContext);
+  const { setup } = useContext(SetupContext);
   useTitle("Classical Concepts 2");
 
   const [mechanic, players, restart, move] = useMechanic<Player>(
@@ -22,7 +22,7 @@ export const ClassicalConcepts2 = () => {
     () =>
       Designations.map((d) => ({
         alive: true,
-        controlled: setup.state.designation === d,
+        controlled: setup.designation === d,
         debuffs: [],
         designation: d,
         position: getRandomPos((p) => p.y > 0.3),

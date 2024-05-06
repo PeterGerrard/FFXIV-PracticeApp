@@ -20,7 +20,7 @@ import { Overlay } from "../../Overlay";
 import { useTitle } from "../../../components/useTitle";
 
 const Add = (props: { xPos: number }) => {
-  const setup = useContext(SetupContext);
+  const { setup } = useContext(SetupContext);
   return (
     <img
       src={addSrc}
@@ -28,7 +28,7 @@ const Add = (props: { xPos: number }) => {
         position: "absolute",
         left: `${100 * props.xPos}%`,
         top: "2%",
-        width: `${100 * setup.state.playerIconSize}%`,
+        width: `${100 * setup.playerIconSize}%`,
       }}
     />
   );
@@ -39,7 +39,7 @@ const autoProgress = (state: SuperchainTheory2bGameState) =>
 
 export const SuperchainTheory2B = () => {
   useTitle("Superchain Theory 2B");
-  const setup = useContext(SetupContext);
+  const { setup } = useContext(SetupContext);
 
   const { state, players, restart, onMove, safeLocation } = useGame<
     Player,
@@ -53,7 +53,7 @@ export const SuperchainTheory2B = () => {
     () =>
       Designations.map((d) => ({
         alive: true,
-        controlled: setup.state.designation === d,
+        controlled: setup.designation === d,
         debuffs: [],
         designation: d,
         position: getRandomPos(),

@@ -1,6 +1,5 @@
-import { createLazyFileRoute } from "@tanstack/react-router";
-import { SuperchainTheory1 } from "../../../gamestate/P12SP1/SuperchainTheory1";
+import { Navigate, createLazyFileRoute } from "@tanstack/react-router";
 
 export const Route = createLazyFileRoute("/p12s/p1/superchaintheory1")({
-  component: SuperchainTheory1,
+  component: () => <Navigate to="/mechanics/endwalker/anabaseios/p12s/p1/superchaintheory1" />,
 });

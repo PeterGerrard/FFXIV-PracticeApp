@@ -23,7 +23,7 @@ const autoProgress = (state: Caloric1GameState): false | number =>
 
 const hasFinished = (s: Caloric1GameState): boolean => s.stage === "Final";
 export const CaloricConcepts1 = () => {
-  const setup = useContext(SetupContext);
+  const { setup } = useContext(SetupContext);
   useTitle("Caloric Concepts 1");
 
   const { state, players, restart, onMove, safeLocation } = useGame<
@@ -42,7 +42,7 @@ export const CaloricConcepts1 = () => {
     () =>
       Designations.map((d) => ({
         alive: true,
-        controlled: setup.state.designation === d,
+        controlled: setup.designation === d,
         debuffs: [],
         designation: d,
         position: getRandomPos((p) => p.y > 0.3),

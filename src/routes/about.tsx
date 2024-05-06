@@ -13,7 +13,7 @@ export const Route = createFileRoute("/about")({
         </a>
       </p>
       <p>
-        Built from Commit <code>{import.meta.env.VITE_ENV_GIT_COMMIT}</code>
+        Built from Commit: <code>{import.meta.env.VITE_ENV_GIT_COMMIT}</code>
       </p>
     </div>
   ),

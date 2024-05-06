@@ -6,23 +6,28 @@ import {
   SelectGroup,
   SelectItem,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Designation, Designations, Setup } from "../gameState";
+import { Designation, Designations, Setup, getRole } from "../gameState";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
+import { useContext } from "react";
+import { SetupContext } from "./Setup";
+import { DesignationDisplay } from "../Designation";
 
-export const SetupForm = (props: {
-  setup: Setup;
-  update: (updatedSetup: Partial<Setup>) => void;
-  save: () => void;
-}) => {
+export const SetupForm = () => {
+  const { setup, setSetup } = useContext(SetupContext);
+
+  const update = (p: Partial<Setup>) => {
+    const newSetup: Setup = { ...setup, ...p };
+    setSetup(newSetup);
+  };
+
   return (
-    <form className="flex flex-col gap-8">
+    <form className="flex flex-col gap-8 w-[200px] p-4">
       <div>
         <Label htmlFor="designationSelect">Designation</Label>
         <Select
-          onValueChange={(x) => props.update({ designation: x as Designation })}
-          value={props.setup.designation}
+          onValueChange={(x) => update({ designation: x as Designation })}
+          value={setup.designation}
         >
           <SelectTrigger>
             <SelectValue />
@@ -42,14 +47,25 @@ export const SetupForm = (props: {
         <Label htmlFor="iconSize">Icon Size</Label>
         <Slider
           id="icon-size"
-          value={[props.setup.playerIconSize]}
-          onValueChange={([v]) => props.update({ playerIconSize: v })}
+          value={[setup.playerIconSize]}
+          onValueChange={([v]) => update({ playerIconSize: v })}
           min={0.04}
           max={0.15}
           step={0.01}
         />
+        <DesignationDisplay
+          player={{
+            designation: setup.designation,
+            role: getRole(setup.designation),
+          }}
+          style={{
+            left: 0,
+            top: 0,
+            height: `calc(75vh * ${setup.playerIconSize})`,
+            width: `calc(75vw * ${setup.playerIconSize})`,
+          }}
+        />
       </div>
-      <Button onClick={props.save}>Save</Button>
     </form>
   );
 };

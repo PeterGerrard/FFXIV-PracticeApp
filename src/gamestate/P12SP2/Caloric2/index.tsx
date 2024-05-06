@@ -446,7 +446,7 @@ const debuffExplosions = (
   ]);
 
 export const CaloricTheory2 = () => {
-  const setup = useContext(SetupContext);
+  const { setup } = useContext(SetupContext);
   useTitle("Caloric 2");
 
   const [mechanic, players, restart, move] = useMechanic<Caloric2Player>(
@@ -481,7 +481,7 @@ export const CaloricTheory2 = () => {
 
       return Designations.map((d) => ({
         alive: true,
-        controlled: setup.state.designation === d,
+        controlled: setup.designation === d,
         debuffs: [d === fireMarker ? fireDebuff : windDebuff],
         designation: d,
         position: getRandomPos((p) => p.y > 0.3),

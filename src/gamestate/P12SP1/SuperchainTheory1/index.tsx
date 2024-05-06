@@ -694,7 +694,7 @@ const getDebuffs = (
 };
 
 export const SuperchainTheory1 = () => {
-  const setup = useContext(SetupContext);
+  const { setup } = useContext(SetupContext);
   useTitle("Superchain Theory 1");
   const { onMove, players, restart, safeLocation, state } = useGame<
     SuperchainTheory1Player,
@@ -702,7 +702,7 @@ export const SuperchainTheory1 = () => {
   >(
     getSurvivors,
     (s) => s.stage === "SoakAndAoes",
-    () => createPlayers(setup.state),
+    () => createPlayers(setup),
     (s, _ps, p) => getSafeSpot(s, p),
     createState,
     autoProgress,

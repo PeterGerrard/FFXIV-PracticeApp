@@ -23,7 +23,7 @@ export type Player = {
 
 export const PlayerComponent = (props: { player: Player }) => {
   const {
-    state: { playerIconSize },
+    setup: { playerIconSize },
   } = useContext(SetupContext);
 
   const imgStyle: CSSProperties = {

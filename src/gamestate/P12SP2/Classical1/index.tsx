@@ -82,7 +82,7 @@ const checkIntercepts = (state: Classical1GameState): boolean => {
 const hasFinished = (s: Classical1GameState): boolean =>
   s.stage === "FinalDodge";
 export const ClassicalConcepts1 = () => {
-  const setup = useContext(SetupContext);
+  const { setup } = useContext(SetupContext);
   useTitle("Classical Concepts 1");
 
   const { state, players, restart, onMove, safeLocation } = useGame<
@@ -97,7 +97,7 @@ export const ClassicalConcepts1 = () => {
     () =>
       Designations.map((d) => ({
         alive: true,
-        controlled: setup.state.designation === d,
+        controlled: setup.designation === d,
         debuffs: [],
         designation: d,
         position: getRandomPos((p) => p.y > 0.3),

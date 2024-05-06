@@ -25,7 +25,7 @@ const hasFinished = (s: NewDarkAndLightState): boolean =>
   s.outer === "Divisive" && s.hasFinished;
 
 export const DarkAndLight = () => {
-  const setup = useContext(SetupContext);
+  const { setup } = useContext(SetupContext);
   useTitle("Dark and Light");
   const { onMove, players, restart, safeLocation, state } = useGame<
     DarkAndLightPlayer,
@@ -33,7 +33,7 @@ export const DarkAndLight = () => {
   >(
     getSurvivors,
     hasFinished,
-    () => createPlayers(setup.state),
+    () => createPlayers(setup),
     getTargetSpot,
     () => ({
       outer: "Revelation",

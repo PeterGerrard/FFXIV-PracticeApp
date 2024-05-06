@@ -2,7 +2,7 @@ import { CSSProperties } from "react";
 import { Player } from "./Player";
 
 export const DesignationDisplay = (props: {
-  player: Player;
+  player: Pick<Player, "role" | "designation">;
   style: CSSProperties;
 }) => {
   return (

@@ -3,11 +3,8 @@
 import { SetupContext } from "../gamestate/Setup/Setup";
 import { useEffect, useState } from "react";
 import { Setup } from "../gamestate/gameState";
-import { GearIcon } from "@radix-ui/react-icons";
-import { SetupForm } from "../gamestate/Setup/SetupForm";
 import { Link, Outlet, createRootRoute } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { NavBar } from "../components/NavBar";
 
 const defaultSetup: Setup = { designation: "H2", playerIconSize: 0.08 };
 
@@ -21,10 +18,9 @@ export const Route = createRootRoute({
         return defaultSetup;
       }
     });
-    const [showSetup, setShowSetup] = useState(false);
-    const saveSetup = () => {
-      localStorage.setItem("setup", JSON.stringify(setup));
-      setShowSetup(false);
+    const saveSetup = (newSetup: Setup) => {
+      setSetup(newSetup);
+      localStorage.setItem("setup", JSON.stringify(newSetup));
     };
 
     useEffect(() => {
@@ -43,28 +39,17 @@ export const Route = createRootRoute({
     return (
       <SetupContext.Provider
         value={{
-          state: setup ?? defaultSetup,
+          setup: setup ?? defaultSetup,
+          setSetup: saveSetup,
         }}
       >
         <div>
           <Link to="/">
             <h1 style={{ display: "inline-block" }}>FFXIV Practice</h1>
           </Link>
-          <Button variant="ghost" onClick={() => setShowSetup(true)}>
-            <GearIcon />
-            Setup
-          </Button>
         </div>
-        {setup && <Outlet />}
-        <Sheet open={!setup || showSetup} onOpenChange={setShowSetup}>
-          <SheetContent>
-            <SetupForm
-              setup={setup}
-              save={saveSetup}
-              update={(p) => setSetup((s) => ({ ...s, ...p }))}
-            />
-          </SheetContent>
-        </Sheet>
+        <NavBar />
+        <Outlet />
       </SetupContext.Provider>
     );
   },

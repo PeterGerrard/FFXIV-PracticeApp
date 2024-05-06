@@ -13,15 +13,15 @@ type Mechanic = {
   developmentStage: DevelopmentStage;
 };
 
-type MechanicGroup = {
+type MechanicFight = {
   name: string;
-  children: Mechanic[];
+  mechanics: Mechanic[];
 };
 
-const mechanics: MechanicGroup[] = [
+const anabaseiosFights: MechanicFight[] = [
   {
     name: "P11S",
-    children: [
+    mechanics: [
       {
         developmentStage: DevelopmentStage.Prod,
         link: "/p11s/darkandlight",
@@ -36,7 +36,7 @@ const mechanics: MechanicGroup[] = [
   },
   {
     name: "P12S Phase 1",
-    children: [
+    mechanics: [
       {
         developmentStage: DevelopmentStage.Prod,
         link: "/p12s/p1/superchaintheory1",
@@ -61,7 +61,7 @@ const mechanics: MechanicGroup[] = [
   },
   {
     name: "P12S Phase 2",
-    children: [
+    mechanics: [
       {
         developmentStage: DevelopmentStage.Prod,
         link: "/p12s/p2/classical1",
@@ -85,19 +85,6 @@ const mechanics: MechanicGroup[] = [
     ],
   },
 ];
-
-if (import.meta.env.DEV) {
-  mechanics.push({
-    name: "Development",
-    children: [
-      {
-        developmentStage: DevelopmentStage.Dev,
-        name: "simple aoe dodge",
-        link: "/dev/simpleaoe",
-      },
-    ],
-  });
-}
 
 const DisplayMechanic = (props: { mechanic: Mechanic }) => {
   let suffix: string;
@@ -128,12 +115,12 @@ const DisplayMechanic = (props: { mechanic: Mechanic }) => {
   );
 };
 
-const DisplayMechanicGroup = (props: { group: MechanicGroup }) => {
+const DisplayMechanicFight = (props: { group: MechanicFight }) => {
   return (
     <>
       <h2>{props.group.name}</h2>
       <ul>
-        {props.group.children.map((c) => (
+        {props.group.mechanics.map((c) => (
           <DisplayMechanic mechanic={c} key={c.name} />
         ))}
       </ul>
@@ -144,8 +131,8 @@ const DisplayMechanicGroup = (props: { group: MechanicGroup }) => {
 export const SelectMechanic = () => {
   return (
     <>
-      {mechanics.map((mg) => (
-        <DisplayMechanicGroup key={mg.name} group={mg} />
+      {anabaseiosFights.map((mg) => (
+        <DisplayMechanicFight key={mg.name} group={mg} />
       ))}
     </>
   );

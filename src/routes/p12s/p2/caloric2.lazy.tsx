@@ -1,6 +1,5 @@
-import { createLazyFileRoute } from "@tanstack/react-router";
-import { CaloricTheory2 } from "../../../gamestate/P12SP2/Caloric2";
+import { Navigate, createLazyFileRoute } from "@tanstack/react-router";
 
 export const Route = createLazyFileRoute("/p12s/p2/caloric2")({
-  component: CaloricTheory2,
+  component: () => <Navigate to="/mechanics/endwalker/anabaseios/p12s/p2/caloric2" />,
 });

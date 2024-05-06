@@ -1092,7 +1092,7 @@ const autoProgress = (state: Paradeigma3GameState): false | number => {
 };
 
 const usePara3 = () => {
-  const setup = useContext(SetupContext);
+  const { setup } = useContext(SetupContext);
 
   return useGame<Paradeigma3Player, Paradeigma3GameState>(
     (s, ps) =>
@@ -1100,7 +1100,7 @@ const usePara3 = () => {
         .filter((p) => p.alive)
         .map((p) => p.designation),
     (s) => s.stage === "TowerSoak",
-    () => createPlayers(setup.state),
+    () => createPlayers(setup),
     (s, _, p) => getSafeSpot(s, p),
     createState,
     autoProgress,

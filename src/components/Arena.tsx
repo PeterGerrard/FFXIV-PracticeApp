@@ -15,7 +15,7 @@ export const Arena = <TPlayer extends Player>(
   }>
 ) => {
   const {
-    state: { playerIconSize },
+    setup: { playerIconSize },
   } = useContext(SetupContext);
 
   return (
