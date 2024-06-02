@@ -95,6 +95,7 @@ export const ClassicalConcepts1 = () => {
     hasFinished,
     () =>
       Designations.map((d) => ({
+        type: "Full",
         alive: true,
         controlled: setup.designation === d,
         debuffs: [],

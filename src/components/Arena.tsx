@@ -1,12 +1,12 @@
 import React, { PropsWithChildren } from "react";
-import { Player, PlayerComponent } from "../gamestate/Player";
+import { LightPlayer, Player, PlayerComponent } from "../gamestate/Player";
 import { Point } from "@flatten-js/core";
 import { getPosition } from "../gamestate/htmlHelpers";
 import { PartyList } from "../gamestate/PartyList/PartyList";
 import { useFullPartyProfile } from "../gamestate/Setup/ProfileContext";
 import { Mechanic } from "../gamestate/mechanics";
 
-export const Arena = <TPlayer extends Player>(
+export const Arena = <TPlayer extends Player | LightPlayer>(
   props: PropsWithChildren<{
     players: TPlayer[];
     moveTo: (p: Point) => void;

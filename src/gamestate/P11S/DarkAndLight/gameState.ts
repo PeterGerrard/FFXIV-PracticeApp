@@ -48,6 +48,7 @@ export const createPlayer = (
 ): DarkAndLightPlayer => {
   const role = getRole(designation);
   return {
+    type: "Full",
     role: role,
     position: getRandomPos(),
     debuff: debuff,

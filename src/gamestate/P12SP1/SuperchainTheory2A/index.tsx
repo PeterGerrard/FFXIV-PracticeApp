@@ -36,6 +36,7 @@ export const SuperchainTheory2A = () => {
     (s) => s.stage === "Explosion4",
     () =>
       Designations.map((d) => ({
+        type: "Full",
         alive: true,
         controlled: setup.designation === d,
         debuffs: [],

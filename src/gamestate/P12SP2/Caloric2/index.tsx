@@ -479,6 +479,7 @@ export const CaloricTheory2 = () => {
       const fireMarker = pickOne(Designations);
 
       return Designations.map((d) => ({
+        type: "Full",
         alive: true,
         controlled: setup.designation === d,
         debuffs: [d === fireMarker ? fireDebuff : windDebuff],

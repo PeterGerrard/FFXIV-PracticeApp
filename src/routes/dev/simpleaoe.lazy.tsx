@@ -54,6 +54,7 @@ export const Route = createLazyFileRoute("/dev/simpleaoe")({
       () => sampleMechanic,
       () => [
         {
+          type: "Full",
           alive: true,
           controlled: true,
           debuffs: [],
@@ -63,6 +64,7 @@ export const Route = createLazyFileRoute("/dev/simpleaoe")({
           role: "Healer",
         },
         {
+          type: "Full",
           alive: true,
           controlled: false,
           debuffs: [],

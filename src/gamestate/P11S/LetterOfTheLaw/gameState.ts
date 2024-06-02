@@ -110,6 +110,7 @@ const createPlayers = (setup: Setup): LetterOfTheLawPlayer[] => {
   return Designations.map((d) => {
     const role = getRole(d);
     return {
+      type: "Full",
       role: role,
       position: getRandomPos(),
       isTethered: d === tetheredTank || d === tetheredNonTank,

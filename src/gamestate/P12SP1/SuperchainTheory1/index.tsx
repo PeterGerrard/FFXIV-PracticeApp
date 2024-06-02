@@ -636,6 +636,7 @@ const createState = (): SuperchainTheoryGameState => {
 
 const createPlayers = (setup: Setup): SuperchainTheory1Player[] => {
   return Designations.map((d) => ({
+    type: "Full",
     position: getRandomPos(),
     role: getRole(d),
     show: true,

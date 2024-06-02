@@ -1167,6 +1167,7 @@ const getDebuffs = (
 
 const createPlayers = (setup: Setup): Paradeigma3Player[] => {
   const ps: Paradeigma3Player[] = Designations.map((d) => ({
+    type: "Full",
     position: getRandomPos(),
     role: getRole(d),
     show: true,

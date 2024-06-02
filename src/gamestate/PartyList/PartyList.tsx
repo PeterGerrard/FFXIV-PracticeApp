@@ -1,7 +1,7 @@
 import { DesignationDisplay } from "../Designation";
-import { Player } from "../Player";
+import { LightPlayer, Player } from "../Player";
 
-export const PartyList = (props: { players: Player[] }) => {
+export const PartyList = (props: { players: (Player | LightPlayer)[] }) => {
   return props.players.map((p) => (
     <div
       style={{

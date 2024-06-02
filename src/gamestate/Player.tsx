@@ -1,9 +1,12 @@
 import { CSSProperties } from "react";
 import skullPng from "./assets/Skull_and_Crossbones.png";
-import { Designation, Role } from "./gameState";
+import { Designation, LightPartyDesignation, Role } from "./gameState";
 import { Point } from "@flatten-js/core";
 import { DesignationDisplay } from "./Designation";
-import { useFullPartyProfile } from "./Setup/ProfileContext";
+import {
+  useFullPartyProfile,
+  useLightPartyProfile,
+} from "./Setup/ProfileContext";
 
 export type Debuff = {
   name: string;
@@ -12,6 +15,7 @@ export type Debuff = {
 };
 
 export type Player = {
+  type: "Full";
   role: Role;
   alive: boolean;
   position: Point;
@@ -21,8 +25,21 @@ export type Player = {
   distanceTravelled: number;
 };
 
-export const PlayerComponent = (props: { player: Player }) => {
-  const { playerIconSize } = useFullPartyProfile();
+export type LightPlayer = {
+  type: "Light";
+  role: Role;
+  alive: boolean;
+  position: Point;
+  debuffs: Debuff[];
+  controlled: boolean;
+  designation: LightPartyDesignation;
+};
+
+export const PlayerComponent = (props: { player: Player | LightPlayer }) => {
+  const { playerIconSize } =
+    props.player.type === "Full"
+      ? useFullPartyProfile()
+      : useLightPartyProfile();
 
   const imgStyle: CSSProperties = {
     position: "absolute",
