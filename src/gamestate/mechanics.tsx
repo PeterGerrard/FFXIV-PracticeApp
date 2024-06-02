@@ -1,7 +1,7 @@
 import { Point, point } from "@flatten-js/core";
 import { Designation } from "./gameState";
 import { Fragment, useCallback, useEffect, useState } from "react";
-import { Debuff, Player } from "./Player";
+import { Debuff, LightPlayer, Player } from "./Player";
 
 export type Mechanic<TPlayer> = {
   applyDamage: (players: TPlayer[]) => { [designation in Designation]: number };
@@ -14,7 +14,7 @@ export type Mechanic<TPlayer> = {
   ) => React.ReactElement;
 };
 
-export const emptyMechanic = <TPlayer extends Player>(): Mechanic<TPlayer> => ({
+export const emptyMechanic = <TPlayer extends Player | LightPlayer>(): Mechanic<TPlayer> => ({
   applyDamage: () => ({
     H1: 0,
     H2: 0,

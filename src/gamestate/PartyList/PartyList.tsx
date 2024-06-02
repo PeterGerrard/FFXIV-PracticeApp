@@ -9,7 +9,7 @@ export const PartyList = (props: { players: (Player | LightPlayer)[] }) => {
         flexDirection: "row",
         gap: "0.25rem",
         alignItems: "center",
-        height: `${100 / props.players.length}%`,
+        height: `12.5%`,
       }}
       key={p.designation}
     >
