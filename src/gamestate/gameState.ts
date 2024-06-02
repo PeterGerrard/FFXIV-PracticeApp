@@ -13,6 +13,12 @@ export const Designations: Designation[] = [
   "R1",
   "R2",
 ];
+export const LightPartyDesignations: LightPartyDesignation[] = [
+  "T",
+  "H",
+  "D1",
+  "D2",
+];
 export type ClockSpot = Cardinal | InterCardinal;
 export type Cardinal = "North" | "East" | "South" | "West";
 export type InterCardinal =
@@ -34,18 +40,24 @@ export const ClockSpots = InterCardinals.flatMap((_, i) => [
 
 export type Group = "Group1" | "Group2";
 
-export const getRole = (designation: Designation): Role => {
+export const getRole = (
+  designation: Designation | LightPartyDesignation
+): Role => {
   switch (designation) {
     case "MT":
     case "OT":
+    case "T":
       return "Tank";
     case "H1":
     case "H2":
+    case "H":
       return "Healer";
     case "M1":
     case "M2":
     case "R1":
     case "R2":
+    case "D1":
+    case "D2":
       return "DPS";
   }
 };

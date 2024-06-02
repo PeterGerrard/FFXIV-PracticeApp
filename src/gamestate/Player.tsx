@@ -38,5 +38,10 @@ export const PlayerComponent = (props: { player: Player }) => {
     return <img src={skullPng} style={imgStyle}></img>;
   }
 
-  return <DesignationDisplay player={props.player} style={imgStyle} />;
+  return (
+    <DesignationDisplay
+      designation={props.player.designation}
+      style={imgStyle}
+    />
+  );
 };

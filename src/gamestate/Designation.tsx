@@ -1,18 +1,19 @@
 import { CSSProperties } from "react";
-import { Player } from "./Player";
+import { Designation, LightPartyDesignation, getRole } from "./gameState";
 
 export const DesignationDisplay = (props: {
-  player: Pick<Player, "role" | "designation">;
+  designation: Designation | LightPartyDesignation;
   style: CSSProperties;
 }) => {
+  const role = getRole(props.designation);
   return (
     <>
       <svg style={props.style} viewBox="0 0 100 100">
         <rect
           fill={
-            props.player.role === "Healer"
+            role === "Healer"
               ? "green"
-              : props.player.role === "Tank"
+              : role === "Tank"
                 ? "blue"
                 : "red"
           }
@@ -33,7 +34,7 @@ export const DesignationDisplay = (props: {
           fill="white"
           fontSize="3rem"
         >
-          {props.player.designation}
+          {props.designation}
         </text>
       </svg>
     </>
