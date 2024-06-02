@@ -13,11 +13,10 @@ import { ReloadIcon } from "@radix-ui/react-icons";
 import { useTitle } from "../../../components/useTitle";
 import { useGame } from "../../gameHooks";
 import { DarkAndLightPlayer } from "./gameState";
-import { useContext } from "react";
-import { SetupContext } from "../../Setup/Setup";
 import { Arena } from "./Arena";
 import { Overlay } from "../../Overlay";
 import { Bombs } from "../Bombs";
+import { useFullPartyProfile } from "../../Setup/ProfileContext";
 
 export const getDebuffs = () => [];
 
@@ -25,7 +24,7 @@ const hasFinished = (s: NewDarkAndLightState): boolean =>
   s.outer === "Divisive" && s.hasFinished;
 
 export const DarkAndLight = () => {
-  const { setup } = useContext(SetupContext);
+  const setup = useFullPartyProfile();
   useTitle("Dark and Light");
   const { onMove, players, restart, safeLocation, state } = useGame<
     DarkAndLightPlayer,

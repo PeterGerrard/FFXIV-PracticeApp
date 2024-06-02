@@ -2,6 +2,7 @@ import { Point } from "@flatten-js/core";
 
 export type Role = "Tank" | "Healer" | "DPS";
 export type Designation = "MT" | "OT" | "H1" | "H2" | "M1" | "M2" | "R1" | "R2";
+export type LightPartyDesignation = "T" | "H" | "D1" | "D2";
 export const Designations: Designation[] = [
   "MT",
   "OT",

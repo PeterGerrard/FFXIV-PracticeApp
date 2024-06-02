@@ -1,4 +1,4 @@
-import { useCallback, useContext } from "react";
+import { useCallback } from "react";
 import { P12P1Arena } from "../P12SP1Arena";
 import { SuperchainExplosionDisplay } from "../Superchain/SuperchainExplosionDisplay";
 import {
@@ -11,16 +11,16 @@ import {
 import { point } from "@flatten-js/core";
 import { Player } from "../../Player";
 import { Designations, getRandomPos, getRole } from "../../gameState";
-import { SetupContext } from "../../Setup/Setup";
 import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useGame } from "../../gameHooks";
 import addSrc from "./assets/add.png";
 import { Overlay } from "../../Overlay";
 import { useTitle } from "../../../components/useTitle";
+import { useFullPartyProfile } from "../../Setup/ProfileContext";
 
 const Add = (props: { xPos: number }) => {
-  const { setup } = useContext(SetupContext);
+  const setup = useFullPartyProfile();
   return (
     <img
       src={addSrc}
@@ -39,7 +39,7 @@ const autoProgress = (state: SuperchainTheory2bGameState) =>
 
 export const SuperchainTheory2B = () => {
   useTitle("Superchain Theory 2B");
-  const { setup } = useContext(SetupContext);
+  const setup = useFullPartyProfile();
 
   const { state, players, restart, onMove, safeLocation } = useGame<
     Player,

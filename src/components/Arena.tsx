@@ -1,9 +1,9 @@
-import React, { PropsWithChildren, useContext } from "react";
+import React, { PropsWithChildren } from "react";
 import { Player, PlayerComponent } from "../gamestate/Player";
 import { Point } from "@flatten-js/core";
 import { getPosition } from "../gamestate/htmlHelpers";
 import { PartyList } from "../gamestate/PartyList/PartyList";
-import { SetupContext } from "../gamestate/Setup/Setup";
+import { useFullPartyProfile } from "../gamestate/Setup/ProfileContext";
 import { Mechanic } from "../gamestate/mechanics";
 
 export const Arena = <TPlayer extends Player>(
@@ -14,9 +14,7 @@ export const Arena = <TPlayer extends Player>(
     showPartyList: boolean;
   }>
 ) => {
-  const {
-    setup: { playerIconSize },
-  } = useContext(SetupContext);
+  const { playerIconSize } = useFullPartyProfile();
 
   return (
     <div

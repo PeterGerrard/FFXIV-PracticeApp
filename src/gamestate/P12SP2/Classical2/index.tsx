@@ -1,4 +1,3 @@
-import { useContext } from "react";
 import { initialState } from "./states";
 import { Player } from "../../Player";
 import {
@@ -6,15 +5,15 @@ import {
   getRandomPos,
   getRole,
 } from "../../gameState";
-import { SetupContext } from "../../Setup/Setup";
 import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useTitle } from "../../../components/useTitle";
 import { P12P2Arena } from "../P12SP2Arena";
 import { useMechanic } from "../../mechanics";
+import { useFullPartyProfile } from "../../Setup/ProfileContext";
 
 export const ClassicalConcepts2 = () => {
-  const { setup } = useContext(SetupContext);
+  const setup = useFullPartyProfile();
   useTitle("Classical Concepts 2");
 
   const [mechanic, players, restart, move] = useMechanic<Player>(

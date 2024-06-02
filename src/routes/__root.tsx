@@ -1,27 +1,19 @@
 /// <reference types="vite-plugin-svgr/client" />
 
-import { SetupContext } from "../gamestate/Setup/Setup";
 import { useEffect, useState } from "react";
-import { Setup } from "../gamestate/gameState";
 import { Link, Outlet, createRootRoute } from "@tanstack/react-router";
 import { NavBar } from "../components/NavBar";
-
-const defaultSetup: Setup = { designation: "H2", playerIconSize: 0.08 };
+import { ProfileContext, useProfiles } from "../gamestate/Setup/ProfileContext";
 
 export const Route = createRootRoute({
   component: () => {
-    const [setup, setSetup] = useState<Setup>(() => {
-      const stored = localStorage.getItem("setup");
-      if (stored) {
-        return { ...defaultSetup, ...JSON.parse(stored) };
-      } else {
-        return defaultSetup;
-      }
-    });
-    const saveSetup = (newSetup: Setup) => {
-      setSetup(newSetup);
-      localStorage.setItem("setup", JSON.stringify(newSetup));
-    };
+    const [profiles] = useProfiles();
+    const [lightPartyProfile, setLightPartyProfile] = useState(
+      profiles.defaultLightPartyProfile
+    );
+    const [fullPartyProfile, setFullPartyProfile] = useState(
+      profiles.defaultFullPartyProfile
+    );
 
     useEffect(() => {
       const root = window.document.documentElement;
@@ -37,10 +29,13 @@ export const Route = createRootRoute({
     }, []);
 
     return (
-      <SetupContext.Provider
+      <ProfileContext.Provider
         value={{
-          setup: setup ?? defaultSetup,
-          setSetup: saveSetup,
+          ...profiles,
+          currentFullPartyProfile: fullPartyProfile,
+          currentLightPartyProfile: lightPartyProfile,
+          switchFullPartyProfile: setFullPartyProfile,
+          switchLightPartyProfile: setLightPartyProfile,
         }}
       >
         <div>
@@ -50,7 +45,7 @@ export const Route = createRootRoute({
         </div>
         <NavBar />
         <Outlet />
-      </SetupContext.Provider>
+      </ProfileContext.Provider>
     );
   },
 });

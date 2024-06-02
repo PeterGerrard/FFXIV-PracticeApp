@@ -1,9 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import { useContext } from "react";
 import { useTitle } from "../../../components/useTitle";
 import { Debuff, Player } from "../../Player";
-import { SetupContext } from "../../Setup/Setup";
 import {
   Designation,
   Designations,
@@ -41,6 +39,7 @@ import caloricStack2 from "../assets/CaloricCount2.png";
 import caloricStack3 from "../assets/CaloricCount3.png";
 import caloricStack4 from "../assets/CaloricCount4.png";
 import caloricStack5 from "../assets/CaloricCount5.png";
+import { useFullPartyProfile } from "../../Setup/ProfileContext";
 const CaloricStack1Debuff: Debuff = {
   name: "Caloric Stack 1",
   src: caloricStack1,
@@ -446,7 +445,7 @@ const debuffExplosions = (
   ]);
 
 export const CaloricTheory2 = () => {
-  const { setup } = useContext(SetupContext);
+  const setup = useFullPartyProfile();
   useTitle("Caloric 2");
 
   const [mechanic, players, restart, move] = useMechanic<Caloric2Player>(

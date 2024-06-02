@@ -9,16 +9,32 @@ import {
 import { Designation, Designations, Setup, getRole } from "../gameState";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
-import { useContext } from "react";
-import { SetupContext } from "./Setup";
 import { DesignationDisplay } from "../Designation";
+import {
+  FullPartyProfile,
+  ProfileContext,
+  useProfiles,
+} from "./ProfileContext";
+import { useContext } from "react";
 
 export const SetupForm = () => {
-  const { setup, setSetup } = useContext(SetupContext);
+  const [profiles, setProfiles] = useProfiles();
+  const { switchFullPartyProfile } = useContext(ProfileContext);
 
   const update = (p: Partial<Setup>) => {
-    const newSetup: Setup = { ...setup, ...p };
-    setSetup(newSetup);
+    const newFull: FullPartyProfile = {
+      ...profiles.defaultFullPartyProfile,
+      ...p,
+    };
+    switchFullPartyProfile(newFull);
+    setProfiles({
+      defaultFullPartyProfile: newFull,
+      defaultLightPartyProfile: profiles.defaultLightPartyProfile,
+      fullPartyProfiles: profiles.fullPartyProfiles.map((p) =>
+        p.name === newFull.name ? newFull : p
+      ),
+      lightPartyProfiles: profiles.lightPartyProfiles,
+    });
   };
 
   return (
@@ -27,7 +43,7 @@ export const SetupForm = () => {
         <Label htmlFor="designationSelect">Designation</Label>
         <Select
           onValueChange={(x) => update({ designation: x as Designation })}
-          value={setup.designation}
+          value={profiles.defaultFullPartyProfile.designation}
         >
           <SelectTrigger>
             <SelectValue />
@@ -47,7 +63,7 @@ export const SetupForm = () => {
         <Label htmlFor="iconSize">Icon Size</Label>
         <Slider
           id="icon-size"
-          value={[setup.playerIconSize]}
+          value={[profiles.defaultFullPartyProfile.playerIconSize]}
           onValueChange={([v]) => update({ playerIconSize: v })}
           min={0.04}
           max={0.15}
@@ -55,14 +71,14 @@ export const SetupForm = () => {
         />
         <DesignationDisplay
           player={{
-            designation: setup.designation,
-            role: getRole(setup.designation),
+            designation: profiles.defaultFullPartyProfile.designation,
+            role: getRole(profiles.defaultFullPartyProfile.designation),
           }}
           style={{
             left: 0,
             top: 0,
-            height: `calc(75vh * ${setup.playerIconSize})`,
-            width: `calc(75vw * ${setup.playerIconSize})`,
+            height: `calc(75vh * ${profiles.defaultFullPartyProfile.playerIconSize})`,
+            width: `calc(75vw * ${profiles.defaultFullPartyProfile.playerIconSize})`,
           }}
         />
       </div>

@@ -1,5 +1,5 @@
 import { Point } from "@flatten-js/core";
-import { Designation, Designations, Setup, getRole } from "../../gameState";
+import { Designation, Designations,  getRole } from "../../gameState";
 import { pickOne, shuffle } from "../../helpers";
 import {
   DivisiveOverrulingGameState,
@@ -26,6 +26,7 @@ import {
 } from "./Revelation/revelationsState";
 import { DarkAndLightPlayer, createPlayer } from "./gameState";
 import { Mechanic } from "../../mechanics";
+import { FullPartyProfile } from "../../Setup/ProfileContext";
 
 export type NewDarkAndLightState =
   | ({ outer: "Revelation" } & RevelationGameState)
@@ -81,7 +82,7 @@ export const getTargetSpot = (
   }
 };
 
-export const createPlayers = (setup: Setup) => {
+export const createPlayers = (setup: FullPartyProfile) => {
   let dps = Designations.filter((d) => getRole(d) === "DPS");
   let tanks = Designations.filter((d) => getRole(d) === "Tank");
   let healers = Designations.filter((d) => getRole(d) === "Healer");

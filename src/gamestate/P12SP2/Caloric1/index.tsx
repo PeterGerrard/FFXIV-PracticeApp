@@ -1,4 +1,3 @@
-import { useContext } from "react";
 import {
   Caloric1GameState,
   CaloricStack5Debuff,
@@ -10,20 +9,20 @@ import {
 } from "./states";
 import { Player } from "../../Player";
 import { Designations, getRandomPos, getRole } from "../../gameState";
-import { SetupContext } from "../../Setup/Setup";
 import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useGame } from "../../gameHooks";
 import { Overlay } from "../../Overlay";
 import { useTitle } from "../../../components/useTitle";
 import { P12P2Arena } from "../P12SP2Arena";
+import { useFullPartyProfile } from "../../Setup/ProfileContext";
 
 const autoProgress = (state: Caloric1GameState): false | number =>
   state.autoProgress;
 
 const hasFinished = (s: Caloric1GameState): boolean => s.stage === "Final";
 export const CaloricConcepts1 = () => {
-  const { setup } = useContext(SetupContext);
+  const setup = useFullPartyProfile();
   useTitle("Caloric Concepts 1");
 
   const { state, players, restart, onMove, safeLocation } = useGame<

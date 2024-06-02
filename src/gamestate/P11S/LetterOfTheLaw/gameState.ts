@@ -33,9 +33,8 @@ import {
 } from "./Twofold Revelation";
 import { useGame } from "../../gameHooks";
 import { split, pickOne } from "../../helpers";
-import { useContext } from "react";
-import { SetupContext } from "../../Setup/Setup";
 import { Mechanic } from "../../mechanics";
+import { useFullPartyProfile } from "../../Setup/ProfileContext";
 
 export type LetterOfTheLawPlayer = Player & {
   isTethered: boolean;
@@ -211,7 +210,7 @@ const progress = (
 const getDebuffs = () => [];
 
 export const useLetterOfTheLaw = () => {
-  const { setup } = useContext(SetupContext);
+  const setup = useFullPartyProfile();
 
   return useGame<LetterOfTheLawPlayer, NewLetterOfTheLawState>(
     getSurvivors,

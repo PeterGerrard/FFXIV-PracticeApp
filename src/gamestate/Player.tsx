@@ -1,9 +1,9 @@
-import { CSSProperties, useContext } from "react";
+import { CSSProperties } from "react";
 import skullPng from "./assets/Skull_and_Crossbones.png";
 import { Designation, Role } from "./gameState";
 import { Point } from "@flatten-js/core";
 import { DesignationDisplay } from "./Designation";
-import { SetupContext } from "./Setup/Setup";
+import { useFullPartyProfile } from "./Setup/ProfileContext";
 
 export type Debuff = {
   name: string;
@@ -22,9 +22,7 @@ export type Player = {
 };
 
 export const PlayerComponent = (props: { player: Player }) => {
-  const {
-    setup: { playerIconSize },
-  } = useContext(SetupContext);
+  const { playerIconSize } = useFullPartyProfile();
 
   const imgStyle: CSSProperties = {
     position: "absolute",

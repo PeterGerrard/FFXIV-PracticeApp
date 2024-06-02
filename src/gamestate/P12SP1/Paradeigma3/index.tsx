@@ -26,8 +26,7 @@ import DarkTower from "../SuperchainTheory1/assets/darktower.png";
 import LightTower from "../SuperchainTheory1/assets/lighttower.png";
 import { useTitle } from "../../../components/useTitle";
 import { useGame } from "../../gameHooks";
-import { PropsWithChildren, useContext } from "react";
-import { SetupContext } from "../../Setup/Setup";
+import { PropsWithChildren } from "react";
 import { Overlay } from "../../Overlay";
 import { emptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
 import { lineMechanic } from "../../Mechanics/LineAoE";
@@ -36,6 +35,7 @@ import {
   SimpleKillProfile,
 } from "../../Mechanics/DangerPuddles";
 import { circleMechanic } from "../../Mechanics/CircleAoE";
+import { useFullPartyProfile } from "../../Setup/ProfileContext";
 
 const getTetheredPlayer = (
   addPos: InterCardinal,
@@ -1092,7 +1092,7 @@ const autoProgress = (state: Paradeigma3GameState): false | number => {
 };
 
 const usePara3 = () => {
-  const { setup } = useContext(SetupContext);
+  const setup = useFullPartyProfile();
 
   return useGame<Paradeigma3Player, Paradeigma3GameState>(
     (s, ps) =>

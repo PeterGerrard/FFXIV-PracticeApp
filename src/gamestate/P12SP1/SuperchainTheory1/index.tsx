@@ -29,14 +29,13 @@ import { ReloadIcon } from "@radix-ui/react-icons";
 import { SuperchainTheory1Arena } from "./SuperchainTheory1Arena";
 import { useTitle } from "../../../components/useTitle";
 import { useGame } from "../../gameHooks";
-import { useContext } from "react";
-import { SetupContext } from "../../Setup/Setup";
 import { Overlay } from "../../Overlay";
 import { Progress } from "@/components/ui/progress";
 import { emptyMechanic, Mechanic, composeMechanics } from "../../mechanics";
 import { lineMechanic } from "../../Mechanics/LineAoE";
 import { circleMechanic } from "../../Mechanics/CircleAoE";
 import { SimpleHeavyDamageProfile } from "../../Mechanics/DangerPuddles";
+import { useFullPartyProfile } from "../../Setup/ProfileContext";
 
 const getSafeSpot = (
   gameState: SuperchainTheoryGameState,
@@ -694,7 +693,7 @@ const getDebuffs = (
 };
 
 export const SuperchainTheory1 = () => {
-  const { setup } = useContext(SetupContext);
+  const setup = useFullPartyProfile();
   useTitle("Superchain Theory 1");
   const { onMove, players, restart, safeLocation, state } = useGame<
     SuperchainTheory1Player,

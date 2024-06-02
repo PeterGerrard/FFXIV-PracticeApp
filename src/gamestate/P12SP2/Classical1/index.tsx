@@ -1,4 +1,3 @@
-import { useContext } from "react";
 import {
   Classical1GameState,
   createInitialState,
@@ -14,7 +13,6 @@ import {
   getRandomPos,
   getRole,
 } from "../../gameState";
-import { SetupContext } from "../../Setup/Setup";
 import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useGame } from "../../gameHooks";
@@ -25,6 +23,7 @@ import cubeSrc from "../assets/cube.png";
 import pyramidSrc from "../assets/pyramid.png";
 import octahedronSrc from "../assets/octahedron.png";
 import { Point } from "@flatten-js/core";
+import { useFullPartyProfile } from "../../Setup/ProfileContext";
 
 const autoProgress = (state: Classical1GameState) =>
   state.stage === "TetherMove" || state.stage === "Bait" ? 0 : false;
@@ -82,7 +81,7 @@ const checkIntercepts = (state: Classical1GameState): boolean => {
 const hasFinished = (s: Classical1GameState): boolean =>
   s.stage === "FinalDodge";
 export const ClassicalConcepts1 = () => {
-  const { setup } = useContext(SetupContext);
+  const setup = useFullPartyProfile();
   useTitle("Classical Concepts 1");
 
   const { state, players, restart, onMove, safeLocation } = useGame<
