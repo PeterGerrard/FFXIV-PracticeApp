@@ -29,6 +29,17 @@ export const NavBar = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
+          <NavigationMenuTrigger>Criterion</NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <ul className="m-0 p-1 w-[300px] list-none">
+              <ListItem
+                to="/mechanics/criterion/aai"
+                title="Another Aloalo Island"
+              />
+            </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
           <Link
             to="/setup"
             className={cn(navigationMenuTriggerStyle(), "no-underline")}

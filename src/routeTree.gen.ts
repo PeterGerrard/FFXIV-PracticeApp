@@ -18,6 +18,7 @@ import { Route as DarkandlightImport } from './routes/darkandlight'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
 import { Route as MechanicsEndwalkerAnabaseiosIndexImport } from './routes/mechanics/endwalker/anabaseios/index'
+import { Route as MechanicsCriterionAaiIndexImport } from './routes/mechanics/criterion/aai/index'
 
 // Create Virtual Routes
 
@@ -43,6 +44,9 @@ const MechanicsEndwalkerAnabaseiosP11sLetterofthelawLazyImport =
   createFileRoute('/mechanics/endwalker/anabaseios/p11s/letterofthelaw')()
 const MechanicsEndwalkerAnabaseiosP11sDarkandlightLazyImport = createFileRoute(
   '/mechanics/endwalker/anabaseios/p11s/darkandlight',
+)()
+const MechanicsCriterionAaiStaticeIntermissionLazyImport = createFileRoute(
+  '/mechanics/criterion/aai/statice/intermission',
 )()
 const MechanicsEndwalkerAnabaseiosP12sP2Classical2LazyImport = createFileRoute(
   '/mechanics/endwalker/anabaseios/p12s/p2/classical2',
@@ -181,6 +185,13 @@ const MechanicsEndwalkerAnabaseiosIndexRoute =
     getParentRoute: () => rootRoute,
   } as any)
 
+const MechanicsCriterionAaiIndexRoute = MechanicsCriterionAaiIndexImport.update(
+  {
+    path: '/mechanics/criterion/aai/',
+    getParentRoute: () => rootRoute,
+  } as any,
+)
+
 const MechanicsEndwalkerAnabaseiosP11sLetterofthelawLazyRoute =
   MechanicsEndwalkerAnabaseiosP11sLetterofthelawLazyImport.update({
     path: '/mechanics/endwalker/anabaseios/p11s/letterofthelaw',
@@ -199,6 +210,16 @@ const MechanicsEndwalkerAnabaseiosP11sDarkandlightLazyRoute =
     import(
       './routes/mechanics/endwalker/anabaseios/p11s/darkandlight.lazy'
     ).then((d) => d.Route),
+  )
+
+const MechanicsCriterionAaiStaticeIntermissionLazyRoute =
+  MechanicsCriterionAaiStaticeIntermissionLazyImport.update({
+    path: '/mechanics/criterion/aai/statice/intermission',
+    getParentRoute: () => rootRoute,
+  } as any).lazy(() =>
+    import('./routes/mechanics/criterion/aai/statice/intermission.lazy').then(
+      (d) => d.Route,
+    ),
   )
 
 const MechanicsEndwalkerAnabaseiosP12sP2Classical2LazyRoute =
@@ -349,8 +370,16 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof P12sP2Classical2LazyImport
       parentRoute: typeof rootRoute
     }
+    '/mechanics/criterion/aai/': {
+      preLoaderRoute: typeof MechanicsCriterionAaiIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/mechanics/endwalker/anabaseios/': {
       preLoaderRoute: typeof MechanicsEndwalkerAnabaseiosIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/mechanics/criterion/aai/statice/intermission': {
+      preLoaderRoute: typeof MechanicsCriterionAaiStaticeIntermissionLazyImport
       parentRoute: typeof rootRoute
     }
     '/mechanics/endwalker/anabaseios/p11s/darkandlight': {
@@ -415,7 +444,9 @@ export const routeTree = rootRoute.addChildren([
   P12sP2Caloric2LazyRoute,
   P12sP2Classical1LazyRoute,
   P12sP2Classical2LazyRoute,
+  MechanicsCriterionAaiIndexRoute,
   MechanicsEndwalkerAnabaseiosIndexRoute,
+  MechanicsCriterionAaiStaticeIntermissionLazyRoute,
   MechanicsEndwalkerAnabaseiosP11sDarkandlightLazyRoute,
   MechanicsEndwalkerAnabaseiosP11sLetterofthelawLazyRoute,
   MechanicsEndwalkerAnabaseiosP12sP1Paradeigma3LazyRoute,

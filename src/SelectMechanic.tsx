@@ -86,6 +86,19 @@ const anabaseiosFights: MechanicFight[] = [
   },
 ];
 
+const aloaloFights: MechanicFight[] = [
+  {
+    name: "Statice",
+    mechanics: [
+      {
+        developmentStage: DevelopmentStage.Alpha,
+        name: "Intermission",
+        link: "/mechanics/criterion/aai/statice/intermission"
+      },
+    ],
+  },
+];
+
 const DisplayMechanic = (props: { mechanic: Mechanic }) => {
   let suffix: string;
   switch (props.mechanic.developmentStage) {
@@ -132,6 +145,16 @@ export const SelectMechanic = () => {
   return (
     <>
       {anabaseiosFights.map((mg) => (
+        <DisplayMechanicFight key={mg.name} group={mg} />
+      ))}
+    </>
+  );
+};
+
+export const AloaloSelectMechanic = () => {
+  return (
+    <>
+      {aloaloFights.map((mg) => (
         <DisplayMechanicFight key={mg.name} group={mg} />
       ))}
     </>
