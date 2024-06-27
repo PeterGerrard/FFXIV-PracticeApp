@@ -17,7 +17,10 @@ import { Route as LetterofthelawImport } from './routes/letterofthelaw'
 import { Route as DarkandlightImport } from './routes/darkandlight'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
+import { Route as MechanicsEndwalkerIndexImport } from './routes/mechanics/endwalker/index'
+import { Route as MechanicsDawntrailIndexImport } from './routes/mechanics/dawntrail/index'
 import { Route as MechanicsEndwalkerAnabaseiosIndexImport } from './routes/mechanics/endwalker/anabaseios/index'
+import { Route as MechanicsDawntrailTier1IndexImport } from './routes/mechanics/dawntrail/tier1/index'
 import { Route as MechanicsCriterionAaiIndexImport } from './routes/mechanics/criterion/aai/index'
 
 // Create Virtual Routes
@@ -120,6 +123,16 @@ const DevSimpleaoeLazyRoute = DevSimpleaoeLazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/dev/simpleaoe.lazy').then((d) => d.Route))
 
+const MechanicsEndwalkerIndexRoute = MechanicsEndwalkerIndexImport.update({
+  path: '/mechanics/endwalker/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const MechanicsDawntrailIndexRoute = MechanicsDawntrailIndexImport.update({
+  path: '/mechanics/dawntrail/',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const P12sP2Classical2LazyRoute = P12sP2Classical2LazyImport.update({
   path: '/p12s/p2/classical2',
   getParentRoute: () => rootRoute,
@@ -182,6 +195,12 @@ const P12sP1Paradeigma3LazyRoute = P12sP1Paradeigma3LazyImport.update({
 const MechanicsEndwalkerAnabaseiosIndexRoute =
   MechanicsEndwalkerAnabaseiosIndexImport.update({
     path: '/mechanics/endwalker/anabaseios/',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const MechanicsDawntrailTier1IndexRoute =
+  MechanicsDawntrailTier1IndexImport.update({
+    path: '/mechanics/dawntrail/tier1/',
     getParentRoute: () => rootRoute,
   } as any)
 
@@ -370,8 +389,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof P12sP2Classical2LazyImport
       parentRoute: typeof rootRoute
     }
+    '/mechanics/dawntrail/': {
+      preLoaderRoute: typeof MechanicsDawntrailIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/mechanics/endwalker/': {
+      preLoaderRoute: typeof MechanicsEndwalkerIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/mechanics/criterion/aai/': {
       preLoaderRoute: typeof MechanicsCriterionAaiIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/mechanics/dawntrail/tier1/': {
+      preLoaderRoute: typeof MechanicsDawntrailTier1IndexImport
       parentRoute: typeof rootRoute
     }
     '/mechanics/endwalker/anabaseios/': {
@@ -444,7 +475,10 @@ export const routeTree = rootRoute.addChildren([
   P12sP2Caloric2LazyRoute,
   P12sP2Classical1LazyRoute,
   P12sP2Classical2LazyRoute,
+  MechanicsDawntrailIndexRoute,
+  MechanicsEndwalkerIndexRoute,
   MechanicsCriterionAaiIndexRoute,
+  MechanicsDawntrailTier1IndexRoute,
   MechanicsEndwalkerAnabaseiosIndexRoute,
   MechanicsCriterionAaiStaticeIntermissionLazyRoute,
   MechanicsEndwalkerAnabaseiosP11sDarkandlightLazyRoute,

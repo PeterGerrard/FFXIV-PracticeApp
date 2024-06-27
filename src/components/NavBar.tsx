@@ -29,6 +29,14 @@ export const NavBar = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
+          <NavigationMenuTrigger>Dawntrail</NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <ul className="m-0 p-1 w-[300px] list-none">
+              <ListItem to="/mechanics/dawntrail/tier1" title="Tier 1" />
+            </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+        {/* <NavigationMenuItem>
           <NavigationMenuTrigger>Criterion</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="m-0 p-1 w-[300px] list-none">
@@ -38,7 +46,7 @@ export const NavBar = () => {
               />
             </ul>
           </NavigationMenuContent>
-        </NavigationMenuItem>
+        </NavigationMenuItem> */}
         <NavigationMenuItem>
           <Link
             to="/setup"
