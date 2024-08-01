@@ -5,7 +5,7 @@ import { FightGroupSelector } from "../../../components/Selector/FightGroupSelec
 export const Route = createFileRoute("/mechanics/dawntrail/")({
   component: () => (
     <SelectorGroup>
-      <FightGroupSelector to="/mechanics/dawntrail/tier1" name="Tier 1" />
+      <FightGroupSelector to="/mechanics/dawntrail/lightweight" name="Light Heavyweight Division" />
     </SelectorGroup>
   ),
 });

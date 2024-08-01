@@ -32,7 +32,7 @@ export const NavBar = () => {
           <NavigationMenuTrigger>Dawntrail</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="m-0 p-1 w-[300px] list-none">
-              <ListItem to="/mechanics/dawntrail/tier1" title="Tier 1" />
+              <ListItem to="/mechanics/dawntrail/lightweight" title="Light Heavyweight Division" />
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
