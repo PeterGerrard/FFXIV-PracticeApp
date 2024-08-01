@@ -52,6 +52,11 @@ export const calculateDamage = (f: (d: Designation) => number) => ({
   R2: f("R2"),
 });
 
+export const calculateDamageForPlayer = (f: (p: Player) => number) => (ps: Player[]) => {
+  const getPlayer = (d: Designation) => ps.filter(p => p.designation === d)[0]
+  return calculateDamage(d => f(getPlayer(d)));
+};
+
 export const afterMove = <TPlayer extends Player>(
   mechanic: Mechanic<TPlayer>
 ): Mechanic<TPlayer> => {
@@ -99,6 +104,16 @@ export const withSafeSpot = <TPlayer extends Player>(
   return {
     ...mechanic,
     getSafeSpot,
+  };
+};
+
+export const withProgress = <TPlayer extends Player>(
+  mechanic: Mechanic<TPlayer>,
+  progress: (players: TPlayer[]) => [Mechanic<TPlayer> | null, TPlayer[]]
+): Mechanic<TPlayer> => {
+  return {
+    ...mechanic,
+    progress,
   };
 };
 
@@ -226,7 +241,7 @@ export const composeMechanics = <TPlayer extends {}>(
   };
 };
 
-const FinishedMechanic: Mechanic<any> = {
+export const FinishedMechanic: Mechanic<any> = {
   applyDamage: () => ZeroDamage,
   display: () => (
     <div
