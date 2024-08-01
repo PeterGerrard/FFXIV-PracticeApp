@@ -3,7 +3,7 @@ import { useTitle } from "../../../components/useTitle";
 import { Designation, Designations, getRandomPos, getRole, isDps } from "../../../gamestate/gameState";
 import { Player } from "../../../gamestate/Player";
 import { useFullPartyProfile } from "../../../gamestate/Setup/ProfileContext";
-import { automatic, calculateDamageForPlayer, composeMechanics, FinishedMechanic, Mechanic, useMechanic, withProgress, ZeroDamage } from "../../../gamestate/mechanics";
+import { automatic, calculateDamageForPlayer, composeMechanics, FinishedMechanic, Mechanic, useMechanic, withProgress } from "../../../gamestate/mechanics";
 import { Button } from "@/components/ui/button";
 import { Mouser1Arena } from "./arena/Arena";
 import { ReloadIcon } from "@radix-ui/react-icons";
