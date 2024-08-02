@@ -13,11 +13,11 @@ import {
   automatic,
   calculateDamageForPlayer,
   composeMechanics,
-  FinishedMechanic,
   Mechanic,
   useMechanic,
   withProgress,
   withSafeSpot,
+  ZeroDamage,
 } from "../../../gamestate/mechanics";
 import { Button } from "@/components/ui/button";
 import { Mouser1Arena } from "./arena/Arena";
@@ -26,6 +26,7 @@ import { pickOne, shuffle } from "../../../gamestate/helpers";
 import { PunchTargetDebuff } from "./PunchTargetDebuff";
 import { lineMechanic } from "../../../gamestate/Mechanics/LineAoE";
 import { Arena } from "../../../components/Arena";
+import { Mouser1ArenaSection } from "./arena/ArenaSection";
 
 type Section = [number, number];
 
@@ -46,24 +47,8 @@ const matchingSection = (s1: Section, s2: Section) => {
   return s1[0] === s2[0] && s1[1] === s2[1];
 };
 
-const safeSections = (
-  destroyedSections: Section[],
-  damagedSections: Section[]
-): Section[] => {
-  return [0, 1, 2, 3]
-    .flatMap((x) => [0, 1, 2, 3].map<Section>((y) => [x, y]))
-    .filter(
-      (s) =>
-        !destroyedSections.some((d) => matchingSection(d, s)) &&
-        !damagedSections.some((d) => matchingSection(d, s))
-    );
-};
-
-const pickSpot = (
-  destroyedSections: Section[],
-  damagedSections: Section[]
-): Point => {
-  const [x, y] = pickOne(safeSections(destroyedSections, damagedSections));
+const pickSpot = (sections: Mouser1ArenaSection[]): Point => {
+  const { x, y } = pickOne(sections.filter((s) => s.status === "Safe"));
 
   let p1, p2;
   switch (x) {
@@ -112,64 +97,56 @@ const getKnockbackLocation = (p: Point): Point => {
 const punchMechanicTargetMove = (
   targetDesignation: Designation,
   nextTargets: Designation[],
-  destroyedSections: Section[],
-  damagedSections: Section[],
-  knockback: boolean
+  sections: Mouser1ArenaSection[],
+  knockback: boolean,
+  direction: "Vertical" | "Horizontal"
 ): Mechanic<Player> => {
   return withSafeSpot(
-    withProgress(
-      missingFloorMechanic(destroyedSections, damagedSections),
-      (ps) => {
-        const safeSquare = getOppositeSection(
-          ps.filter((p) => p.designation === targetDesignation)[0].position
-        );
-        return [
-          punchMechanicRestMove(
-            targetDesignation,
-            nextTargets,
-            destroyedSections,
-            damagedSections,
-            safeSquare,
-            knockback
-          ),
-          ps,
-        ];
-      }
-    ),
+    withProgress(missingFloorMechanic(sections), (ps) => {
+      const safeSquare = getOppositeSection(
+        ps.filter((p) => p.designation === targetDesignation)[0].position
+      );
+      return [
+        punchMechanicRestMove(
+          targetDesignation,
+          nextTargets,
+          sections,
+          safeSquare,
+          knockback,
+          direction
+        ),
+        ps,
+      ];
+    }),
     (_ps, p) =>
-      p.designation === targetDesignation
-        ? pickSpot(destroyedSections, damagedSections)
-        : p.position
+      p.designation === targetDesignation ? pickSpot(sections) : p.position
   );
 };
 
 const punchMechanicRestMove = (
   targetDesignation: Designation,
   nextTargets: Designation[],
-  destroyedSections: Section[],
-  damagedSections: Section[],
+  sections: Mouser1ArenaSection[],
   safeSection: Section,
-  knockback: boolean
+  knockback: boolean,
+  direction: "Vertical" | "Horizontal"
 ): Mechanic<Player> => {
   return withSafeSpot(
-    withProgress(
-      missingFloorMechanic(destroyedSections, damagedSections),
-      (ps) => {
-        const nextPlayer = ps.filter(
-          (p) => p.designation === targetDesignation
-        )[0];
-        return [
-          punchMechanicHit(
-            nextPlayer,
-            nextTargets,
-            destroyedSections,
-            damagedSections,
-            knockback
-          ),
-          ps,
-        ];
-      }
-    ),
+    withProgress(missingFloorMechanic(sections), (ps) => {
+      const nextPlayer = ps.filter(
+        (p) => p.designation === targetDesignation
+      )[0];
+      return [
+        punchMechanicHit(
+          nextPlayer,
+          nextTargets,
+          sections,
+          knockback,
+          direction
+        ),
+        ps,
+      ];
+    }),
     (_ps, p) =>
       p.designation === targetDesignation
         ? p.position
@@ -177,12 +154,27 @@ const punchMechanicRestMove = (
   );
 };
 
+const applyDamageToSection = (
+  s: Mouser1ArenaSection["status"]
+): Mouser1ArenaSection["status"] => {
+  switch (s) {
+    case "Safe":
+      return "Damaged";
+    case "Damaged":
+      return "Destroyed";
+    case "Destroyed":
+    case "Repair":
+    case "SlowRepair":
+      return s;
+  }
+};
+
 const punchMechanicHit = (
   targetPlayer: Player,
   nextTargets: Designation[],
-  destroyedSections: Section[],
-  damagedSections: Section[],
-  knockback: boolean
+  sections: Mouser1ArenaSection[],
+  knockback: boolean,
+  direction: "Vertical" | "Horizontal"
 ): Mechanic<Player> => {
   const targetSection = getSection(targetPlayer.position);
   const sectionCentre = point(
@@ -204,10 +196,7 @@ const punchMechanicHit = (
 
   return automatic(
     withProgress(
-      composeMechanics([
-        missingFloorMechanic(destroyedSections, damagedSections),
-        hitMechanic,
-      ]),
+      composeMechanics([missingFloorMechanic(sections), hitMechanic]),
       (ps) => {
         const kbPlayer = ps.filter(
           (p) => p.designation === targetPlayer.designation
@@ -216,25 +205,19 @@ const punchMechanicHit = (
           ? getKnockbackLocation(kbPlayer.position)
           : kbPlayer.position;
         const targetSection = getSection(targetLocation);
-        let damaged = damagedSections;
-        let destroyed = destroyedSections;
-        if (damagedSections.some((d) => matchingSection(targetSection, d))) {
-          damaged = damagedSections.filter(
-            (d) => !matchingSection(targetSection, d)
-          );
-          destroyed.push(targetSection);
-        }
-        if (!destroyedSections.some((d) => matchingSection(targetSection, d))) {
-          damaged.push(targetSection);
-        }
+        const updatedSections = sections.map((s) =>
+          matchingSection([s.x, s.y], targetSection)
+            ? { ...s, status: applyDamageToSection(s.status) }
+            : s
+        );
         if (nextTargets.length > 0) {
           return [
             punchMechanicTargetMove(
               nextTargets[0],
               nextTargets.splice(1),
-              destroyed,
-              damaged,
-              !knockback
+              updatedSections,
+              !knockback,
+              direction
             ),
             ps.map((p) => ({
               ...p,
@@ -245,10 +228,7 @@ const punchMechanicHit = (
           ];
         } else {
           return [
-            composeMechanics([
-              missingFloorMechanic(destroyed, damaged),
-              FinishedMechanic,
-            ]),
+            composeMechanics([repairKnockback(updatedSections, direction)]),
             ps.map((p) => ({ ...p, debuffs: [] })),
           ];
         }
@@ -259,66 +239,156 @@ const punchMechanicHit = (
 };
 
 const missingFloorMechanic = (
-  destroyedSections: Section[],
-  damagedSections: Section[]
+  sections: Mouser1ArenaSection[]
 ): Mechanic<Player> => {
   return {
     applyDamage: calculateDamageForPlayer((p) =>
-      destroyedSections.some((s) => onSection(p.position, s)) ? 2 : 0
+      ["Destroyed", "Repair", "SlowRepair"].includes(
+        sections.filter((s) => onSection(p.position, [s.x, s.y]))[0].status
+      )
+        ? 2
+        : 0
     ),
-    display: () => (
-      <Mouser1Arena
-        damagedSections={damagedSections}
-        destroyedSections={destroyedSections}
-      />
-    ),
+    display: () => <Mouser1Arena sections={sections} />,
     getSafeSpot: () => null,
     progress: (ps) => [null, ps],
   };
 };
 
+const isFastRepairVertical = (
+  section: Mouser1ArenaSection,
+  northFast: "E" | "W"
+) => {
+  if (section.x === 0) {
+    if (northFast === "W" && (section.y === 0 || section.y === 1)) {
+      return true;
+    }
+    if (northFast === "E" && (section.y === 2 || section.y === 3)) {
+      return true;
+    }
+    return false;
+  }
+  if (section.x === 3) {
+    if (northFast === "E" && (section.y === 0 || section.y === 1)) {
+      return true;
+    }
+    if (northFast === "W" && (section.y === 2 || section.y === 3)) {
+      return true;
+    }
+    return false;
+  }
+  return false;
+};
+const isFastRepairHorizontal = (
+  section: Mouser1ArenaSection,
+  northFast: "E" | "W"
+) => {
+  if (section.y === 0) {
+    if (northFast === "W" && (section.x === 0 || section.x === 1)) {
+      return true;
+    }
+    if (northFast === "E" && (section.x === 2 || section.x === 3)) {
+      return true;
+    }
+    return false;
+  }
+  if (section.y === 3) {
+    if (northFast === "E" && (section.x === 0 || section.x === 1)) {
+      return true;
+    }
+    if (northFast === "W" && (section.x === 2 || section.x === 3)) {
+      return true;
+    }
+    return false;
+  }
+  return false;
+};
+const isFastRepair = (
+  section: Mouser1ArenaSection,
+  direction: "Vertical" | "Horizontal",
+  northFast: "E" | "W"
+) => {
+  switch (direction) {
+    case "Vertical":
+      return isFastRepairVertical(section, northFast);
+    case "Horizontal":
+      return isFastRepairHorizontal(section, northFast);
+  }
+};
+const isRepair = (
+  section: Mouser1ArenaSection,
+  direction: "Vertical" | "Horizontal"
+) => {
+  switch (direction) {
+    case "Vertical":
+      return section.x === 0 || section.x === 3;
+    case "Horizontal":
+      return section.y === 0 || section.y === 3;
+  }
+};
+
+const repairKnockback = (
+  sections: Mouser1ArenaSection[],
+  direction: "Vertical" | "Horizontal"
+): Mechanic<Player> => {
+  return {
+    applyDamage: (_) => ZeroDamage,
+    display: () => <Mouser1Arena sections={sections} />,
+    autoProgress: 0,
+    getSafeSpot: () => null,
+    progress: (ps) => {
+      const northFast = pickOne(["W", "E"] as const);
+      const updatedSections = sections.map<Mouser1ArenaSection>((s) => ({
+        ...s,
+        status: isRepair(s, direction)
+          ? isFastRepair(s, direction, northFast)
+            ? "Repair"
+            : "SlowRepair"
+          : s.status,
+      }));
+      return [
+        {
+          applyDamage: (_) => ZeroDamage,
+          display: () => <Mouser1Arena sections={updatedSections} />,
+          getSafeSpot: () => null,
+          progress: (ps) => [null, ps],
+        },
+        ps,
+      ];
+    },
+  };
+};
+
 const initialState = (): Mechanic<Player> => {
   const d = pickOne(["Horizontal", "Vertical"] as const);
-  const side = pickOne([false, true]);
-  const getDamaged = side
-    ? (n: number) => 2 - (n % 2)
-    : (n: number) => 1 + (n % 2);
   const dps = pickOne([true, false]);
   const targets = shuffle(
     Designations.filter((d) => (dps ? isDps(d) : !isDps(d)))
   );
 
-  const damagedSections = [0, 1, 2, 3].map<Section>((z) =>
-    d === "Horizontal" ? [getDamaged(z), z] : [z, getDamaged(z)]
-  );
-  const destroyedSections = [0, 1, 2, 3].flatMap<Section>((z) =>
-    d === "Horizontal"
-      ? [
-          [0, z],
-          [3, z],
-        ]
-      : [
-          [z, 0],
-          [z, 3],
-        ]
+  const pattern = shuffle([
+    ["Safe", "Damaged", "Safe", "Damaged"] as const,
+    ["Damaged", "Safe", "Damaged", "Safe"] as const,
+  ]);
+  const sections = [0, 1, 2, 3].flatMap((x) =>
+    [0, 1, 2, 3].map<Mouser1ArenaSection>((y) => ({
+      x,
+      y,
+      status:
+        (d === "Vertical" && (x === 0 || x === 3)) ||
+        (d === "Horizontal" && (y === 0 || y === 3))
+          ? "Destroyed"
+          : pattern[d === "Vertical" ? x - 1 : y - 1][d === "Vertical" ? y : x],
+    }))
   );
 
-  return withProgress(
-    missingFloorMechanic(destroyedSections, damagedSections),
-    (ps) => [
-      punchMechanicTargetMove(
-        targets[0],
-        targets.slice(1),
-        destroyedSections,
-        damagedSections,
-        true
-      ),
-      ps.map((p) => ({
-        ...p,
-        debuffs: p.designation === targets[0] ? [PunchTargetDebuff] : [],
-      })),
-    ]
-  );
+  return withProgress(missingFloorMechanic(sections), (ps) => [
+    punchMechanicTargetMove(targets[0], targets.slice(1), sections, true, d),
+    ps.map((p) => ({
+      ...p,
+      debuffs: p.designation === targets[0] ? [PunchTargetDebuff] : [],
+    })),
+  ]);
 };
 
 export const Mouser1 = () => {
