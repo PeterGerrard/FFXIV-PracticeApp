@@ -3,6 +3,7 @@ import { useTitle } from "../../../components/useTitle";
 import {
   Designation,
   Designations,
+  getGroup,
   getRandomPos,
   getRole,
   isDps,
@@ -13,6 +14,7 @@ import {
   automatic,
   calculateDamageForPlayer,
   composeMechanics,
+  FinishedMechanic,
   Mechanic,
   useMechanic,
   withProgress,
@@ -327,13 +329,54 @@ const isRepair = (
   }
 };
 
+const KnockbackArrow = (props: { d: number; rot: number }) => {
+  return (
+    <g
+      transform={`translate(0.5,0.5) rotate(${props.rot * 45}) scale(${props.d}) translate(-0.5,-0.5)`}
+      style={{
+        transformOrigin: "0.5,0.5",
+      }}
+    >
+      <polyline
+        points="0.6,0.475 0.615,0.5 0.6,0.525"
+        fill="none"
+        stroke="purple"
+        strokeWidth={0.01}
+      />
+      <polyline
+        points="0.62,0.475 0.635,0.5 0.62,0.525"
+        fill="none"
+        stroke="purple"
+        strokeWidth={0.01}
+      />
+    </g>
+  );
+};
+
+const getCentralKnockbackLocation = (p: Point): Point => {
+  return p.translate(vector(point(0.5, 0.5), p).normalize().multiply(0.62));
+};
+
 const repairKnockback = (
   sections: Mouser1ArenaSection[],
   direction: "Vertical" | "Horizontal"
 ): Mechanic<Player> => {
   return {
     applyDamage: (_) => ZeroDamage,
-    display: () => <Mouser1Arena sections={sections} />,
+    display: () => {
+      return (
+        <Mouser1Arena sections={sections}>
+          <KnockbackArrow d={1} rot={0} />
+          <KnockbackArrow d={1} rot={1} />
+          <KnockbackArrow d={1} rot={2} />
+          <KnockbackArrow d={1} rot={3} />
+          <KnockbackArrow d={1} rot={4} />
+          <KnockbackArrow d={1} rot={5} />
+          <KnockbackArrow d={1} rot={6} />
+          <KnockbackArrow d={1} rot={7} />
+        </Mouser1Arena>
+      );
+    },
     autoProgress: 0,
     getSafeSpot: () => null,
     progress: (ps) => {
@@ -349,9 +392,41 @@ const repairKnockback = (
       return [
         {
           applyDamage: (_) => ZeroDamage,
-          display: () => <Mouser1Arena sections={updatedSections} />,
-          getSafeSpot: () => null,
-          progress: (ps) => [null, ps],
+          display: () => (
+            <Mouser1Arena sections={updatedSections}>
+              <KnockbackArrow d={1} rot={0} />
+              <KnockbackArrow d={1} rot={1} />
+              <KnockbackArrow d={1} rot={2} />
+              <KnockbackArrow d={1} rot={3} />
+              <KnockbackArrow d={1} rot={4} />
+              <KnockbackArrow d={1} rot={5} />
+              <KnockbackArrow d={1} rot={6} />
+              <KnockbackArrow d={1} rot={7} />
+              <KnockbackArrow d={3} rot={0} />
+              <KnockbackArrow d={3} rot={1} />
+              <KnockbackArrow d={3} rot={2} />
+              <KnockbackArrow d={3} rot={3} />
+              <KnockbackArrow d={3} rot={4} />
+              <KnockbackArrow d={3} rot={5} />
+              <KnockbackArrow d={3} rot={6} />
+              <KnockbackArrow d={3} rot={7} />
+            </Mouser1Arena>
+          ),
+          getSafeSpot: (_ps, p) =>
+            getGroup(p.designation) === "Group1"
+              ? northFast === "E"
+                ? point(0.52, 0.48)
+                : point(0.52, 0.52)
+              : northFast === "E"
+                ? point(0.48, 0.52)
+                : point(0.48, 0.48),
+          progress: (ps) => [
+            composeMechanics([FinishedMechanic, finishedState]),
+            ps.map((p) => ({
+              ...p,
+              position: getCentralKnockbackLocation(p.position),
+            })),
+          ],
         },
         ps,
       ];
@@ -389,6 +464,23 @@ const initialState = (): Mechanic<Player> => {
       debuffs: p.designation === targets[0] ? [PunchTargetDebuff] : [],
     })),
   ]);
+};
+
+const finishedState: Mechanic<Player> = {
+  applyDamage: (_) => ZeroDamage,
+  display: () => (
+    <Mouser1Arena
+      sections={[0, 1, 2, 3].flatMap((x) =>
+        [0, 1, 2, 3].map<Mouser1ArenaSection>((y) => ({
+          x,
+          y,
+          status: "Safe",
+        }))
+      )}
+    />
+  ),
+  getSafeSpot: (_ps, p) => p.position,
+  progress: (ps) => [finishedState, ps],
 };
 
 export const Mouser1 = () => {

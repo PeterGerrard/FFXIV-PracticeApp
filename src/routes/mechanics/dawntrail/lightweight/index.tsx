@@ -1,14 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { DevelopmentStage, MechanicFight, SelectMechanic } from "../../../../SelectMechanic";
+import {
+  DevelopmentStage,
+  MechanicFight,
+  SelectMechanic,
+} from "../../../../SelectMechanic";
 
 const dtTier1Fights: MechanicFight[] = [
   {
     name: "M1S",
-    mechanics: [{
-      developmentStage: DevelopmentStage.Alpha,
-      link: "/mechanics/dawntrail/lightweight/mouser1",
-      name: "Mouser 1"
-    }],
+    mechanics: [
+      {
+        developmentStage: DevelopmentStage.Beta,
+        link: "/mechanics/dawntrail/lightweight/mouser1",
+        name: "Mouser 1",
+      },
+    ],
   },
   {
     name: "M2S",

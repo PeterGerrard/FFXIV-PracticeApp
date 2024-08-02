@@ -14,7 +14,9 @@ export type Mechanic<TPlayer> = {
   ) => React.ReactElement;
 };
 
-export const emptyMechanic = <TPlayer extends Player | LightPlayer>(): Mechanic<TPlayer> => ({
+export const emptyMechanic = <
+  TPlayer extends Player | LightPlayer,
+>(): Mechanic<TPlayer> => ({
   applyDamage: () => ({
     H1: 0,
     H2: 0,
@@ -52,10 +54,12 @@ export const calculateDamage = (f: (d: Designation) => number) => ({
   R2: f("R2"),
 });
 
-export const calculateDamageForPlayer = (f: (p: Player) => number) => (ps: Player[]) => {
-  const getPlayer = (d: Designation) => ps.filter(p => p.designation === d)[0]
-  return calculateDamage(d => f(getPlayer(d)));
-};
+export const calculateDamageForPlayer =
+  (f: (p: Player) => number) => (ps: Player[]) => {
+    const getPlayer = (d: Designation) =>
+      ps.filter((p) => p.designation === d)[0];
+    return calculateDamage((d) => f(getPlayer(d)));
+  };
 
 export const afterMove = <TPlayer extends Player>(
   mechanic: Mechanic<TPlayer>
@@ -261,6 +265,7 @@ export const FinishedMechanic: Mechanic<any> = {
         style={{
           fontSize: "min(12vi, 12vb)",
           color: "hotpink",
+          position: "relative",
         }}
       >
         Finished!

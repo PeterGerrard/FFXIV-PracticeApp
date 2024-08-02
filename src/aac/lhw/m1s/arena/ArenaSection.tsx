@@ -36,7 +36,7 @@ export const ArenaSection = (props: Mouser1ArenaSection) => {
             width={0.25}
             y={0}
             height={0.25}
-            fill="purple"
+            fill="darkblue"
             stroke="grey"
             strokeWidth={0.01}
           />
