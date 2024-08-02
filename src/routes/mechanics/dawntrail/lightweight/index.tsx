@@ -14,6 +14,11 @@ const dtTier1Fights: MechanicFight[] = [
         link: "/mechanics/dawntrail/lightweight/mouser1",
         name: "Mouser 1",
       },
+      {
+        developmentStage: DevelopmentStage.Dev,
+        link: "/mechanics/dawntrail/lightweight/clones",
+        name: "Clone Shenanigans",
+      },
     ],
   },
   {

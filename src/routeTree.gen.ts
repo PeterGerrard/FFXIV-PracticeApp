@@ -23,6 +23,7 @@ import { Route as MechanicsEndwalkerAnabaseiosIndexImport } from './routes/mecha
 import { Route as MechanicsDawntrailLightweightIndexImport } from './routes/mechanics/dawntrail/lightweight/index'
 import { Route as MechanicsCriterionAaiIndexImport } from './routes/mechanics/criterion/aai/index'
 import { Route as MechanicsDawntrailLightweightMouser1Import } from './routes/mechanics/dawntrail/lightweight/mouser1'
+import { Route as MechanicsDawntrailLightweightClonesImport } from './routes/mechanics/dawntrail/lightweight/clones'
 
 // Create Virtual Routes
 
@@ -218,6 +219,12 @@ const MechanicsDawntrailLightweightMouser1Route =
     getParentRoute: () => rootRoute,
   } as any)
 
+const MechanicsDawntrailLightweightClonesRoute =
+  MechanicsDawntrailLightweightClonesImport.update({
+    path: '/mechanics/dawntrail/lightweight/clones',
+    getParentRoute: () => rootRoute,
+  } as any)
+
 const MechanicsEndwalkerAnabaseiosP11sLetterofthelawLazyRoute =
   MechanicsEndwalkerAnabaseiosP11sLetterofthelawLazyImport.update({
     path: '/mechanics/endwalker/anabaseios/p11s/letterofthelaw',
@@ -404,6 +411,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MechanicsEndwalkerIndexImport
       parentRoute: typeof rootRoute
     }
+    '/mechanics/dawntrail/lightweight/clones': {
+      preLoaderRoute: typeof MechanicsDawntrailLightweightClonesImport
+      parentRoute: typeof rootRoute
+    }
     '/mechanics/dawntrail/lightweight/mouser1': {
       preLoaderRoute: typeof MechanicsDawntrailLightweightMouser1Import
       parentRoute: typeof rootRoute
@@ -488,6 +499,7 @@ export const routeTree = rootRoute.addChildren([
   P12sP2Classical2LazyRoute,
   MechanicsDawntrailIndexRoute,
   MechanicsEndwalkerIndexRoute,
+  MechanicsDawntrailLightweightClonesRoute,
   MechanicsDawntrailLightweightMouser1Route,
   MechanicsCriterionAaiIndexRoute,
   MechanicsDawntrailLightweightIndexRoute,
