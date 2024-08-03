@@ -4,6 +4,7 @@ import { Mechanic, ZeroDamage } from "../../../../gamestate/mechanics";
 import { Player } from "../../../../gamestate/Player";
 import { BlackCatClone } from "../clone/BlackCatClone";
 import { Tether } from "../../../../components/standard-mechanic-elements/Tether";
+import { tempetuosTear1 } from "./tempetuousTear";
 
 export const shenanigansStore2 = (
   _jumpSide: "Left" | "Right",
@@ -34,6 +35,6 @@ export const shenanigansStore2 = (
       </>
     ),
     getSafeSpot: () => null,
-    progress: (ps) => [null, ps],
+    progress: (ps) => [tempetuosTear1(store1), ps],
   };
 };
