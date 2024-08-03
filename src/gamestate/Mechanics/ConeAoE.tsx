@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useId } from "react";
 import { Point, Polygon } from "@flatten-js/core";
 import { Player } from "../Player";
 import { Designation } from "../gameState";
@@ -15,19 +15,37 @@ type ConeAoEProps = {
   width: number;
   colour?: string;
   disableAnimation: boolean;
+  inlcudeContainer: boolean;
 };
 
 const ConeAoE = (props: ConeAoEProps) => {
   const id = useId();
-  const [height, setHeight] = useState(0.01);
-  useEffect(() => {
-    setHeight(5);
-  }, []);
-  const p2 = props.source
-    .translate(0, -height)
-    .rotate(props.angle - props.width / 2);
-  const p3 = p2.rotate(props.width, props.source);
-  return (
+
+  const h = 3 * Math.tan(props.width / 2);
+
+  const Poly = () => (
+    <g
+      transform={`translate(${props.source.x},${props.source.y}) rotate(${(180 * props.angle) / Math.PI})`}
+    >
+      <polygon
+        points={`0,0, 3,${h} 3,${-h}`}
+        fill={props.colour ?? "orange"}
+        opacity="0.4"
+        mask={`url(#${id})`}
+      >
+        {!props.disableAnimation && (
+          <animate
+            attributeName="points"
+            values={`${props.source.x},${props.source.y} ${props.source.x},${props.source.y} ${props.source.x},${props.source.y};0,0, 3,${h} 3,${-h};`}
+            dur="1s"
+            repeatCount={0}
+          />
+        )}
+      </polygon>
+    </g>
+  );
+
+  return props.inlcudeContainer ? (
     <svg
       height="100%"
       width="100%"
@@ -38,22 +56,10 @@ const ConeAoE = (props: ConeAoEProps) => {
       }}
       viewBox="0 0 1 1"
     >
-      <polygon
-        points={`${props.source.x},${props.source.y} ${p2.x},${p2.y} ${p3.x},${p3.y}`}
-        fill={props.colour ?? "orange"}
-        opacity="0.4"
-        mask={`url(#${id})`}
-      >
-        {!props.disableAnimation && (
-          <animate
-            attributeName="points"
-            values={`${props.source.x},${props.source.y} ${props.source.x},${props.source.y} ${props.source.x},${props.source.y};${props.source.x},${props.source.y} ${p2.x},${p2.y} ${p3.x},${p3.y};`}
-            dur="1s"
-            repeatCount={0}
-          />
-        )}
-      </polygon>
+      <Poly />
     </svg>
+  ) : (
+    <Poly />
   );
 };
 
@@ -80,7 +86,13 @@ export const coneMechanic = <TPlayer extends Player>(
         .filter(
           (p) =>
             !isConeSafe(
-              { source, angle, width, disableAnimation: false },
+              {
+                source,
+                angle,
+                width,
+                disableAnimation: false,
+                inlcudeContainer: false,
+              },
               p.position
             )
         )
@@ -107,6 +119,7 @@ export const coneMechanic = <TPlayer extends Player>(
         width={width}
         colour={displayOptions?.color ?? "orange"}
         disableAnimation={disableAnimation}
+        inlcudeContainer={displayOptions?.includeContainer ?? true}
       />
     ),
     progress: (ps) => [null, ps],

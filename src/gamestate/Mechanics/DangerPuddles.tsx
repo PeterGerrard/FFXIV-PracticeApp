@@ -35,6 +35,7 @@ export const SimpleHeavyDamageProfile: DamageProfile = {
 
 export type DisplayOptions = {
   color?: string;
+  includeContainer?: boolean;
 };
 
 export const calculateDamageProfile = (

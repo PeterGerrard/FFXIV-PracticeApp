@@ -178,6 +178,22 @@ export const sequence = <TPlayer extends Player>(
   };
 };
 
+export const sequence2 = <TPlayer extends Player>(
+  mechanic1: Mechanic<TPlayer>,
+  mechanic2: (ps: TPlayer[]) => Mechanic<TPlayer>
+): Mechanic<TPlayer> => {
+  return {
+    ...mechanic1,
+    progress: (ps) => {
+      const [ns, nps] = mechanic1.progress(ps);
+      if (ns === null) {
+        return [mechanic2(ps), nps];
+      }
+      return [sequence2(ns, mechanic2), nps];
+    },
+  };
+};
+
 export const composeMechanics = <TPlayer extends {}>(
   mechanics: Mechanic<TPlayer>[]
 ): Mechanic<TPlayer> => {
