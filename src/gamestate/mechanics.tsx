@@ -12,6 +12,7 @@ export type Mechanic<TPlayer> = {
     players: TPlayer[],
     disableAnimation: boolean
   ) => React.ReactElement;
+  debugger?: string;
 };
 
 export const emptyMechanic = <

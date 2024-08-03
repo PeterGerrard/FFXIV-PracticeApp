@@ -17,6 +17,14 @@ export const SimpleKillProfile: DamageProfile = {
   roleRequirement: null,
 };
 
+export const ZeroDamageProfile: DamageProfile = {
+  split: false,
+  damage: 0,
+  instaKill: null,
+  debuffRequirement: null,
+  roleRequirement: null,
+};
+
 export const SimpleHeavyDamageProfile: DamageProfile = {
   split: false,
   damage: 0.8,

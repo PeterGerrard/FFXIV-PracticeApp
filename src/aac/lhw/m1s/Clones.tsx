@@ -5,27 +5,29 @@ import {
   getRandomPos,
   getRole,
 } from "../../../gamestate/gameState";
-import { emptyMechanic, useMechanic } from "../../../gamestate/mechanics";
+import { useMechanic } from "../../../gamestate/mechanics";
 import { Player } from "../../../gamestate/Player";
 import { useFullPartyProfile } from "../../../gamestate/Setup/ProfileContext";
 import { FullMouser1Arena } from "./arena/FullArena";
-import { BlackCat } from "./boss/BlackCat";
+import { shenanigans1Jump } from "./shenanigans/jump1";
 
 export const BlackCatClones = () => {
   const currentFullPartyProfile = useFullPartyProfile();
   useTitle("Clone Shenanigans");
 
-  const [mechanic, players, restart, moveTo] = useMechanic(emptyMechanic, () =>
-    Designations.map<Player>((d) => ({
-      alive: true,
-      controlled: d === currentFullPartyProfile.designation,
-      debuffs: [],
-      designation: d,
-      distanceTravelled: 0,
-      position: getRandomPos(),
-      role: getRole(d),
-      type: "Full",
-    }))
+  const [mechanic, players, restart, moveTo] = useMechanic(
+    shenanigans1Jump,
+    () =>
+      Designations.map<Player>((d) => ({
+        alive: true,
+        controlled: d === currentFullPartyProfile.designation,
+        debuffs: [],
+        designation: d,
+        distanceTravelled: 0,
+        position: getRandomPos(),
+        role: getRole(d),
+        type: "Full",
+      }))
   );
 
   return (
@@ -34,8 +36,6 @@ export const BlackCatClones = () => {
       moveTo={moveTo}
       players={players}
       restart={restart}
-    >
-      <BlackCat position={point(0.5, 0.5)} rotation={45} />
-    </FullMouser1Arena>
+    ></FullMouser1Arena>
   );
 };
