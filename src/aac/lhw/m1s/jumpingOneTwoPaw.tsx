@@ -17,7 +17,7 @@ import {
 import jumpLocPng from "./JumpLocation.png";
 import { Tether } from "../../../components/standard-mechanic-elements/Tether";
 
-const bossPositionMechanic = (
+const finalPositionMechanic = (
   position: Point,
   rotation: number,
   character: (position: Point, rotation: number) => React.ReactElement
@@ -35,7 +35,8 @@ export const jumpingOneTwoPaw = (
   side: "Left" | "Right",
   position: Point,
   rotation: number,
-  character: (position: Point, rotation: number) => React.ReactElement
+  character: (position: Point, rotation: number) => React.ReactElement,
+  nextMechanic: (finalPosition: Point) => Mechanic<Player>
 ): Mechanic<Player> => {
   const rot = rotation + (side === "Left" ? 0 : 180);
   const jumpLocation = position
@@ -75,79 +76,76 @@ export const jumpingOneTwoPaw = (
       jumpLocation
         .translate(0, -0.1)
         .rotate((Math.PI * rot) / 180, jumpLocation),
-    progress: (ps) => [oneTwoPawHit1(jumpLocation, rotation, character), ps],
+    progress: (ps) => [
+      oneTwoPawHit1(side, jumpLocation, rotation, character, nextMechanic),
+      ps,
+    ],
   };
 };
 
 const oneTwoPawHit1 = (
+  side: "Left" | "Right",
   position: Point,
   rotation: number,
-  character: (position: Point, rotation: number) => React.ReactElement
+  character: (position: Point, rotation: number) => React.ReactElement,
+  nextMechanic: (finalPosition: Point) => Mechanic<Player>
 ): Mechanic<Player> => {
+  const rot = rotation + (side === "Left" ? 0 : 180);
   return composeMechanics([
     sequence([
       automatic(
-        lineMechanic(
-          position,
-          (Math.PI * rotation) / 180,
-          3,
-          SimpleKillProfile,
-          {
-            color: "purple",
-          }
-        ),
+        lineMechanic(position, (Math.PI * rot) / 180, 3, SimpleKillProfile, {
+          color: "purple",
+        }),
         0
       ),
       withSafeSpot(
+        lineMechanic(position, (Math.PI * rot) / 180, 3, ZeroDamageProfile, {
+          color: "purple",
+        }),
+        () => position.translate(0, 0.1).rotate((Math.PI * rot) / 180, position)
+      ),
+      oneTwoPawHit2(side, position, rotation, character, nextMechanic),
+    ]),
+    repeat(finalPositionMechanic(position, rotation, character), 2),
+  ]);
+};
+
+const oneTwoPawHit2 = (
+  side: "Left" | "Right",
+  position: Point,
+  rotation: number,
+  character: (position: Point, rotation: number) => React.ReactElement,
+  nextMechanic: (finalPosition: Point) => Mechanic<Player>
+): Mechanic<Player> => {
+  const rot = rotation + (side === "Left" ? 0 : 180);
+  return sequence([
+    composeMechanics([
+      sequence([
+        automatic(
+          lineMechanic(
+            position,
+            (Math.PI * (rot + 180)) / 180,
+            3,
+            SimpleKillProfile,
+            {
+              color: "purple",
+            }
+          ),
+          0
+        ),
         lineMechanic(
           position,
-          (Math.PI * rotation) / 180,
+          (Math.PI * (rot + 180)) / 180,
           3,
           ZeroDamageProfile,
           {
             color: "purple",
           }
         ),
-        () =>
-          position
-            .translate(0, 0.1)
-            .rotate((Math.PI * rotation) / 180, position)
-      ),
-      oneTwoPawHit2(position, rotation, character),
+      ]),
+      repeat(finalPositionMechanic(position, rotation, character), 2),
     ]),
-    repeat(bossPositionMechanic(position, rotation, character), 2),
-  ]);
-};
-
-const oneTwoPawHit2 = (
-  position: Point,
-  rotation: number,
-  character: (position: Point, rotation: number) => React.ReactElement
-): Mechanic<Player> => {
-  return composeMechanics([
-    sequence([
-      automatic(
-        lineMechanic(
-          position,
-          (Math.PI * (rotation + 180)) / 180,
-          3,
-          SimpleKillProfile,
-          {
-            color: "purple",
-          }
-        ),
-        0
-      ),
-      lineMechanic(
-        position,
-        (Math.PI * (rotation + 180)) / 180,
-        3,
-        ZeroDamageProfile,
-        {
-          color: "purple",
-        }
-      ),
-    ]),
-    repeat(bossPositionMechanic(position, rotation, character), 2),
+    nextMechanic(position),
   ]);
 };
