@@ -5,6 +5,7 @@ import {
   Mechanic,
   repeat,
   sequence,
+  sequence2,
   withSafeSpot,
   ZeroDamage,
 } from "../../../gamestate/mechanics";
@@ -36,12 +37,12 @@ export const jumpingOneTwoPaw = (
   position: Point,
   rotation: number,
   character: (position: Point, rotation: number) => React.ReactElement,
-  nextMechanic: (finalPosition: Point) => Mechanic<Player>,
+  nextMechanic: (finalPosition: Point) => Mechanic<Player> | null,
   instant?: boolean
 ): Mechanic<Player> => {
   const rot = rotation + (side === "Left" ? 0 : 180);
   const jumpLocation = position
-    .translate(0, jumpSide === "Left" ? -0.25 : 0.25)
+    .translate(0, jumpSide === "Left" ? 0.25 : -0.25)
     .rotate((Math.PI * rotation) / 180, position);
   if (instant) {
     return oneTwoPawHit1(side, jumpLocation, rotation, character, nextMechanic);
@@ -92,7 +93,7 @@ const oneTwoPawHit1 = (
   position: Point,
   rotation: number,
   character: (position: Point, rotation: number) => React.ReactElement,
-  nextMechanic: (finalPosition: Point) => Mechanic<Player>
+  nextMechanic: (finalPosition: Point) => Mechanic<Player> | null
 ): Mechanic<Player> => {
   const rot = rotation + (side === "Left" ? 0 : 180);
   return composeMechanics([
@@ -120,10 +121,10 @@ const oneTwoPawHit2 = (
   position: Point,
   rotation: number,
   character: (position: Point, rotation: number) => React.ReactElement,
-  nextMechanic: (finalPosition: Point) => Mechanic<Player>
+  nextMechanic: (finalPosition: Point) => Mechanic<Player> | null
 ): Mechanic<Player> => {
   const rot = rotation + (side === "Left" ? 0 : 180);
-  return sequence([
+  return sequence2(
     composeMechanics([
       sequence([
         automatic(
@@ -150,6 +151,6 @@ const oneTwoPawHit2 = (
       ]),
       repeat(finalPositionMechanic(position, rotation, character), 2),
     ]),
-    nextMechanic(position),
-  ]);
+    () => nextMechanic(position)
+  );
 };

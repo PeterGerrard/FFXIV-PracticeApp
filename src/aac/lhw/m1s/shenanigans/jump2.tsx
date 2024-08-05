@@ -1,15 +1,16 @@
 import { Point } from "@flatten-js/core";
-import { pickOne } from "../../../../gamestate/helpers";
 import {
-  composeMechanics,
+  displayOnlyMechanic,
   Mechanic,
-  ZeroDamage,
+  sequence2,
+  withBackgroundMechanic,
 } from "../../../../gamestate/mechanics";
 import { Player } from "../../../../gamestate/Player";
 import { BlackCat } from "../boss/BlackCat";
 import { BlackCatClone } from "../clone/BlackCatClone";
 import { jumpingQuadrupleCrossing } from "../jumpingQuadrupleCrossing";
 import { shenanigansStore2 } from "./store2";
+import { getJumpLocation } from "../getJumpLocation";
 
 export const shenanigansJump2 = (
   store1: {
@@ -18,26 +19,31 @@ export const shenanigansJump2 = (
     jumpSide: "Left" | "Right";
     side: "Left" | "Right";
   },
-  bossPosition: Point
+  bossPosition: Point,
+  jump2: {
+    jumpSide: "Left" | "Right";
+    storeLocation: "North" | "South";
+  }
 ): Mechanic<Player> => {
-  const jumpLoc = pickOne(["Left", "Right"] as const);
   const bossRot = store1.jumpSide === "Left" ? 180 : 0;
 
-  return composeMechanics([
-    jumpingQuadrupleCrossing(
-      jumpLoc,
-      bossPosition,
-      bossRot,
-      (p, r) => <BlackCat position={p} rotation={r} />,
-      (p) => shenanigansStore2(jumpLoc, p, store1)
-    ),
-    {
-      applyDamage: () => ZeroDamage,
-      display: () => (
-        <BlackCatClone position={store1.position} rotation={store1.rotation} />
+  return sequence2(
+    withBackgroundMechanic(
+      jumpingQuadrupleCrossing(
+        jump2.jumpSide,
+        bossPosition,
+        bossRot,
+        (p, r) => <BlackCat position={p} rotation={r} />
       ),
-      getSafeSpot: () => null,
-      progress: (ps) => [null, ps],
-    },
-  ]);
+      displayOnlyMechanic(() => (
+        <BlackCatClone position={store1.position} rotation={store1.rotation} />
+      ))
+    ),
+    () =>
+      shenanigansStore2(
+        jump2.jumpSide,
+        getJumpLocation(bossPosition, bossRot, jump2.jumpSide),
+        store1
+      )
+  );
 };

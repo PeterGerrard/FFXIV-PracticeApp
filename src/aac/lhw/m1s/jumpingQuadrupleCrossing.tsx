@@ -12,6 +12,7 @@ import jumpLocPng from "./JumpLocation.png";
 import { Tether } from "../../../components/standard-mechanic-elements/Tether";
 import { Designation, distanceTo, isDps } from "../../../gamestate/gameState";
 import { coneMechanic } from "../../../gamestate/Mechanics/ConeAoE";
+import { getJumpLocation } from "./getJumpLocation";
 
 const trueNorthVector = (d: Designation) => {
   switch (d) {
@@ -102,12 +103,9 @@ export const jumpingQuadrupleCrossing = (
   jumpSide: "Left" | "Right",
   position: Point,
   rotation: number,
-  character: (position: Point, rotation: number) => React.ReactElement,
-  nextMechanic: (finalPosition: Point) => Mechanic<Player>
+  character: (position: Point, rotation: number) => React.ReactElement
 ): Mechanic<Player> => {
-  const jumpLocation = position
-    .translate(0, jumpSide === "Left" ? -0.25 : 0.25)
-    .rotate((Math.PI * rotation) / 180, position);
+  const jumpLocation = getJumpLocation(position, rotation, jumpSide);
   return {
     applyDamage: () => ZeroDamage,
     display: () => (
@@ -141,7 +139,6 @@ export const jumpingQuadrupleCrossing = (
         jumpLocation,
         rotation,
         character,
-        nextMechanic,
         ps
       ),
       ps,
@@ -154,7 +151,6 @@ const jumpingQuadrupleCrossingBait1 = (
   position: Point,
   rotation: number,
   character: (position: Point, rotation: number) => React.ReactElement,
-  nextMechanic: (finalPosition: Point) => Mechanic<Player>,
   players: Player[]
 ): Mechanic<Player> => {
   const angles = players
@@ -185,7 +181,6 @@ const jumpingQuadrupleCrossingBait1 = (
         position,
         rotation,
         character,
-        nextMechanic,
         ps,
         angles
       )
@@ -197,7 +192,6 @@ const jumpingQuadrupleCrossingBait2 = (
   position: Point,
   rotation: number,
   character: (position: Point, rotation: number) => React.ReactElement,
-  nextMechanic: (finalPosition: Point) => Mechanic<Player>,
   players: Player[],
   bait1: number[]
 ): Mechanic<Player> => {
@@ -222,14 +216,10 @@ const jumpingQuadrupleCrossingBait2 = (
       }
     ),
     (_) =>
-      jumpingQuadrupleCrossingRehits(
-        jumpSide,
-        position,
-        rotation,
-        character,
-        nextMechanic,
-        [bait1, angles]
-      )
+      jumpingQuadrupleCrossingRehits(jumpSide, position, rotation, character, [
+        bait1,
+        angles,
+      ])
   );
 };
 
@@ -238,7 +228,6 @@ const jumpingQuadrupleCrossingRehits = (
   position: Point,
   rotation: number,
   character: (position: Point, rotation: number) => React.ReactElement,
-  nextMechanic: (finalPosition: Point) => Mechanic<Player>,
   baits: number[][]
 ) => {
   const [b, ...rest] = baits;
@@ -255,16 +244,15 @@ const jumpingQuadrupleCrossingRehits = (
         return position.translate(offset);
       }
     ),
-    (): Mechanic<Player> =>
+    (): Mechanic<Player> | null =>
       rest.length > 0
         ? jumpingQuadrupleCrossingRehits(
             jumpSide,
             position,
             rotation,
             character,
-            nextMechanic,
             rest
           )
-        : nextMechanic(position)
+        : null
   );
 };

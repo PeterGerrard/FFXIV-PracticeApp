@@ -4,6 +4,7 @@ import {
   getRandomPos,
   getRole,
 } from "../../../gamestate/gameState";
+import { pickOne, shuffle } from "../../../gamestate/helpers";
 import { useMechanic } from "../../../gamestate/mechanics";
 import { Player } from "../../../gamestate/Player";
 import { useFullPartyProfile } from "../../../gamestate/Setup/ProfileContext";
@@ -15,7 +16,20 @@ export const BlackCatClones = () => {
   useTitle("Clone Shenanigans");
 
   const [mechanic, players, restart, moveTo] = useMechanic(
-    shenanigans1Jump,
+    () => {
+      const storeLocs = shuffle(["North", "South"] as const);
+      return shenanigans1Jump(
+        {
+          jumpSide: pickOne(["Left", "Right"] as const),
+          swipeSide: pickOne(["Left", "Right"] as const),
+          storeLocation: storeLocs[0],
+        },
+        {
+          jumpSide: pickOne(["Left", "Right"] as const),
+          storeLocation: storeLocs[1],
+        }
+      );
+    },
     () =>
       Designations.map<Player>((d) => ({
         alive: true,

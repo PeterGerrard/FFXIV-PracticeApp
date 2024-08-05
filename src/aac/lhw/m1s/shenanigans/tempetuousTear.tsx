@@ -2,10 +2,10 @@ import { Point, point, vector } from "@flatten-js/core";
 import { jumpingOneTwoPaw } from "../jumpingOneTwoPaw";
 import { BlackCat } from "../boss/BlackCat";
 import {
+  automatic,
   composeMechanics,
-  emptyMechanic,
   Mechanic,
-  sequence,
+  withBackgroundMechanic,
   ZeroDamage,
 } from "../../../../gamestate/mechanics";
 import { BlackCatClone } from "../clone/BlackCatClone";
@@ -14,12 +14,19 @@ import { Tether } from "../../../../components/standard-mechanic-elements/Tether
 import { Player } from "../../../../gamestate/Player";
 import { lineMechanic } from "../../../../gamestate/Mechanics/LineAoE";
 
-export const tempetuosTear1 = (store1: {
-  position: Point;
-  rotation: number;
-  jumpSide: "Left" | "Right";
-  side: "Left" | "Right";
-}) => {
+export const tempetuosTear = (
+  store1: {
+    position: Point;
+    rotation: number;
+    jumpSide: "Left" | "Right";
+    side: "Left" | "Right";
+  },
+  store2?: {
+    position: Point;
+    rotation: number;
+    jumpSide: "Left" | "Right";
+  }
+): Mechanic<Player> => {
   const bossLoc = point(
     (store1.jumpSide === "Left" && store1.position.y > 0.5) ||
       (store1.jumpSide !== "Left" && store1.position.y < 0.5)
@@ -27,81 +34,84 @@ export const tempetuosTear1 = (store1: {
       : 0.75,
     0.5
   );
+  console.log({ store1, bossLoc });
   const safeCol =
-    (store1.rotation < 180 && store1.side === "Left") ||
-    (store1.rotation > 180 && store1.side === "Right")
+    (store1.rotation < 180 && store1.side === "Right") ||
+    (store1.rotation > 180 && store1.side === "Left")
       ? bossLoc.x - 0.1
       : bossLoc.x + 0.1;
-  return sequence([
-    {
-      applyDamage: () => ZeroDamage,
-      display: () => (
-        <>
-          <BlackCat position={point(0.5, 0.5)} rotation={90} />
+  return {
+    applyDamage: () => ZeroDamage,
+    display: () => (
+      <>
+        <BlackCat position={point(0.5, 0.5)} rotation={90} />
+        <BlackCatClone position={store1.position} rotation={store1.rotation} />
+        {store2 && (
           <BlackCatClone
-            position={store1.position}
-            rotation={store1.rotation}
+            position={store2.position}
+            rotation={store2.rotation}
           />
-          <Tether
-            source={point(0.5, 0.5)}
-            target={store1.position}
-            color="red"
-            thickness={0.01}
-          />
-        </>
-      ),
-      getSafeSpot: (_ps, p) =>
-        point(safeCol, getGroup(p.designation) === "Group1" ? 0.4 : 0.6),
-      progress: (ps) => [
-        composeMechanics(
-          ps
+        )}
+        <Tether
+          source={point(0.5, 0.5)}
+          target={store1.position}
+          color="red"
+          thickness={0.01}
+        />
+      </>
+    ),
+    getSafeSpot: (_ps, p) =>
+      point(safeCol, getGroup(p.designation) === "Group1" ? 0.4 : 0.6),
+    progress: (ps) => [
+      withBackgroundMechanic(
+        composeMechanics([
+          ...ps
             .filter((p) => getRole(p.designation) === "Healer")
             .map<Mechanic<Player>>((p) =>
-              lineMechanic(
-                bossLoc,
-                vector(0, 1).angleTo(vector(bossLoc, p.position)),
-                0.1,
-                {
-                  damage: 3.5,
-                  debuffRequirement: null,
-                  instaKill: null,
-                  roleRequirement: null,
-                  split: true,
-                }
+              automatic(
+                lineMechanic(
+                  bossLoc,
+                  vector(0, 1).angleTo(vector(bossLoc, p.position)),
+                  0.1,
+                  {
+                    damage: 3.5,
+                    debuffRequirement: null,
+                    instaKill: null,
+                    roleRequirement: null,
+                    split: true,
+                  }
+                ),
+                1500
               )
-            )
-        ),
-        ps,
-      ],
-    },
-    composeMechanics([
-      {
-        applyDamage: () => ZeroDamage,
-        display: () => (
-          <BlackCat
-            position={point(
-              (store1.jumpSide === "Left" && store1.position.y > 0.5) ||
-                (store1.jumpSide !== "Left" && store1.position.y < 0.5)
-                ? 0.25
-                : 0.75,
-              0.5
-            )}
-            rotation={90}
-          />
-        ),
-        getSafeSpot: (_ps, p) =>
-          point(safeCol, getGroup(p.designation) === "Group1" ? 0.4 : 0.6),
-        progress: (ps) => [null, ps],
-      },
-      jumpingOneTwoPaw(
-        store1.jumpSide,
-        store1.side,
-        store1.position,
-        store1.rotation,
-        (pos, rot) => <BlackCatClone position={pos} rotation={rot} />,
-        emptyMechanic,
-        true
+            ),
+          jumpingOneTwoPaw(
+            store1.jumpSide,
+            store1.side,
+            store1.position,
+            store1.rotation,
+            (p, r) => <BlackCatClone position={p} rotation={r} />,
+            () => null,
+            true
+          ),
+        ]),
+        {
+          applyDamage: () => ZeroDamage,
+          display: () => (
+            <>
+              <BlackCat position={bossLoc} rotation={90} />
+              {store2 && (
+                <BlackCatClone
+                  position={store2.position}
+                  rotation={store2.rotation}
+                />
+              )}
+            </>
+          ),
+          getSafeSpot: () => null,
+          progress: (ps) => [null, ps],
+        }
       ),
-    ]),
-  ]);
+      ps,
+    ],
+  };
 };

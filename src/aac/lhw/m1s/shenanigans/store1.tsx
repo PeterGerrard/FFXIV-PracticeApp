@@ -1,5 +1,4 @@
 import { Point, point } from "@flatten-js/core";
-import { pickOne } from "../../../../gamestate/helpers";
 import { BlackCat } from "../boss/BlackCat";
 import { Mechanic, ZeroDamage } from "../../../../gamestate/mechanics";
 import { Player } from "../../../../gamestate/Player";
@@ -10,11 +9,15 @@ import { shenanigansJump2 } from "./jump2";
 export const shenanigansStore1 = (
   jumpSide: "Left" | "Right",
   side: "Left" | "Right",
-  bossPosition: Point
+  storeLocation: "North" | "South",
+  bossPosition: Point,
+  jump2: {
+    jumpSide: "Left" | "Right";
+    storeLocation: "North" | "South";
+  }
 ): Mechanic<Player> => {
-  const storeClone = pickOne(["North", "South"] as const);
-  const cloneLoc = point(0.5, storeClone === "North" ? 0.375 : 0.625);
-  const cloneRot = storeClone === "North" ? 270 : 90;
+  const cloneLoc = point(0.5, storeLocation === "North" ? 0.375 : 0.625);
+  const cloneRot = storeLocation === "North" ? 270 : 90;
 
   return {
     applyDamage: () => ZeroDamage,
@@ -39,7 +42,8 @@ export const shenanigansStore1 = (
           rotation: cloneRot,
           side: side,
         },
-        bossPosition
+        bossPosition,
+        jump2
       ),
       ps,
     ],

@@ -1,6 +1,6 @@
 import { Point, point } from "@flatten-js/core";
 import { Designation } from "./gameState";
-import { Fragment, useCallback, useEffect, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 import { Debuff, LightPlayer, Player } from "./Player";
 
 export type Mechanic<TPlayer> = {
@@ -180,7 +180,7 @@ export const sequence = <TPlayer extends Player>(
 
 export const sequence2 = <TPlayer extends Player>(
   mechanic1: Mechanic<TPlayer>,
-  mechanic2: (ps: TPlayer[]) => Mechanic<TPlayer>
+  mechanic2: (ps: TPlayer[]) => Mechanic<TPlayer> | null
 ): Mechanic<TPlayer> => {
   return {
     ...mechanic1,
@@ -259,6 +259,56 @@ export const composeMechanics = <TPlayer extends {}>(
         ))}
       </>
     ),
+  };
+};
+
+export const withBackgroundMechanic = <TPlayer extends {}>(
+  mainMechanic: Mechanic<TPlayer>,
+  backgroundMechanic: Mechanic<TPlayer>
+): Mechanic<TPlayer> => {
+  return {
+    applyDamage: (players) => {
+      const d1 = mainMechanic.applyDamage(players);
+      const d2 = backgroundMechanic.applyDamage(players);
+      return {
+        H1: d1.H1 + d2.H1,
+        H2: d1.H2 + d2.H2,
+        R1: d1.R1 + d2.R1,
+        R2: d1.R2 + d2.R2,
+        M1: d1.M1 + d2.M1,
+        M2: d1.M2 + d2.M2,
+        MT: d1.MT + d2.MT,
+        OT: d1.OT + d2.OT,
+      };
+    },
+    getSafeSpot: mainMechanic.getSafeSpot,
+    autoProgress: mainMechanic.autoProgress,
+    progress: (ps) => {
+      let players = ps;
+      const [nm, nextPs] = mainMechanic.progress(players);
+      players = nextPs;
+      if (nm === null) {
+        return [null, players];
+      }
+      return [withBackgroundMechanic(nm, backgroundMechanic), players];
+    },
+    display: (ps, disableAnimation) => (
+      <>
+        {backgroundMechanic.display(ps, disableAnimation)}
+        {mainMechanic.display(ps, disableAnimation)}
+      </>
+    ),
+  };
+};
+
+export const displayOnlyMechanic = <TPlayer extends {}>(
+  display: () => React.ReactElement
+): Mechanic<TPlayer> => {
+  return {
+    applyDamage: () => ZeroDamage,
+    getSafeSpot: () => null,
+    progress: (ps) => [null, ps],
+    display: display,
   };
 };
 
