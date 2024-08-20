@@ -13,6 +13,7 @@ import { getGroup, getRole } from "../../../../gamestate/gameState";
 import { Tether } from "../../../../components/standard-mechanic-elements/Tether";
 import { Player } from "../../../../gamestate/Player";
 import { lineMechanic } from "../../../../gamestate/Mechanics/LineAoE";
+import { nailchipper } from "./nailchipper";
 
 export const tempetuosTear = (
   store1: {
@@ -21,11 +22,12 @@ export const tempetuosTear = (
     jumpSide: "Left" | "Right";
     side: "Left" | "Right";
   },
-  store2?: {
+  store2: {
     position: Point;
     rotation: number;
     jumpSide: "Left" | "Right";
-  }
+    dpsFirst: boolean;
+  } | null
 ): Mechanic<Player> => {
   const bossLoc = point(
     (store1.jumpSide === "Left" && store1.position.y > 0.5) ||
@@ -34,7 +36,6 @@ export const tempetuosTear = (
       : 0.75,
     0.5
   );
-  console.log({ store1, bossLoc });
   const safeCol =
     (store1.rotation < 180 && store1.side === "Right") ||
     (store1.rotation > 180 && store1.side === "Left")
@@ -90,7 +91,7 @@ export const tempetuosTear = (
             store1.position,
             store1.rotation,
             (p, r) => <BlackCatClone position={p} rotation={r} />,
-            () => null,
+            () => store2 === null ? null : nailchipper(null, store2),
             true
           ),
         ]),

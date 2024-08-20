@@ -4,6 +4,7 @@ import { Mechanic, ZeroDamage } from "../../../../gamestate/mechanics";
 import { Player } from "../../../../gamestate/Player";
 import { BlackCatClone } from "../clone/BlackCatClone";
 import { Tether } from "../../../../components/standard-mechanic-elements/Tether";
+import { nailchipper } from "./nailchipper";
 import { tempetuosTear } from "./tempetuousTear";
 
 export const shenanigansStore2 = (
@@ -14,10 +15,12 @@ export const shenanigansStore2 = (
     rotation: number;
     jumpSide: "Left" | "Right";
     side: "Left" | "Right";
-  }
+  },
+  tearFirst: boolean,
+  nailchipperDpsFirst: boolean
 ): Mechanic<Player> => {
   const cloneLoc = point(store1.position.x, 1 - store1.position.y);
-  const cloneRot = store1.rotation + 180;
+  const cloneRot = (store1.rotation + 180) % 360;
 
   return {
     applyDamage: () => ZeroDamage,
@@ -35,13 +38,17 @@ export const shenanigansStore2 = (
       </>
     ),
     getSafeSpot: () => null,
-    progress: (ps) => [
-      tempetuosTear(store1, {
+    progress: (ps) => {
+      const store2 = {
         position: cloneLoc,
         rotation: cloneRot,
         jumpSide: jumpSide,
-      }),
-      ps,
-    ],
+        dpsFirst: nailchipperDpsFirst,
+      };
+      return [
+        tearFirst ? tempetuosTear(store1, store2) : nailchipper(store1, store2),
+        ps,
+      ];
+    },
   };
 };

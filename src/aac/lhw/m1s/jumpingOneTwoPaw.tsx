@@ -17,6 +17,7 @@ import {
 } from "../../../gamestate/Mechanics/DangerPuddles";
 import jumpLocPng from "./JumpLocation.png";
 import { Tether } from "../../../components/standard-mechanic-elements/Tether";
+import { getJumpLocation } from "./getJumpLocation";
 
 const finalPositionMechanic = (
   position: Point,
@@ -41,9 +42,7 @@ export const jumpingOneTwoPaw = (
   instant?: boolean
 ): Mechanic<Player> => {
   const rot = rotation + (side === "Left" ? 0 : 180);
-  const jumpLocation = position
-    .translate(0, jumpSide === "Left" ? 0.25 : -0.25)
-    .rotate((Math.PI * rotation) / 180, position);
+  const jumpLocation = getJumpLocation(position, rotation, jumpSide);
   if (instant) {
     return oneTwoPawHit1(side, jumpLocation, rotation, character, nextMechanic);
   }

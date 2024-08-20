@@ -23,9 +23,11 @@ export const shenanigansJump2 = (
   jump2: {
     jumpSide: "Left" | "Right";
     storeLocation: "North" | "South";
-  }
+  },
+  tearFirst: boolean,
+  nailchipperDpsFirst: boolean
 ): Mechanic<Player> => {
-  const bossRot = store1.jumpSide === "Left" ? 180 : 0;
+  const bossRot = store1.jumpSide === "Left" ? 0 : 180;
 
   return sequence2(
     withBackgroundMechanic(
@@ -43,7 +45,9 @@ export const shenanigansJump2 = (
       shenanigansStore2(
         jump2.jumpSide,
         getJumpLocation(bossPosition, bossRot, jump2.jumpSide),
-        store1
+        store1,
+        tearFirst,
+        nailchipperDpsFirst
       )
   );
 };

@@ -106,6 +106,7 @@ export const jumpingQuadrupleCrossing = (
   character: (position: Point, rotation: number) => React.ReactElement
 ): Mechanic<Player> => {
   const jumpLocation = getJumpLocation(position, rotation, jumpSide);
+
   return {
     applyDamage: () => ZeroDamage,
     display: () => (
@@ -158,7 +159,7 @@ const jumpingQuadrupleCrossingBait1 = (
     .sort((p1, p2) => distanceTo(position, p1) - distanceTo(position, p2))
     .slice(0, 4)
     .map((p) =>
-      vector(position, position.translate(0, 1)).angleTo(vector(position, p))
+      vector(1, 0).angleTo(vector(p.x - position.x, p.y - position.y))
     );
 
   return sequence2(
@@ -199,9 +200,7 @@ const jumpingQuadrupleCrossingBait2 = (
     .map((p) => p.position)
     .sort((p1, p2) => distanceTo(position, p1) - distanceTo(position, p2))
     .slice(0, 4)
-    .map((p) =>
-      vector(position, position.translate(0, 1)).angleTo(vector(position, p))
-    );
+    .map((p) => vector(0, 1).angleTo(vector(position, p)));
 
   return sequence2(
     withSafeSpot(

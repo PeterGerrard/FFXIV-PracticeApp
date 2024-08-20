@@ -27,7 +27,9 @@ export const BlackCatClones = () => {
         {
           jumpSide: pickOne(["Left", "Right"] as const),
           storeLocation: storeLocs[1],
-        }
+        },
+        pickOne([true, false]),
+        pickOne([true, false])
       );
     },
     () =>

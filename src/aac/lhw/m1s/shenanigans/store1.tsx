@@ -14,7 +14,9 @@ export const shenanigansStore1 = (
   jump2: {
     jumpSide: "Left" | "Right";
     storeLocation: "North" | "South";
-  }
+  },
+  tearFirst: boolean,
+  nailchipperDpsFirst: boolean
 ): Mechanic<Player> => {
   const cloneLoc = point(0.5, storeLocation === "North" ? 0.375 : 0.625);
   const cloneRot = storeLocation === "North" ? 270 : 90;
@@ -43,7 +45,9 @@ export const shenanigansStore1 = (
           side: side,
         },
         bossPosition,
-        jump2
+        jump2,
+        tearFirst,
+        nailchipperDpsFirst
       ),
       ps,
     ],

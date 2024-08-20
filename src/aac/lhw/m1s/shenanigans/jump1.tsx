@@ -12,7 +12,9 @@ export const shenanigans1Jump = (
   jump2: {
     jumpSide: "Left" | "Right";
     storeLocation: "North" | "South";
-  }
+  },
+  tearFirst: boolean,
+  nailchipperDpsFirst: boolean
 ) => {
   return jumpingOneTwoPaw(
     jump1.jumpSide,
@@ -21,6 +23,14 @@ export const shenanigans1Jump = (
     90,
     (pos, rot) => <BlackCat position={pos} rotation={rot} />,
     (p) =>
-      shenanigansStore1(jump1.jumpSide, jump1.swipeSide, jump1.storeLocation, p, jump2)
+      shenanigansStore1(
+        jump1.jumpSide,
+        jump1.swipeSide,
+        jump1.storeLocation,
+        p,
+        jump2,
+        tearFirst,
+        nailchipperDpsFirst
+      )
   );
 };
