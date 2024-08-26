@@ -44,6 +44,12 @@ export const Route = createRootRoute({
           </Link>
         </div>
         <NavBar />
+        <div>
+          <h2 style={{ margin: "1em" }}>
+            WARNING: Work on this tool has been put on indefinite hiatus. Thanks
+            to everyone who used the tool.
+          </h2>
+        </div>
         <Outlet />
       </ProfileContext.Provider>
     );
